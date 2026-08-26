@@ -7,4 +7,7 @@ export default defineConfig({
   resolve: {
     alias: { '@': path.resolve(__dirname, './src') },
   },
+  server: {
+    allowedHosts: ['spyglass-unruffled-coil.ngrok-free.dev'],
+  },
 })

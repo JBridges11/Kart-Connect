@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { Tabs, TabPanel } from '@/components/ui'
 import { SetupFormProvider } from './SetupFormContext'
@@ -8,7 +8,7 @@ import { EngineTab }     from './EngineTab'
 import { FrontEndTab }   from './FrontEndTab'
 import { WheelsTyresTab } from './WheelsTyresTab'
 import { ChassisTab }    from './ChassisTab'
-import type { SetupFormData, PressureUnit } from '@/types'
+import type { SetupFormData, PressureUnit, KartEngine } from '@/types'
 
 const TABS = [
   { id: 'kart',    label: 'The Kart'      },
@@ -27,6 +27,8 @@ interface SetupFormProps {
   readOnly?: boolean
   pressureUnit?: PressureUnit
   showSaveButton?: boolean
+  hideIdentifiers?: boolean
+  engines?: KartEngine[]
 }
 
 export function SetupForm({
@@ -37,13 +39,18 @@ export function SetupForm({
   readOnly = false,
   pressureUnit = 'bar',
   showSaveButton = false,
+  hideIdentifiers = false,
+  engines,
 }: SetupFormProps) {
   const [setup, setSetup] = useState<Partial<SetupFormData>>(initialSetup)
+  const setupRef = useRef(setup)
+  setupRef.current = setup
   const [activeTab, setActiveTab] = useState('kart')
   const [expandedAccordion, setExpandedAccordion] = useState<string | null>('kart')
 
   function handleChange<K extends keyof SetupFormData>(field: K, value: SetupFormData[K] | null) {
-    const next = { ...setup, [field]: value }
+    const next = { ...setupRef.current, [field]: value }
+    setupRef.current = next
     setSetup(next)
     onChange?.(next)
   }
@@ -61,7 +68,7 @@ export function SetupForm({
   }
 
   return (
-    <SetupFormProvider setup={setup} onChange={handleChange} readOnly={readOnly}>
+    <SetupFormProvider setup={setup} onChange={handleChange} readOnly={readOnly} hideIdentifiers={hideIdentifiers} engines={engines}>
       {/* Desktop: horizontal tabs */}
       <div className="hidden md:block">
         <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
@@ -79,11 +86,11 @@ export function SetupForm({
         {TABS.map(tab => {
           const open = expandedAccordion === tab.id
           return (
-            <div key={tab.id} className="border border-border-color rounded-card overflow-hidden">
+            <div key={tab.id} className="border border-border-color rounded-card">
               <button
                 type="button"
                 onClick={() => setExpandedAccordion(open ? null : tab.id)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-bg-elevated text-sm font-semibold text-text-primary cursor-pointer"
+                className={`w-full flex items-center justify-between px-4 py-3 bg-bg-elevated text-sm font-semibold text-text-primary cursor-pointer rounded-t-card${open ? '' : ' rounded-b-card'}`}
               >
                 <span className="font-heading uppercase tracking-wider">{tab.label}</span>
                 {open

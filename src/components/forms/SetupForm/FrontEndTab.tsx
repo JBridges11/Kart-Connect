@@ -13,6 +13,7 @@ export function FrontEndTab() {
         value={setup.front_width_mm ?? ''}
         onChange={e => onChange('front_width_mm', e.target.value ? Number(e.target.value) : null)}
         readOnly={readOnly}
+        historyKey="front_width_mm"
       />
       <Input
         label="Front Hub Length"
@@ -21,6 +22,7 @@ export function FrontEndTab() {
         value={setup.front_hub_length_mm ?? ''}
         onChange={e => onChange('front_hub_length_mm', e.target.value ? Number(e.target.value) : null)}
         readOnly={readOnly}
+        historyKey="front_hub_length_mm"
       />
       <div className="md:col-span-2">
         <SegmentedControl
@@ -44,6 +46,7 @@ export function FrontEndTab() {
         onChange={e => onChange('camber', e.target.value || null)}
         placeholder="e.g. -0.5"
         readOnly={readOnly}
+        historyKey="camber"
       />
       <Input
         label="Caster"
@@ -52,6 +55,7 @@ export function FrontEndTab() {
         onChange={e => onChange('caster', e.target.value || null)}
         placeholder="e.g. 15"
         readOnly={readOnly}
+        historyKey="caster"
       />
       <Input
         label="Toe In / Out"
@@ -60,6 +64,7 @@ export function FrontEndTab() {
         onChange={e => onChange('toe', e.target.value || null)}
         placeholder="e.g. +1 toe-in"
         readOnly={readOnly}
+        historyKey="toe"
       />
       <Toggle
         label="Stub Axle"

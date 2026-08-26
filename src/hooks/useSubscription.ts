@@ -21,7 +21,7 @@ export function useSubscription() {
       // No row — create trial on first login
       const { data: created } = await supabase
         .from('subscriptions')
-        .insert({ user_id: user.id })
+        .insert({ user_id: user.id, trial_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() })
         .select()
         .single()
       setSubscription(created)
@@ -44,5 +44,7 @@ export function useSubscription() {
       ))
     : null
 
-  return { subscription, loading, isActive, trialDaysLeft, refetch: fetch }
+  const tier = (isActive ? subscription?.tier : null) ?? null
+
+  return { subscription, loading, isActive, tier, trialDaysLeft, refetch: fetch }
 }

@@ -1,4 +1,4 @@
-import { Input, SegmentedControl } from '@/components/ui'
+import { Input, SegmentedControl, Select } from '@/components/ui'
 import { useSetupForm } from './SetupFormContext'
 import { TyrePressureGrid } from './TyrePressureGrid'
 import type { PressureUnit } from '@/types'
@@ -30,6 +30,7 @@ export function WheelsTyresTab({ pressureUnit }: WheelsTyresTabProps) {
         onChange={e => onChange('tyre_make', e.target.value || null)}
         placeholder="e.g. Bridgestone, Mojo, Vega"
         readOnly={readOnly}
+        historyKey="tyre_make"
       />
       <Input
         label="Tyre Model"
@@ -37,7 +38,28 @@ export function WheelsTyresTab({ pressureUnit }: WheelsTyresTabProps) {
         onChange={e => onChange('tyre_model', e.target.value || null)}
         placeholder="e.g. YLC, D5, W5"
         readOnly={readOnly}
+        historyKey="tyre_model"
       />
+      <div className="md:col-span-2">
+        <Select
+          label="Tyre Condition (sessions on tyre)"
+          value={setup.tyre_condition ?? ''}
+          onChange={e => onChange('tyre_condition', (e.target.value || null) as NonNullable<typeof setup.tyre_condition> | null)}
+          options={[
+            { label: 'Select…', value: '' },
+            { label: 'New',     value: 'New' },
+            { label: '1 session',  value: '1' },
+            { label: '2 sessions', value: '2' },
+            { label: '3 sessions', value: '3' },
+            { label: '4 sessions', value: '4' },
+            { label: '5 sessions', value: '5' },
+            { label: '6 sessions', value: '6' },
+            { label: '7 sessions', value: '7' },
+            { label: '8 sessions', value: '8' },
+            { label: '8+ sessions', value: '8+' },
+          ]}
+        />
+      </div>
       <div className="md:col-span-2">
         <TyrePressureGrid
           setup={setup}

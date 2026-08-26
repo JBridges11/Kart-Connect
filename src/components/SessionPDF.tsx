@@ -1,4 +1,4 @@
-import { Document, Page, View, Text, StyleSheet, pdf } from '@react-pdf/renderer'
+import { Document, Page, View, Text, Image, StyleSheet, pdf } from '@react-pdf/renderer'
 import { lapMsToString, lapMsDelta } from '@/lib/formatters'
 import type { Session, Setup, LapTime, SetupChange } from '@/types'
 
@@ -8,6 +8,10 @@ export interface SessionPDFProps {
   lapTimes: LapTime[]
   changes: SetupChange[]
   bestLap: LapTime | null
+  teamLogoUrl?: string | null
+  teamName?: string | null
+  teamPrimaryColor?: string | null
+  teamSecondaryColor?: string | null
 }
 
 const Y = '#E8FF00'
@@ -20,9 +24,9 @@ const BG_SECTION = '#F7F7FA'
 const s = StyleSheet.create({
   page:           { fontFamily: 'Helvetica', backgroundColor: '#FFFFFF', paddingBottom: 40 },
   // Header band
-  header:         { backgroundColor: DARK, paddingHorizontal: 25, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  brand:          { fontFamily: 'Helvetica-Bold', fontSize: 14, color: Y, letterSpacing: 3 },
-  headerRight:    { fontSize: 8, color: MUTED, textAlign: 'right' },
+  header:         { backgroundColor: '#FFFFFF', paddingHorizontal: 25, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 2, borderBottomColor: DARK },
+  logo:           { height: 36, width: 120 },
+  headerRight:    { fontSize: 8, color: BODY, textAlign: 'right' },
   // Session title block
   titleBlock:     { paddingHorizontal: 25, paddingTop: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: BORDER },
   trackName:      { fontFamily: 'Helvetica-Bold', fontSize: 20, color: BODY },
@@ -131,7 +135,9 @@ function SetupCard({ title, rows }: { title: string; rows: { label: string; valu
   )
 }
 
-function SessionDocument({ session, setup: raw, lapTimes, changes, bestLap }: SessionPDFProps) {
+function SessionDocument({ session, setup: raw, lapTimes, changes, bestLap, teamLogoUrl, teamName, teamPrimaryColor, teamSecondaryColor }: SessionPDFProps) {
+  const accent = teamPrimaryColor ?? Y
+  const dark   = teamSecondaryColor ?? DARK
   const setup = raw ?? ({} as Partial<Setup>)
   const generated = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 
@@ -147,18 +153,20 @@ function SessionDocument({ session, setup: raw, lapTimes, changes, bestLap }: Se
     ['Weather', session.weather_description ?? '—'],
     ['Altitude', v(session.altitude_m, 'm')],
     ['Air Temp', v(session.air_temp_c, '°C')],
-    ['Track Temp', v(session.track_temp_c, '°C')],
     ['Humidity', v(session.humidity_pct, '%')],
-    ['Wind', v(session.wind_description)],
+    ['Wind Speed', v(session.wind_speed_mph, 'mph')],
   ]
 
   return (
     <Document>
       <Page size="A4" style={s.page}>
         {/* Header */}
-        <View style={s.header}>
-          <Text style={s.brand}>KART CONNECT</Text>
-          <Text style={s.headerRight}>Session Report</Text>
+        <View style={[s.header, { borderBottomColor: dark }]}>
+          <Image src={teamLogoUrl ?? `${window.location.origin}/logo-pdf.png`} style={s.logo} />
+          <View style={{ alignItems: 'flex-end' }}>
+            {teamName ? <Text style={[s.headerRight, { fontFamily: 'Helvetica-Bold', marginBottom: 2 }]}>{teamName}</Text> : null}
+            <Text style={s.headerRight}>Session Report</Text>
+          </View>
         </View>
 
         {/* Session title */}
@@ -171,7 +179,7 @@ function SessionDocument({ session, setup: raw, lapTimes, changes, bestLap }: Se
             <Text style={[s.badge, s.badgeGrey]}>{sessionType.toUpperCase()}</Text>
             {session.conditions && <Text style={[s.badge, s.badgeGrey]}>{session.conditions.toUpperCase()}</Text>}
             {session.weather_description && <Text style={[s.badge, s.badgeGrey]}>{session.weather_description.toUpperCase()}</Text>}
-            {session.best_lap_time_ms && <Text style={[s.badge, s.badgeYellow]}>BEST {lapMsToString(session.best_lap_time_ms)}</Text>}
+            {session.best_lap_time_ms && <Text style={[s.badge, { backgroundColor: accent, color: dark }]}>BEST {lapMsToString(session.best_lap_time_ms)}</Text>}
             {session.total_laps && <Text style={[s.badge, s.badgeGrey]}>{session.total_laps} LAPS</Text>}
           </View>
         </View>
@@ -245,9 +253,10 @@ function SessionDocument({ session, setup: raw, lapTimes, changes, bestLap }: Se
               ]} />
 
               <SetupCard title="Wheels & Tyres" rows={[
-                { label: 'Type',    value: v(setup.wheel_type) },
-                { label: 'Make',    value: v(setup.tyre_make) },
-                { label: 'Model',   value: v(setup.tyre_model) },
+                { label: 'Type',      value: v(setup.wheel_type) },
+                { label: 'Make',      value: v(setup.tyre_make) },
+                { label: 'Model',     value: v(setup.tyre_model) },
+                { label: 'Condition', value: v(setup.tyre_condition) },
                 { label: 'Pressures', value: '', sub: true },
                 { label: 'FL',  value: v(setup.tyre_pressure_fl) },
                 { label: 'FR',  value: v(setup.tyre_pressure_fr) },
@@ -259,6 +268,8 @@ function SessionDocument({ session, setup: raw, lapTimes, changes, bestLap }: Se
                 { label: 'Seat Hard',    value: v(setup.seat_hardness) },
                 { label: 'Bolts Front',  value: v(setup.seat_bolts_front) },
                 { label: 'Bolts Back',   value: v(setup.seat_bolts_back) },
+                { label: 'Stay Left',    value: v(setup.seat_stay_left) },
+                { label: 'Stay Right',   value: v(setup.seat_stay_right) },
               ]} />
             </View>
           </>
@@ -269,7 +280,7 @@ function SessionDocument({ session, setup: raw, lapTimes, changes, bestLap }: Se
           <>
             <SectionHeading title="LAP TIMES" />
             <View style={s.table}>
-              <View style={s.tableHead}>
+              <View style={[s.tableHead, { backgroundColor: dark }]}>
                 <Text style={[s.tableHeadCell, { width: 30 }]}>#</Text>
                 <Text style={[s.tableHeadCell, { width: 80 }]}>TIME</Text>
                 <Text style={[s.tableHeadCell, { flex: 1 }]}>DELTA</Text>
@@ -279,12 +290,12 @@ function SessionDocument({ session, setup: raw, lapTimes, changes, bestLap }: Se
                 const isBest = lap.lap_time_ms === bestLap?.lap_time_ms
                 const delta  = bestLap ? lapMsDelta(lap.lap_time_ms, bestLap.lap_time_ms) : null
                 return (
-                  <View key={lap.id} style={isBest ? s.tableRowBest : s.tableRow}>
+                  <View key={lap.id} style={isBest ? [s.tableRowBest, { borderLeftColor: accent }] : s.tableRow}>
                     <Text style={[s.tableCell, { width: 30 }]}>{lap.lap_number}</Text>
                     <Text style={[s.tableCell, { width: 80 }]}>{lapMsToString(lap.lap_time_ms)}</Text>
                     <View style={{ flex: 1 }}>
                       {isBest
-                        ? <Text style={s.bestBadge}>BEST</Text>
+                        ? <Text style={[s.bestBadge, { backgroundColor: accent, color: dark }]}>BEST</Text>
                         : delta && !delta.equal
                           ? <Text style={delta.faster ? s.fasterBadge : s.slowerBadge}>{delta.label}</Text>
                           : null
@@ -303,7 +314,7 @@ function SessionDocument({ session, setup: raw, lapTimes, changes, bestLap }: Se
           <>
             <SectionHeading title="CHANGES LOG" />
             {changes.map(c => (
-              <View key={c.id} style={s.changeItem}>
+              <View key={c.id} style={[s.changeItem, { borderLeftColor: accent }]}>
                 <Text style={s.changeDesc}>{c.change_description}</Text>
                 {c.lap_delta_ms !== null && (
                   <Text style={[s.changeMeta, { color: c.lap_delta_ms < 0 ? '#155724' : '#721C24' }]}>
@@ -319,6 +330,7 @@ function SessionDocument({ session, setup: raw, lapTimes, changes, bestLap }: Se
         {/* Footer */}
         <View style={s.footer} fixed>
           <Text style={s.footerText}>KART CONNECT  ·  Session Report</Text>
+          <Text style={s.footerText}>Created by Kart Connect</Text>
           <Text style={s.footerText}>Generated {generated}</Text>
         </View>
       </Page>

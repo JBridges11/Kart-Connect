@@ -26,7 +26,7 @@ export function LapEntry({ laps, onAdd, onRemove }: LapEntryProps) {
   function handleAdd() {
     const ms = stringToLapMs(timeStr)
     if (ms === null) {
-      setError('Use MM:SS.mmm format (e.g. 0:58.234)')
+      setError('Use format 0.00.00 (e.g. 0.58.23)')
       return
     }
     setError(null)
@@ -56,7 +56,7 @@ export function LapEntry({ laps, onAdd, onRemove }: LapEntryProps) {
             value={timeStr}
             onChange={e => setTimeStr(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="0:58.234"
+            placeholder="0.00.00"
             error={error ?? undefined}
             className="font-mono"
           />

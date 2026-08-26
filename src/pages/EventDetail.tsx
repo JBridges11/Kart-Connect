@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Plus, ArrowLeftRight, Clock, Check } from 'lucide-react'
+import { ArrowLeft, Plus, ArrowLeftRight, Clock, Check, Trash2 } from 'lucide-react'
 import { PageWrapper } from '@/components/layout/PageWrapper'
-import { Card, Badge, Button } from '@/components/ui'
+import { Badge, Button } from '@/components/ui'
 import { supabase } from '@/lib/supabase'
 import { lapMsToString, formatDate } from '@/lib/formatters'
 import type { Session } from '@/types'
@@ -14,26 +14,37 @@ const conditionVariant: Record<string, 'info' | 'positive' | 'neutral'> = {
 }
 
 export function EventDetailPage() {
-  const { trackId, date } = useParams<{ trackId: string; date: string }>()
+  const { eventId } = useParams<{ eventId: string }>()
   const navigate = useNavigate()
 
-  const [sessions, setSessions]   = useState<Session[]>([])
-  const [loading, setLoading]     = useState(true)
-  const [selected, setSelected]   = useState<string[]>([])
+  const [sessions, setSessions]     = useState<Session[]>([])
+  const [loading, setLoading]       = useState(true)
+  const [selected, setSelected]     = useState<string[]>([])
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting]     = useState(false)
+
+  async function deleteSelected() {
+    setDeleting(true)
+    await supabase.from('sessions').delete().in('id', selected)
+    setSessions(prev => prev.filter(s => !selected.includes(s.id)))
+    setSelected([])
+    setConfirmDelete(false)
+    setDeleting(false)
+  }
 
   useEffect(() => {
-    if (!trackId || !date) return
+    if (!eventId) return
     supabase
       .from('sessions')
       .select('*, track:tracks(name, country), kart:karts(nickname, chassis_type)')
-      .eq('track_id', trackId)
-      .eq('session_date', date)
+      .eq('event_id', eventId)
       .order('created_at', { ascending: true })
       .then(({ data }) => {
         setSessions((data ?? []) as Session[])
         setLoading(false)
       })
-  }, [trackId, date])
+  }, [eventId])
+
 
   function toggleSelect(id: string) {
     setSelected(prev => {
@@ -44,6 +55,7 @@ export function EventDetailPage() {
   }
 
   const trackName  = sessions[0]?.track?.name ?? 'Event'
+  const eventDate  = sessions[0]?.session_date ?? null
   const emptyCount = Math.max(0, TOTAL_SLOTS - sessions.length)
   const selA       = sessions.find(s => s.id === selected[0])
   const selB       = sessions.find(s => s.id === selected[1])
@@ -60,34 +72,69 @@ export function EventDetailPage() {
       {/* Event header */}
       <div className="mb-5">
         <h2 className="font-heading text-2xl font-bold text-text-primary">{trackName}</h2>
-        <p className="text-text-muted text-sm font-mono mt-0.5">{date ? formatDate(date) : ''}</p>
+        <p className="text-text-muted text-sm font-mono mt-0.5">{eventDate ? formatDate(eventDate) : ''}</p>
       </div>
 
-      {/* Compare bar — appears when 2 selected */}
-      {selected.length === 2 && (
-        <div className="flex items-center gap-3 mb-5 p-3 bg-accent-primary/10 border border-accent-primary/20 rounded-card">
-          <ArrowLeftRight size={14} className="text-accent-primary flex-shrink-0" />
-          <span className="text-sm text-text-primary flex-1">
-            <span className="font-semibold">{selA?.session_name ?? selA?.session_type}</span>
-            {' vs '}
-            <span className="font-semibold">{selB?.session_name ?? selB?.session_type}</span>
-          </span>
-          <Button
-            size="sm"
-            onClick={() => navigate(`/compare?a=${selected[0]}&b=${selected[1]}`)}
-          >
-            <ArrowLeftRight size={12} /> Compare Setups
-          </Button>
-          <Button size="sm" variant="ghost" onClick={() => setSelected([])}>
-            Clear
-          </Button>
-        </div>
-      )}
+      {/* Action bar — appears when sessions are selected */}
+      {selected.length > 0 && (
+        <div className="mb-5 p-3 bg-accent-primary/10 border border-accent-primary/20 rounded-card space-y-2">
+          <div className="flex items-center gap-3">
+            {selected.length === 2 ? (
+              <>
+                <ArrowLeftRight size={14} className="text-accent-primary flex-shrink-0" />
+                <span className="text-sm text-text-primary flex-1">
+                  <span className="font-semibold">{selA?.session_name ?? selA?.session_type}</span>
+                  {' vs '}
+                  <span className="font-semibold">{selB?.session_name ?? selB?.session_type}</span>
+                </span>
+                <Button size="sm" onClick={() => navigate(`/compare?a=${selected[0]}&b=${selected[1]}`)}>
+                  <ArrowLeftRight size={12} /> Compare
+                </Button>
+              </>
+            ) : (
+              <>
+                <span className="text-sm text-text-primary flex-1">
+                  <span className="font-semibold">{selected.length} selected</span>
+                  {selected.length === 1 && ' — select one more to compare'}
+                </span>
+              </>
+            )}
 
-      {selected.length === 1 && (
-        <p className="text-center text-text-muted text-sm mb-4">
-          Select one more session to compare
-        </p>
+            {/* Delete */}
+            {!confirmDelete ? (
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(true)}
+                className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-400 cursor-pointer transition-colors flex-shrink-0"
+              >
+                <Trash2 size={12} /> Delete
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className="text-xs text-red-500 font-semibold">Are you sure?</span>
+                <button
+                  type="button"
+                  onClick={deleteSelected}
+                  disabled={deleting}
+                  className="text-xs bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1 cursor-pointer transition-colors disabled:opacity-50"
+                >
+                  {deleting ? 'Deleting…' : 'Yes, delete'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(false)}
+                  className="text-xs text-text-muted hover:text-text-primary cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+
+            <Button size="sm" variant="ghost" onClick={() => { setSelected([]); setConfirmDelete(false) }}>
+              Clear
+            </Button>
+          </div>
+        </div>
       )}
 
       {loading ? (
@@ -123,10 +170,7 @@ export function EventDetailPage() {
 
                 {/* Session number + name */}
                 <div className="pr-6">
-                  <p className="text-text-muted text-xs font-mono">Test {i + 1}</p>
-                  <p className="font-heading font-bold text-sm text-text-primary leading-tight mt-0.5">
-                    {s.session_name ?? `Test ${i + 1}`}
-                  </p>
+                  <p className="font-heading font-bold text-sm text-text-primary leading-tight">Test {i + 1}</p>
                   <p className="text-xs text-text-muted mt-0.5">{s.kart?.nickname ?? '—'}</p>
                 </div>
 
@@ -162,23 +206,32 @@ export function EventDetailPage() {
           })}
 
           {/* Empty slots */}
-          {Array.from({ length: emptyCount }, (_, i) => (
-            <div
-              key={`empty-${i}`}
-              className="flex flex-col items-center justify-center gap-3 p-4 rounded-card border border-dashed border-border-color bg-bg-card min-h-[180px] opacity-50"
-            >
-              <p className="font-heading text-xs uppercase tracking-wider text-text-muted">
-                Test {sessions.length + i + 1}
-              </p>
-              <button
-                type="button"
-                onClick={() => navigate('/sessions/new')}
-                className="flex items-center gap-1.5 text-xs text-text-muted hover:text-accent-primary transition-colors cursor-pointer"
+          {Array.from({ length: emptyCount }, (_, i) => {
+            const kartId = sessions[0]?.kart_id ?? ''
+            const params = new URLSearchParams({
+              trackId: sessions[0]?.track_id ?? '',
+              date:    eventDate ?? '',
+              kartId,
+              eventId: eventId ?? '',
+            })
+            return (
+              <div
+                key={`empty-${i}`}
+                className="flex flex-col items-center justify-center gap-3 p-4 rounded-card border border-dashed border-border-color bg-bg-card min-h-[180px] opacity-50 hover:opacity-100 transition-opacity"
               >
-                <Plus size={12} /> Add Session
-              </button>
-            </div>
-          ))}
+                <p className="font-heading text-xs uppercase tracking-wider text-text-muted">
+                  Test {sessions.length + i + 1}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/sessions/new?${params.toString()}`)}
+                  className="flex items-center gap-1.5 text-xs text-text-muted hover:text-accent-primary transition-colors cursor-pointer"
+                >
+                  <Plus size={12} /> Add Test
+                </button>
+              </div>
+            )
+          })}
         </div>
       )}
     </PageWrapper>

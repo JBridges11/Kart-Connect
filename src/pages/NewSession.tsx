@@ -1,20 +1,24 @@
-import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Check, Plus } from 'lucide-react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { ChevronLeft, ChevronRight, Check, Plus, Sun, Cloud, CloudSun, CloudDrizzle, CloudRain, Umbrella, CloudSnow, Loader2, RefreshCw, MapPin } from 'lucide-react'
 import { PageWrapper } from '@/components/layout/PageWrapper'
-import { Button, Card, Input, Select, SegmentedControl, Textarea } from '@/components/ui'
+import { Button, Card, Input, SegmentedControl, Textarea } from '@/components/ui'
 import { SetupForm } from '@/components/forms/SetupForm'
-import { SessionSlotCard } from '@/components/forms/SessionSlotCard'
+// import { SessionSlotCard } from '@/components/forms/SessionSlotCard'
 import { useTracks } from '@/hooks/useTracks'
 import { useKarts } from '@/hooks/useKarts'
+import { useSessions } from '@/hooks/useSessions'
+import { fetchWeatherForTrack, wmoToFormDescription, precipToConditions } from '@/lib/weather'
+import type { WeatherDescription } from '@/types'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { setupDefaults } from '@/lib/setupDefaults'
-import { lapMsToString, formatDate } from '@/lib/formatters'
+import { formatDate, lapMsToString } from '@/lib/formatters'
+import { TrackWeather, shortLocation } from '@/pages/Tracks'
 import type { WizardState, SessionSlot, SetupFormData, PressureUnit, Session } from '@/types'
 
 const STORAGE_KEY = 'kc_wizard_state'
-const TOTAL_STEPS = 7
+const TOTAL_STEPS = 6
 
 function makeDefaultSlots(): SessionSlot[] {
   return Array.from({ length: 8 }, (_, i) => ({
@@ -32,19 +36,20 @@ function makeDefaultWizard(): WizardState {
   const today = new Date().toISOString().slice(0, 10)
   return {
     step: 1,
+    eventId: crypto.randomUUID(),
     trackId: null,
     newTrack: null,
     kartId: null,
     newKart: null,
     sessionMeta: {
+      event_name: null,
       session_date: today,
       conditions: 'dry',
       weather_description: null,
       altitude_m: null,
       air_temp_c: null,
-      track_temp_c: null,
       humidity_pct: null,
-      wind_description: null,
+      wind_speed_mph: null,
       notes: null,
     },
     baseSetup: { ...setupDefaults },
@@ -58,9 +63,8 @@ function loadState(): WizardState {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw) as WizardState
-      // If old format (pre-slots), start fresh
       if (!parsed.slots) return makeDefaultWizard()
-      return parsed
+      return { ...parsed, step: 1 }
     }
   } catch { /* ignore */ }
   return makeDefaultWizard()
@@ -98,25 +102,237 @@ function StepIndicator({ step, total }: { step: number; total: number }) {
 
 export function NewSessionPage() {
   const navigate    = useNavigate()
+  const [searchParams] = useSearchParams()
   const { user }    = useAuth()
-  const [state, setState] = useState<WizardState>(loadState)
-  const [saving, setSaving]     = useState(false)
+
+  const [state, setState] = useState<WizardState>(() => {
+    const base = loadState()
+    const trackId  = searchParams.get('trackId')
+    const kartId   = searchParams.get('kartId')
+    const date     = searchParams.get('date')
+    const eventId  = searchParams.get('eventId')
+    // If URL params provided (coming from EventDetail "Add Test"), reuse same event
+    if (trackId || kartId || date || eventId) {
+      return {
+        ...makeDefaultWizard(),
+        eventId:  eventId  || crypto.randomUUID(),
+        trackId:  trackId  || null,
+        kartId:   kartId   || null,
+        step: trackId && kartId ? 3 : trackId ? 2 : 1,
+        sessionMeta: {
+          ...makeDefaultWizard().sessionMeta,
+          session_date: date ?? new Date().toISOString().slice(0, 10),
+        },
+      }
+    }
+    return base
+  })
+  const [saving, setSaving]       = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [setupLoadKey, setSetupLoadKey] = useState(0)
+
+  const [wxLoading, setWxLoading] = useState(false)
+  const [wxError,   setWxError]   = useState(false)
+  const [wxFetched, setWxFetched] = useState(false)
+  const weatherAppliedRef = useRef(false)
 
   const { data: tracks, refetch: refetchTracks } = useTracks()
   const { data: karts,  refetch: refetchKarts  } = useKarts()
+  const { data: sessions } = useSessions()
+
+  // Auto-fetch weather when entering step 3 — works even without stored coordinates
+  // (falls back to geocoding the track name via Nominatim)
+  useEffect(() => {
+    if (state.step !== 3) return
+    const track = tracks.find(t => t.id === state.trackId)
+    if (!track) return
+    if (weatherAppliedRef.current) return
+    weatherAppliedRef.current = true
+    setWxLoading(true)
+    setWxError(false)
+    void fetchWeatherForTrack(track.lat, track.lng, track.location ?? track.name)
+      .then(w => {
+        if (!w) { setWxError(true); return }
+        const description = wmoToFormDescription(w.code) as WeatherDescription
+        const conditions  = precipToConditions(w.precip_mm) as Session['conditions']
+        setWxFetched(true)
+        update({
+          sessionMeta: {
+            ...state.sessionMeta,
+            conditions,
+            weather_description: description,
+            air_temp_c:          w.temp_c,
+            humidity_pct:        w.humidity,
+            wind_speed_mph:      w.wind_mph,
+          },
+        })
+      })
+      .catch(() => setWxError(true))
+      .finally(() => setWxLoading(false))
+  }, [state.step, state.trackId, tracks]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function retryWeather() {
+    weatherAppliedRef.current = false
+    setWxFetched(false)
+    // trigger the effect by bumping step (no-op visually)
+    const track = tracks.find(t => t.id === state.trackId)
+    if (!track) return
+    setWxLoading(true)
+    setWxError(false)
+    void fetchWeatherForTrack(track.lat, track.lng, track.location ?? track.name)
+      .then(w => {
+        if (!w) { setWxError(true); return }
+        const description = wmoToFormDescription(w.code) as WeatherDescription
+        const conditions  = precipToConditions(w.precip_mm) as Session['conditions']
+        setWxFetched(true)
+        update({
+          sessionMeta: {
+            ...state.sessionMeta,
+            conditions,
+            weather_description: description,
+            air_temp_c:          w.temp_c,
+            humidity_pct:        w.humidity,
+            wind_speed_mph:      w.wind_mph,
+          },
+        })
+      })
+      .catch(() => setWxError(true))
+      .finally(() => setWxLoading(false))
+  }
   const [addingTrack, setAddingTrack] = useState(false)
   const [addingKart,  setAddingKart]  = useState(false)
+  const [newTrackError, setNewTrackError] = useState<string | null>(null)
+  const [newKartError,  setNewKartError]  = useState<string | null>(null)
   const [newTrackName,    setNewTrackName]    = useState('')
   const [newTrackCountry, setNewTrackCountry] = useState('')
-  const [newKartNickname, setNewKartNickname] = useState('')
-  const [newKartChassis,  setNewKartChassis]  = useState('')
-  const [newKartEngine,   setNewKartEngine]   = useState('')
+  const [newTrackLat,     setNewTrackLat]     = useState<number | null>(null)
+  const [newTrackLng,     setNewTrackLng]     = useState<number | null>(null)
+  const [newTrackLocQ,    setNewTrackLocQ]    = useState('')
+  const [newTrackLocRes,  setNewTrackLocRes]  = useState<Array<{ label: string; lat: number; lng: number }>>([])
+  const [newTrackLocBusy, setNewTrackLocBusy] = useState(false)
+  const [newTrackLocPick, setNewTrackLocPick] = useState<string | null>(null)
+  const [newKartMake,     setNewKartMake]     = useState('')
+  const [newKartModel,    setNewKartModel]    = useState('')
+  const [newKartChasNum,  setNewKartChasNum]  = useState('')
+  const [newEngineMake,   setNewEngineMake]   = useState('')
+  const [newKartClass,    setNewKartClass]    = useState('')
+  const [newEngineNum,    setNewEngineNum]    = useState('')
   const pressureUnit: PressureUnit = (localStorage.getItem('kc_pressure_unit') as PressureUnit) ?? 'bar'
+  const prefillAttempted = useRef(false)
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   }, [state])
+
+  // Prefill track + weather from most recent session when starting fresh
+  useEffect(() => {
+    if (!user || prefillAttempted.current) return
+    if (searchParams.get('trackId') || searchParams.get('kartId')) {
+      prefillAttempted.current = true
+      return
+    }
+    if (state.trackId || state.kartId) {
+      prefillAttempted.current = true
+      return
+    }
+    prefillAttempted.current = true
+
+    async function prefillFromLastSession() {
+      const { data: sessions } = await supabase
+        .from('sessions')
+        .select('*')
+        .eq('user_id', user!.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (!sessions?.length) return
+      const last = sessions[0] as Session & { wind_speed_mph?: number | null }
+
+      update({
+        trackId: last.track_id,
+        kartId:  last.kart_id,
+        step: 1,
+        sessionMeta: {
+          event_name:          null,
+          session_date:        new Date().toISOString().slice(0, 10),
+          conditions:          last.conditions,
+          weather_description: last.weather_description,
+          altitude_m:          last.altitude_m,
+          air_temp_c:          last.air_temp_c,
+          humidity_pct:        last.humidity_pct,
+          wind_speed_mph:      last.wind_speed_mph ?? null,
+          notes:               null,
+        },
+        slots: makeDefaultSlots(),
+        // baseSetup loaded by the kart-specific effect below
+      })
+    }
+
+    prefillFromLastSession()
+  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Whenever kart changes, load the most recent setup for that specific kart
+  const prevKartIdRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (!user || !state.kartId) return
+    if (state.kartId === prevKartIdRef.current) return
+    prevKartIdRef.current = state.kartId
+
+    async function loadSetupForKart() {
+      const { data: sessions } = await supabase
+        .from('sessions')
+        .select('id, conditions, weather_description, altitude_m, air_temp_c, humidity_pct, wind_speed_mph')
+        .eq('user_id', user!.id)
+        .eq('kart_id', state.kartId!)
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (!sessions?.length) {
+        setState(prev => prev.step >= 5 ? prev : ({ ...prev, baseSetup: { ...setupDefaults } }))
+        setSetupLoadKey(k => k + 1)
+        return
+      }
+
+      const last = sessions[0] as Session & { wind_speed_mph?: number | null }
+
+      const { data: setup } = await supabase
+        .from('setups')
+        .select('*')
+        .eq('session_id', last.id)
+        .maybeSingle()
+
+      const kart = karts.find(k => k.id === state.kartId)
+      const kartIdentifiers: Partial<SetupFormData> = kart ? {
+        chassis_type: kart.chassis_type,
+        chassis_make: kart.kart_make ?? null,
+        engine_type:  kart.engine_type,
+      } : {}
+
+      const loadedBaseSetup = setup
+        ? { ...(({ id, session_id, user_id, created_at, ...rest }) => rest)(setup) as Partial<SetupFormData>, ...kartIdentifiers }
+        : { ...setupDefaults, ...kartIdentifiers }
+
+      setState(prev => {
+        if (prev.step >= 5) return prev   // user is already editing — don't overwrite
+        return {
+          ...prev,
+          baseSetup: loadedBaseSetup,
+          sessionMeta: {
+            ...prev.sessionMeta,
+            conditions:          last.conditions,
+            weather_description: last.weather_description,
+            altitude_m:          last.altitude_m,
+            air_temp_c:          last.air_temp_c,
+            humidity_pct:        last.humidity_pct,
+            wind_speed_mph:      last.wind_speed_mph ?? null,
+          },
+        }
+      })
+      setSetupLoadKey(k => k + 1)
+    }
+
+    loadSetupForKart()
+  }, [user, state.kartId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function update(patch: Partial<WizardState>) {
     setState(prev => ({ ...prev, ...patch }))
@@ -125,38 +341,77 @@ export function NewSessionPage() {
   function nextStep() { update({ step: Math.min(state.step + 1, TOTAL_STEPS) }) }
   function prevStep() { update({ step: Math.max(state.step - 1, 1) }) }
 
+  async function searchNewTrackLocation() {
+    if (!newTrackLocQ.trim()) return
+    setNewTrackLocBusy(true)
+    setNewTrackLocRes([])
+    setNewTrackLocPick(null)
+    try {
+      const res  = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(newTrackLocQ.trim())}&format=json&limit=5`,
+        { headers: { 'User-Agent': 'KartConnect/1.0' } },
+      )
+      const rows = await res.json() as Array<{ lat: string; lon: string; display_name: string }>
+      setNewTrackLocRes(rows.map(r => ({ label: r.display_name, lat: parseFloat(r.lat), lng: parseFloat(r.lon) })))
+    } finally {
+      setNewTrackLocBusy(false)
+    }
+  }
+
   async function createTrack() {
     if (!newTrackName.trim()) return
+    setNewTrackError(null)
     const { data, error } = await supabase.from('tracks').insert({
       user_id: user!.id,
       name: newTrackName.trim(),
       country: newTrackCountry.trim() || null,
-      circuit_type: 'outdoor',
+      circuit_type: null,
+      lat: newTrackLat,
+      lng: newTrackLng,
+      location: newTrackLocPick,
     }).select().single()
-    if (!error && data) {
+    if (error) { setNewTrackError(error.message); return }
+    if (data) {
       await refetchTracks()
       update({ trackId: data.id })
       setAddingTrack(false)
       setNewTrackName('')
       setNewTrackCountry('')
+      setNewTrackLat(null); setNewTrackLng(null)
+      setNewTrackLocQ(''); setNewTrackLocRes([]); setNewTrackLocPick(null)
+      nextStep()
     }
   }
 
   async function createKart() {
-    if (!newKartNickname.trim() || !newKartChassis.trim() || !newKartEngine.trim()) return
+    if (!newKartMake.trim() || !newKartModel.trim() || !newEngineMake.trim() || !newKartClass.trim()) return
+    setNewKartError(null)
+    const nickname     = `${newKartMake.trim()} ${newKartModel.trim()}`
+    const chassis_type = nickname
+    const engine_type  = `${newEngineMake.trim()} ${newKartClass.trim()}`
     const { data, error } = await supabase.from('karts').insert({
-      user_id: user!.id,
-      nickname: newKartNickname.trim(),
-      chassis_type: newKartChassis.trim(),
-      engine_type: newKartEngine.trim(),
+      user_id:        user!.id,
+      nickname,
+      chassis_type,
+      engine_type,
+      kart_make:      newKartMake.trim(),
+      kart_model:     newKartModel.trim(),
+      chassis_number: newKartChasNum.trim() || null,
+      engine_make:    newEngineMake.trim(),
+      kart_class:     newKartClass.trim(),
+      engine_number:  newEngineNum.trim() || null,
     }).select().single()
-    if (!error && data) {
+    if (error) { setNewKartError(error.message); return }
+    if (data) {
       await refetchKarts()
-      update({ kartId: data.id })
+      update({
+        kartId: data.id,
+        baseSetup: { ...state.baseSetup, chassis_type: data.chassis_type, engine_type: data.engine_type, chassis_make: data.kart_make ?? null },
+      })
       setAddingKart(false)
-      setNewKartNickname('')
-      setNewKartChassis('')
-      setNewKartEngine('')
+      setNewKartMake(''); setNewKartModel(''); setNewKartChasNum('')
+      setNewEngineMake(''); setNewKartClass(''); setNewEngineNum('')
+      nextStep()
     }
   }
 
@@ -181,80 +436,46 @@ export function NewSessionPage() {
   }, [state.trackId, state.kartId])
 
   async function handleSave() {
-    const enabledSlots = state.slots.filter(s => s.enabled)
-    if (enabledSlots.length === 0) return
     setSaving(true)
     setSaveError(null)
     try {
-      const baseMeta = {
-        user_id:             user!.id,
-        track_id:            state.trackId!,
-        kart_id:             state.kartId!,
-        session_date:        state.sessionMeta.session_date,
-        conditions:          state.sessionMeta.conditions,
-        weather_description: state.sessionMeta.weather_description,
-        altitude_m:          state.sessionMeta.altitude_m,
-        air_temp_c:          state.sessionMeta.air_temp_c,
-        track_temp_c:        state.sessionMeta.track_temp_c,
-        humidity_pct:        state.sessionMeta.humidity_pct,
-        wind_description:    state.sessionMeta.wind_description,
-        notes:               state.sessionMeta.notes,
-      }
-
-      // Insert all session rows
-      const sessionInserts = enabledSlots.map(slot => {
-        // Only spread weather overrides that are explicitly set (not undefined)
-        const weatherPatch = Object.fromEntries(
-          Object.entries(slot.weatherOverrides ?? {}).filter(([, v]) => v !== undefined)
-        )
-        return {
-          ...baseMeta,
-          ...weatherPatch,
-          session_name: slot.label,
-          session_type: slot.session_type,
-          best_lap_time_ms: slot.lapTimes.length > 0
-            ? Math.min(...slot.lapTimes.map(l => l.lap_time_ms))
-            : null,
-          total_laps: slot.lapTimes.length || null,
-        }
-      })
-
+      // Save a single Test 1 session — more tests added via the event page
       const { data: sessionRows, error: sessionErr } = await supabase
         .from('sessions')
-        .insert(sessionInserts)
+        .insert([{
+          user_id:             user!.id,
+          track_id:            state.trackId!,
+          kart_id:             state.kartId!,
+          event_id:            state.eventId,
+          event_name:          state.sessionMeta.event_name,
+          session_date:        state.sessionMeta.session_date,
+          conditions:          state.sessionMeta.conditions,
+          weather_description: state.sessionMeta.weather_description,
+          altitude_m:          state.sessionMeta.altitude_m,
+          air_temp_c:          state.sessionMeta.air_temp_c,
+          humidity_pct:        state.sessionMeta.humidity_pct,
+          wind_speed_mph:      state.sessionMeta.wind_speed_mph,
+          notes:               state.sessionMeta.notes,
+          session_name:        'Test 1',
+          session_type:        'testing' as const,
+          best_lap_time_ms:    null,
+          total_laps:          null,
+        }])
         .select()
 
       if (sessionErr) throw sessionErr
 
-      // Insert setups and lap times for each session
-      await Promise.all((sessionRows ?? []).map(async (row, i) => {
-        const slot     = enabledSlots[i]
-        const mergedSetup = { ...state.baseSetup, ...slot.setupOverrides }
-        const sessionId   = row.id as string
-
-        if (mergedSetup.chassis_type && mergedSetup.engine_type) {
-          const { error: setupErr } = await supabase.from('setups').insert({
-            session_id: sessionId,
-            ...mergedSetup,
-          })
-          if (setupErr) throw setupErr
-        }
-
-        if (slot.lapTimes.length > 0) {
-          const { error: lapErr } = await supabase.from('lap_times').insert(
-            slot.lapTimes.map(l => ({ ...l, session_id: sessionId }))
-          )
-          if (lapErr) throw lapErr
-        }
-      }))
+      const sessionId = (sessionRows?.[0] as Record<string, unknown>)?.id as string
+      if (sessionId && state.baseSetup.chassis_type && state.baseSetup.engine_type) {
+        const { error: setupErr } = await supabase.from('setups').insert({
+          session_id: sessionId,
+          ...state.baseSetup,
+        })
+        if (setupErr) throw setupErr
+      }
 
       localStorage.removeItem(STORAGE_KEY)
-      // Navigate to the first saved session if only one, else dashboard
-      if (sessionRows && sessionRows.length === 1) {
-        navigate(`/sessions/${(sessionRows[0] as Record<string, unknown>).id}`)
-      } else {
-        navigate('/')
-      }
+      navigate(`/events/${state.eventId}`)
     } catch (e) {
       const msg =
         e instanceof Error
@@ -270,14 +491,13 @@ export function NewSessionPage() {
   const canProceed = (() => {
     if (state.step === 1) return !!state.trackId
     if (state.step === 2) return !!state.kartId
-    if (state.step === 5) return !!(state.baseSetup.chassis_type?.trim() && state.baseSetup.engine_type?.trim())
-    if (state.step === 6) return state.slots.some(s => s.enabled)
+    if (state.step === 5) return !!state.kartId || !!(state.baseSetup.chassis_type?.trim() && state.baseSetup.engine_type?.trim())
     return true
   })()
 
   const stepTitles = [
-    'Choose Track', 'Choose Kart', 'Event Info',
-    'Load Setup', 'Base Setup', 'Test Sessions', 'Review & Save',
+    'Choose Track', 'Choose Driver', 'Event Info',
+    'Load Setup', 'Base Setup', 'Review & Save',
   ]
 
   return (
@@ -291,22 +511,54 @@ export function NewSessionPage() {
 
         {/* Step 1 — Track */}
         {state.step === 1 && (
-          <div className="space-y-3">
-            {tracks.map(t => (
-              <Card
-                key={t.id}
-                onClick={() => update({ trackId: t.id })}
-                highlight={state.trackId === t.id}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-text-primary">{t.name}</p>
-                    <p className="text-xs text-text-muted">{t.country ?? 'Unknown location'}</p>
-                  </div>
-                  {state.trackId === t.id && <Check size={16} className="text-accent-primary" />}
-                </div>
-              </Card>
-            ))}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {tracks.map(t => {
+                const trackSessions = sessions.filter(s => s.track_id === t.id)
+                const bestLaps = trackSessions.filter(s => s.best_lap_time_ms !== null)
+                const bestLap = bestLaps.length ? Math.min(...bestLaps.map(s => s.best_lap_time_ms!)) : null
+                const subtitle = t.location ? shortLocation(t.location) : t.country
+                const selected = state.trackId === t.id
+                return (
+                  <Card
+                    key={t.id}
+                    onClick={() => { update({ trackId: t.id }); nextStep() }}
+                    className={[
+                      'cursor-pointer transition-colors',
+                      selected
+                        ? 'border-accent-primary bg-accent-primary/5'
+                        : 'hover:border-accent-primary/30',
+                    ].join(' ')}
+                  >
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-heading font-semibold text-base text-text-primary leading-tight">{t.name}</h3>
+                        {subtitle && <p className="text-text-muted text-sm mt-0.5">{subtitle}</p>}
+                        <TrackWeather lat={t.lat} lng={t.lng} location={t.location} name={t.name} />
+                      </div>
+                      {selected && <Check size={16} className="text-accent-primary flex-shrink-0 mt-1 ml-2" />}
+                    </div>
+                    <div className="flex gap-4 mt-3 text-xs text-text-muted">
+                      <span>{trackSessions.length} session{trackSessions.length !== 1 ? 's' : ''}</span>
+                      {bestLap && (
+                        <span className="text-accent-primary font-mono">Best: {lapMsToString(bestLap)}</span>
+                      )}
+                    </div>
+                  </Card>
+                )
+              })}
+            </div>
+            {state.trackId && (
+              <div>
+                <p className="font-heading text-xs uppercase tracking-wider text-text-muted mb-2">Event Name <span className="normal-case font-normal">(optional)</span></p>
+                <Input
+                  placeholder="e.g. British Championship Round 1, Club Day…"
+                  value={state.sessionMeta.event_name ?? ''}
+                  onChange={e => update({ sessionMeta: { ...state.sessionMeta, event_name: e.target.value || null } })}
+                  historyKey="event_name"
+                />
+              </div>
+            )}
             {!addingTrack ? (
               <button
                 type="button"
@@ -320,9 +572,60 @@ export function NewSessionPage() {
                 <div className="space-y-3">
                   <Input label="Track Name *" value={newTrackName} onChange={e => setNewTrackName(e.target.value)} />
                   <Input label="Country" value={newTrackCountry} onChange={e => setNewTrackCountry(e.target.value)} />
+
+                  {/* Location search — sets lat/lng for auto weather */}
+                  <div>
+                    <p className="font-heading text-xs uppercase tracking-wider text-text-muted mb-1.5">
+                      Location <span className="normal-case font-normal text-text-muted">(enables auto weather)</span>
+                    </p>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newTrackLocQ}
+                        onChange={e => { setNewTrackLocQ(e.target.value); setNewTrackLocRes([]); setNewTrackLocPick(null) }}
+                        onKeyDown={e => { if (e.key === 'Enter') void searchNewTrackLocation() }}
+                        placeholder="Search circuit name or address…"
+                        className="flex-1 bg-bg-elevated border border-border-color rounded-card px-3 py-2 text-sm text-text-primary placeholder-text-muted outline-none focus:border-accent-primary/50 transition-colors"
+                      />
+                      <button
+                        type="button"
+                        disabled={newTrackLocBusy || !newTrackLocQ.trim()}
+                        onClick={() => void searchNewTrackLocation()}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-card border border-border-color text-text-primary hover:border-accent-primary/50 text-sm transition-colors disabled:opacity-40 cursor-pointer"
+                      >
+                        {newTrackLocBusy
+                          ? <span className="w-3.5 h-3.5 border-2 border-text-muted border-t-transparent rounded-full animate-spin" />
+                          : <MapPin size={14} />}
+                      </button>
+                    </div>
+                    {newTrackLocRes.length > 0 && (
+                      <ul className="mt-2 border border-border-color rounded-card overflow-hidden">
+                        {newTrackLocRes.map((r, i) => (
+                          <li key={i}>
+                            <button
+                              type="button"
+                              onClick={() => { setNewTrackLat(r.lat); setNewTrackLng(r.lng); setNewTrackLocPick(r.label); setNewTrackLocRes([]) }}
+                              className="w-full text-left px-3 py-2 text-xs text-text-primary hover:bg-accent-primary/10 hover:text-accent-primary transition-colors border-b border-border-color last:border-b-0"
+                            >
+                              {r.label}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {newTrackLocPick && (
+                      <p className="mt-1.5 text-xs text-green-400 flex items-center gap-1">
+                        <Check size={11} /> Location set
+                      </p>
+                    )}
+                  </div>
+
+                  {newTrackError && (
+                    <p className="text-xs text-accent-secondary">{newTrackError}</p>
+                  )}
                   <div className="flex gap-2">
                     <Button size="sm" onClick={() => void createTrack()} disabled={!newTrackName.trim()}>Save</Button>
-                    <Button size="sm" variant="ghost" onClick={() => setAddingTrack(false)}>Cancel</Button>
+                    <Button size="sm" variant="ghost" onClick={() => { setAddingTrack(false); setNewTrackError(null) }}>Cancel</Button>
                   </div>
                 </div>
               </Card>
@@ -330,41 +633,75 @@ export function NewSessionPage() {
           </div>
         )}
 
-        {/* Step 2 — Kart */}
+        {/* Step 2 — Driver */}
         {state.step === 2 && (
           <div className="space-y-3">
-            {karts.map(k => (
-              <Card
-                key={k.id}
-                onClick={() => update({ kartId: k.id })}
-                highlight={state.kartId === k.id}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-text-primary">{k.nickname}</p>
-                    <p className="text-xs text-text-muted">{k.chassis_type} / {k.engine_type}</p>
+            {karts.map(k => {
+              const selected = state.kartId === k.id
+              const driverLabel = k.driver_name?.trim() || k.nickname
+              const kartLine = [k.kart_make, k.kart_model].filter(Boolean).join(' ') || k.chassis_type
+              return (
+                <Card
+                  key={k.id}
+                  onClick={() => {
+                    update({
+                      kartId: k.id,
+                      baseSetup: { ...state.baseSetup, chassis_type: k.chassis_type, engine_type: k.engine_type, chassis_make: k.kart_make ?? null },
+                    })
+                    nextStep()
+                  }}
+                  className={[
+                    'cursor-pointer transition-colors',
+                    selected ? 'border-accent-primary bg-accent-primary/5' : 'hover:border-accent-primary/30',
+                  ].join(' ')}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-heading font-semibold text-base text-text-primary">{driverLabel}</p>
+                        {k.kart_class && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-accent-primary/15 text-accent-primary font-medium">{k.kart_class}</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-text-muted mt-0.5">{kartLine}</p>
+                      {k.chassis_number && (
+                        <p className="text-xs text-text-muted/70 mt-0.5 font-mono">#{k.chassis_number}</p>
+                      )}
+                    </div>
+                    {selected && <Check size={16} className="text-accent-primary flex-shrink-0" />}
                   </div>
-                  {state.kartId === k.id && <Check size={16} className="text-accent-primary" />}
-                </div>
-              </Card>
-            ))}
+                </Card>
+              )
+            })}
             {!addingKart ? (
               <button
                 type="button"
                 onClick={() => setAddingKart(true)}
                 className="w-full flex items-center justify-center gap-2 py-3 border border-dashed border-border-color rounded-card text-sm text-text-muted hover:text-text-primary hover:border-accent-primary/40 transition-colors cursor-pointer"
               >
-                <Plus size={14} /> Add new kart
+                <Plus size={14} /> Add new driver / kart
               </button>
             ) : (
               <Card>
                 <div className="space-y-3">
-                  <Input label="Nickname *" value={newKartNickname} onChange={e => setNewKartNickname(e.target.value)} />
-                  <Input label="Chassis Type *" value={newKartChassis} onChange={e => setNewKartChassis(e.target.value)} />
-                  <Input label="Engine Type *" value={newKartEngine} onChange={e => setNewKartEngine(e.target.value)} />
+                  <p className="text-xs font-heading font-bold text-text-muted uppercase">Kart</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input label="Kart Make *" value={newKartMake} onChange={e => setNewKartMake(e.target.value)} placeholder="e.g. Tony Kart" />
+                    <Input label="Kart Model *" value={newKartModel} onChange={e => setNewKartModel(e.target.value)} placeholder="e.g. 401R" />
+                  </div>
+                  <Input label="Chassis Number" value={newKartChasNum} onChange={e => setNewKartChasNum(e.target.value)} placeholder="e.g. TK-2024-001" />
+                  <p className="text-xs font-heading font-bold text-text-muted uppercase pt-1">Engine</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input label="Engine Make *" value={newEngineMake} onChange={e => setNewEngineMake(e.target.value)} placeholder="e.g. Rotax" />
+                    <Input label="Kart Class *" value={newKartClass} onChange={e => setNewKartClass(e.target.value)} placeholder="e.g. Max Senior" />
+                  </div>
+                  <Input label="Engine Number" value={newEngineNum} onChange={e => setNewEngineNum(e.target.value)} placeholder="e.g. ROT-56789" />
+                  {newKartError && (
+                    <p className="text-xs text-accent-secondary">{newKartError}</p>
+                  )}
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => void createKart()} disabled={!newKartNickname.trim() || !newKartChassis.trim() || !newKartEngine.trim()}>Save</Button>
-                    <Button size="sm" variant="ghost" onClick={() => setAddingKart(false)}>Cancel</Button>
+                    <Button size="sm" onClick={() => void createKart()} disabled={!newKartMake.trim() || !newKartModel.trim() || !newEngineMake.trim() || !newKartClass.trim()}>Save</Button>
+                    <Button size="sm" variant="ghost" onClick={() => { setAddingKart(false); setNewKartError(null) }}>Cancel</Button>
                   </div>
                 </div>
               </Card>
@@ -373,17 +710,137 @@ export function NewSessionPage() {
         )}
 
         {/* Step 3 — Session Info */}
-        {state.step === 3 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              label="Date"
-              type="date"
-              value={state.sessionMeta.session_date}
-              onChange={e => update({ sessionMeta: { ...state.sessionMeta, session_date: e.target.value } })}
-            />
-            <div className="md:col-span-2">
+        {state.step === 3 && (() => {
+          const selTrack = tracks.find(t => t.id === state.trackId)
+          function WeatherIcon({ size = 16 }: { size?: number }) {
+            const desc = state.sessionMeta.weather_description
+            if (!desc) return <Cloud size={size} className="text-[#6B7A99]" />
+            switch (desc) {
+              case 'Sunny':      return <Sun size={size} className="text-yellow-400" />
+              case 'Light Sun':  return <CloudSun size={size} className="text-yellow-400/80" />
+              case 'Overcast':   return <Cloud size={size} className="text-[#6B7A99]" />
+              case 'Light Rain': return <CloudDrizzle size={size} className="text-blue-400" />
+              case 'Rain':       return <CloudRain size={size} className="text-blue-400" />
+              case 'Heavy Rain': return <Umbrella size={size} className="text-blue-500" />
+              case 'Snow':       return <CloudSnow size={size} className="text-blue-200" />
+            }
+          }
+
+          return (
+            <div className="space-y-4">
+              <Input
+                label="Date"
+                type="date"
+                value={state.sessionMeta.session_date}
+                onChange={e => update({ sessionMeta: { ...state.sessionMeta, session_date: e.target.value } })}
+              />
+
+              {/* ── Live weather card ── */}
+              <div>
+                <p className="font-heading text-xs uppercase tracking-wider text-text-muted mb-2">Live Weather</p>
+                <Card>
+                  {wxLoading ? (
+                    <div className="flex items-center gap-2 text-sm text-text-muted py-1">
+                      <Loader2 size={14} className="animate-spin" />
+                      Fetching weather for {selTrack?.name ?? 'track'}…
+                    </div>
+                  ) : wxFetched ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <WeatherIcon size={18} />
+                          <span className="font-semibold text-text-primary text-sm">
+                            {state.sessionMeta.weather_description ?? 'Live conditions'}
+                          </span>
+                          <span className="text-xs text-text-muted">at {selTrack?.name}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={retryWeather}
+                          className="text-text-muted hover:text-accent-primary transition-colors"
+                          title="Refresh weather"
+                        >
+                          <RefreshCw size={13} />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-3 gap-3 text-sm">
+                        <div>
+                          <p className="text-text-muted text-xs mb-0.5">Temperature</p>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={state.sessionMeta.air_temp_c ?? ''}
+                            onChange={e => update({ sessionMeta: { ...state.sessionMeta, air_temp_c: e.target.value ? parseFloat(e.target.value) : null } })}
+                            className="w-full bg-bg-card border border-border-color rounded px-2 py-1 text-text-primary font-mono text-sm focus:outline-none focus:border-accent-primary"
+                            placeholder="—"
+                          />
+                          <p className="text-text-muted text-[10px] mt-0.5">°C</p>
+                        </div>
+                        <div>
+                          <p className="text-text-muted text-xs mb-0.5">Humidity</p>
+                          <input
+                            type="number"
+                            step="1"
+                            min="0" max="100"
+                            value={state.sessionMeta.humidity_pct ?? ''}
+                            onChange={e => update({ sessionMeta: { ...state.sessionMeta, humidity_pct: e.target.value ? parseFloat(e.target.value) : null } })}
+                            className="w-full bg-bg-card border border-border-color rounded px-2 py-1 text-text-primary font-mono text-sm focus:outline-none focus:border-accent-primary"
+                            placeholder="—"
+                          />
+                          <p className="text-text-muted text-[10px] mt-0.5">%</p>
+                        </div>
+                        <div>
+                          <p className="text-text-muted text-xs mb-0.5">Wind Speed</p>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            value={state.sessionMeta.wind_speed_mph ?? ''}
+                            onChange={e => update({ sessionMeta: { ...state.sessionMeta, wind_speed_mph: e.target.value ? parseFloat(e.target.value) : null } })}
+                            className="w-full bg-bg-card border border-border-color rounded px-2 py-1 text-text-primary font-mono text-sm focus:outline-none focus:border-accent-primary"
+                            placeholder="—"
+                          />
+                          <p className="text-text-muted text-[10px] mt-0.5">mph</p>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-text-muted">Powered by Open-Meteo · edit any value to override</p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      {wxError
+                        ? <p className="text-xs text-text-muted">Weather unavailable for this track</p>
+                        : <p className="text-xs text-text-muted">Fetching weather…</p>
+                      }
+                      <button
+                        type="button"
+                        onClick={retryWeather}
+                        className="flex items-center gap-1.5 text-xs text-accent-primary hover:opacity-80 transition-opacity"
+                      >
+                        <RefreshCw size={11} /> Retry
+                      </button>
+                    </div>
+                  )}
+                </Card>
+              </div>
+
+              {/* Weather description */}
               <SegmentedControl
-                label="Conditions"
+                label="Sky / Description"
+                options={[
+                  { label: 'Sunny',      value: 'Sunny' },
+                  { label: 'Light Sun',  value: 'Light Sun' },
+                  { label: 'Overcast',   value: 'Overcast' },
+                  { label: 'Light Rain', value: 'Light Rain' },
+                  { label: 'Rain',       value: 'Rain' },
+                  { label: 'Heavy Rain', value: 'Heavy Rain' },
+                  { label: 'Snow',       value: 'Snow' },
+                ]}
+                value={state.sessionMeta.weather_description ?? null}
+                onChange={v => update({ sessionMeta: { ...state.sessionMeta, weather_description: v as WeatherDescription } })}
+              />
+
+              <SegmentedControl
+                label="Track Conditions"
                 options={[
                   { label: 'Dry',  value: 'dry' },
                   { label: 'Damp', value: 'damp' },
@@ -392,58 +849,7 @@ export function NewSessionPage() {
                 value={state.sessionMeta.conditions ?? null}
                 onChange={v => update({ sessionMeta: { ...state.sessionMeta, conditions: v as Session['conditions'] } })}
               />
-            </div>
-            <Select
-              label="Weather"
-              value={state.sessionMeta.weather_description ?? ''}
-              onChange={e => update({ sessionMeta: { ...state.sessionMeta, weather_description: (e.target.value || null) as Session['weather_description'] } })}
-              options={[
-                { label: 'Select weather…', value: '' },
-                { label: 'Sunny',       value: 'Sunny' },
-                { label: 'Light Sun',   value: 'Light Sun' },
-                { label: 'Cloudy',      value: 'Cloudy' },
-                { label: 'Light Rain',  value: 'Light Rain' },
-                { label: 'Rain',        value: 'Rain' },
-                { label: 'Heavy Rain',  value: 'Heavy Rain' },
-                { label: 'Snow',        value: 'Snow' },
-              ]}
-            />
-            <Input
-              label="Altitude"
-              type="number"
-              unit="m"
-              value={state.sessionMeta.altitude_m ?? ''}
-              onChange={e => update({ sessionMeta: { ...state.sessionMeta, altitude_m: e.target.value ? Number(e.target.value) : null } })}
-              placeholder="e.g. 120"
-            />
-            <Input
-              label="Air Temp"
-              type="number"
-              unit="°C"
-              value={state.sessionMeta.air_temp_c ?? ''}
-              onChange={e => update({ sessionMeta: { ...state.sessionMeta, air_temp_c: e.target.value ? Number(e.target.value) : null } })}
-            />
-            <Input
-              label="Track Temp"
-              type="number"
-              unit="°C"
-              value={state.sessionMeta.track_temp_c ?? ''}
-              onChange={e => update({ sessionMeta: { ...state.sessionMeta, track_temp_c: e.target.value ? Number(e.target.value) : null } })}
-            />
-            <Input
-              label="Humidity"
-              type="number"
-              unit="%"
-              value={state.sessionMeta.humidity_pct ?? ''}
-              onChange={e => update({ sessionMeta: { ...state.sessionMeta, humidity_pct: e.target.value ? Number(e.target.value) : null } })}
-            />
-            <Input
-              label="Wind"
-              value={state.sessionMeta.wind_description ?? ''}
-              onChange={e => update({ sessionMeta: { ...state.sessionMeta, wind_description: e.target.value || null } })}
-              placeholder="e.g. Light SW breeze"
-            />
-            <div className="md:col-span-2">
+
               <Textarea
                 label="Session Notes"
                 value={state.sessionMeta.notes ?? ''}
@@ -451,8 +857,8 @@ export function NewSessionPage() {
                 placeholder="Any pre-session notes…"
               />
             </div>
-          </div>
-        )}
+          )
+        })()}
 
         {/* Step 4 — Load Setup */}
         {state.step === 4 && (
@@ -477,55 +883,40 @@ export function NewSessionPage() {
         {/* Step 5 — Base Setup */}
         {state.step === 5 && (
           <SetupForm
+            key={setupLoadKey}
             initialSetup={state.baseSetup}
             onChange={baseSetup => update({ baseSetup })}
             pressureUnit={pressureUnit}
+            hideIdentifiers={!!state.kartId}
+            engines={karts.find(k => k.id === state.kartId)?.engines ?? []}
           />
         )}
 
-        {/* Step 6 — Test Sessions */}
-        {state.step === 6 && (
-          <div className="space-y-3">
-            <p className="text-text-muted text-sm">
-              Enable tests for this event. Each inherits the base setup — tweak individual fields between runs.
-            </p>
-            {state.slots.map(slot => (
-              <SessionSlotCard
-                key={slot.slotId}
-                slot={slot}
-                baseSetup={state.baseSetup}
-                baseWeather={{
-                  conditions:          state.sessionMeta.conditions,
-                  weather_description: state.sessionMeta.weather_description,
-                  air_temp_c:          state.sessionMeta.air_temp_c,
-                  track_temp_c:        state.sessionMeta.track_temp_c,
-                  humidity_pct:        state.sessionMeta.humidity_pct,
-                  wind_description:    state.sessionMeta.wind_description,
-                }}
-                onChange={updated => update({
-                  slots: state.slots.map(s => s.slotId === slot.slotId ? updated : s),
-                })}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Step 7 — Review */}
-        {state.step === 7 && (() => {
-          const enabledSlots = state.slots.filter(s => s.enabled)
-          const trackName    = tracks.find(t => t.id === state.trackId)?.name ?? '—'
-          const kartName     = karts.find(k => k.id === state.kartId)?.nickname ?? '—'
+        {/* Step 6 — Review */}
+        {state.step === 6 && (() => {
+          const trackName   = tracks.find(t => t.id === state.trackId)?.name ?? '—'
+          const selKart     = karts.find(k => k.id === state.kartId)
+          const driverName  = (selKart?.driver_name?.trim() || selKart?.nickname) ?? '—'
+          const kartDisplay = selKart ? [selKart.kart_make, selKart.kart_model].filter(Boolean).join(' ') || selKart.chassis_type : '—'
           return (
             <div className="space-y-4">
               <Card>
                 <h3 className="font-heading text-sm uppercase tracking-wider text-text-muted mb-3">Event Summary</h3>
-                <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mb-4">
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                   <dt className="text-text-muted">Track</dt>
                   <dd className="text-text-primary font-medium">{trackName}</dd>
+                  <dt className="text-text-muted">Driver</dt>
+                  <dd className="text-text-primary font-medium">{driverName}</dd>
                   <dt className="text-text-muted">Kart</dt>
-                  <dd className="text-text-primary font-medium">{kartName}</dd>
+                  <dd className="text-text-primary font-medium">{kartDisplay}</dd>
                   <dt className="text-text-muted">Date</dt>
                   <dd className="text-text-primary font-mono text-xs">{formatDate(state.sessionMeta.session_date)}</dd>
+                  {state.sessionMeta.event_name && (
+                    <>
+                      <dt className="text-text-muted">Event</dt>
+                      <dd className="text-text-primary">{state.sessionMeta.event_name}</dd>
+                    </>
+                  )}
                   <dt className="text-text-muted">Conditions</dt>
                   <dd className="text-text-primary">{state.sessionMeta.conditions ?? '—'}</dd>
                   <dt className="text-text-muted">Chassis</dt>
@@ -533,27 +924,6 @@ export function NewSessionPage() {
                   <dt className="text-text-muted">Engine</dt>
                   <dd className="text-text-primary">{state.baseSetup.engine_type ?? '—'}</dd>
                 </dl>
-
-                <h3 className="font-heading text-sm uppercase tracking-wider text-text-muted mb-3 border-t border-border-color pt-3">
-                  Sessions ({enabledSlots.length})
-                </h3>
-                <div className="space-y-2">
-                  {enabledSlots.map(slot => {
-                    const bestMs = slot.lapTimes.length > 0
-                      ? Math.min(...slot.lapTimes.map(l => l.lap_time_ms))
-                      : null
-                    const tweakCount = Object.keys(slot.setupOverrides).length
-                    return (
-                      <div key={slot.slotId} className="flex items-center gap-3 text-sm py-1.5 border-b border-border-color last:border-0">
-                        <span className="font-heading font-bold text-text-primary w-24">{slot.label}</span>
-                        <span className="text-text-muted capitalize">{slot.session_type}</span>
-                        <span className="font-mono text-xs text-text-muted">{slot.lapTimes.length} lap{slot.lapTimes.length !== 1 ? 's' : ''}</span>
-                        {bestMs && <span className="font-mono text-accent-primary ml-auto">{lapMsToString(bestMs)}</span>}
-                        {tweakCount > 0 && <span className="text-xs text-text-muted">{tweakCount} tweak{tweakCount > 1 ? 's' : ''}</span>}
-                      </div>
-                    )
-                  })}
-                </div>
               </Card>
 
               {saveError && (
@@ -563,7 +933,7 @@ export function NewSessionPage() {
               )}
 
               <Button onClick={() => void handleSave()} loading={saving} className="w-full" size="lg">
-                Save {enabledSlots.length} Session{enabledSlots.length !== 1 ? 's' : ''}
+                Save &amp; Start Event
               </Button>
             </div>
           )

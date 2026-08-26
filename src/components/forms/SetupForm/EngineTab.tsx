@@ -19,6 +19,7 @@ export function EngineTab() {
           value={setup.rear_sprocket_teeth ?? ''}
           onChange={e => onChange('rear_sprocket_teeth', e.target.value ? Number(e.target.value) : null)}
           readOnly={readOnly}
+          historyKey="rear_sprocket_teeth"
         />
         <Input
           label="Engine Sprocket"
@@ -27,6 +28,7 @@ export function EngineTab() {
           value={setup.engine_sprocket_teeth ?? ''}
           onChange={e => onChange('engine_sprocket_teeth', e.target.value ? Number(e.target.value) : null)}
           readOnly={readOnly}
+          historyKey="engine_sprocket_teeth"
         />
         <div className="flex flex-col gap-1">
           <span className="font-heading text-xs uppercase tracking-wider text-text-muted">Gear Ratio</span>
@@ -34,10 +36,10 @@ export function EngineTab() {
         </div>
         <Toggle
           label="Sprocket Carrier"
-          optionA="Loose"
-          optionB="Fixed"
+          optionA="Fixed"
+          optionB="Floating"
           value={setup.sprocket_carrier_type ?? null}
-          onChange={v => onChange('sprocket_carrier_type', v as 'Loose' | 'Fixed')}
+          onChange={v => onChange('sprocket_carrier_type', v as 'Fixed' | 'Floating')}
         />
         <Input
           label="Chain"
@@ -45,6 +47,7 @@ export function EngineTab() {
           onChange={e => onChange('chain_measurement', e.target.value || null)}
           placeholder="e.g. 219 / 104 links"
           readOnly={readOnly}
+          historyKey="chain_measurement"
         />
         <Input
           label="Spark Plug"
@@ -52,6 +55,7 @@ export function EngineTab() {
           onChange={e => onChange('spark_plug', e.target.value || null)}
           placeholder="e.g. NGK BR9EG"
           readOnly={readOnly}
+          historyKey="spark_plug"
         />
         <div className="flex flex-col gap-1">
           <span className="font-heading text-xs uppercase tracking-wider text-text-muted">Tape Over Rad</span>
@@ -79,6 +83,7 @@ export function EngineTab() {
             onChange={e => onChange('main_jet', e.target.value || null)}
             placeholder="e.g. 108"
             readOnly={readOnly}
+            historyKey="main_jet"
           />
           <Input
             label="Air Screw"
@@ -86,6 +91,7 @@ export function EngineTab() {
             onChange={e => onChange('air_screw', e.target.value || null)}
             placeholder="e.g. 1.5 turns out"
             readOnly={readOnly}
+            historyKey="air_screw"
           />
           <Input
             label="Needle Position"
@@ -93,6 +99,7 @@ export function EngineTab() {
             onChange={e => onChange('needle_position', e.target.value || null)}
             placeholder="e.g. Clip 3 from top"
             readOnly={readOnly}
+            historyKey="needle_position"
           />
           <Input
             label="Float Height"
@@ -100,6 +107,7 @@ export function EngineTab() {
             onChange={e => onChange('float_height', e.target.value || null)}
             placeholder="e.g. 14mm"
             readOnly={readOnly}
+            historyKey="float_height"
           />
           <Input
             label="Carb Year"
@@ -107,76 +115,11 @@ export function EngineTab() {
             onChange={e => onChange('carb_year', e.target.value || null)}
             placeholder="e.g. 2023"
             readOnly={readOnly}
+            historyKey="carb_year"
           />
         </div>
       </div>
 
-      {/* Engine Monitoring */}
-      <div className="border-t border-border-color pt-5">
-        <h3 className="font-heading text-sm uppercase tracking-wider text-text-muted mb-4">Engine Monitoring</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Engine Temp column */}
-          <div className="space-y-3">
-            <p className="font-heading text-xs uppercase tracking-wider text-text-muted">Engine Temp</p>
-            <Input
-              label="Max"
-              type="number"
-              unit="°C"
-              value={setup.max_engine_temp_c ?? ''}
-              onChange={e => onChange('max_engine_temp_c', e.target.value ? Number(e.target.value) : null)}
-              readOnly={readOnly}
-            />
-            <Input
-              label="Low"
-              type="number"
-              unit="°C"
-              value={setup.low_engine_temp_c ?? ''}
-              onChange={e => onChange('low_engine_temp_c', e.target.value ? Number(e.target.value) : null)}
-              readOnly={readOnly}
-            />
-          </div>
-          {/* Exhaust Temp column */}
-          <div className="space-y-3">
-            <p className="font-heading text-xs uppercase tracking-wider text-text-muted">Exhaust Temp</p>
-            <Input
-              label="Max"
-              type="number"
-              unit="°C"
-              value={setup.max_exhaust_temp_c ?? ''}
-              onChange={e => onChange('max_exhaust_temp_c', e.target.value ? Number(e.target.value) : null)}
-              readOnly={readOnly}
-            />
-            <Input
-              label="Low"
-              type="number"
-              unit="°C"
-              value={setup.low_exhaust_temp_c ?? ''}
-              onChange={e => onChange('low_exhaust_temp_c', e.target.value ? Number(e.target.value) : null)}
-              readOnly={readOnly}
-            />
-          </div>
-          {/* RPM column */}
-          <div className="space-y-3">
-            <p className="font-heading text-xs uppercase tracking-wider text-text-muted">RPM</p>
-            <Input
-              label="Max"
-              type="number"
-              unit="rpm"
-              value={setup.max_rpm ?? ''}
-              onChange={e => onChange('max_rpm', e.target.value ? Number(e.target.value) : null)}
-              readOnly={readOnly}
-            />
-            <Input
-              label="Low"
-              type="number"
-              unit="rpm"
-              value={setup.low_rpm ?? ''}
-              onChange={e => onChange('low_rpm', e.target.value ? Number(e.target.value) : null)}
-              readOnly={readOnly}
-            />
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

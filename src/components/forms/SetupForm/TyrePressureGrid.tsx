@@ -24,6 +24,7 @@ export function TyrePressureGrid({ setup, onChange, unit, readOnly }: TyrePressu
           value={setup.tyre_pressure_fl ?? ''}
           onChange={e => onChange('tyre_pressure_fl', e.target.value ? Number(e.target.value) : null)}
           readOnly={readOnly}
+          historyKey="tyre_pressure_fl"
         />
         <Input
           label="FR"
@@ -33,6 +34,7 @@ export function TyrePressureGrid({ setup, onChange, unit, readOnly }: TyrePressu
           value={setup.tyre_pressure_fr ?? ''}
           onChange={e => onChange('tyre_pressure_fr', e.target.value ? Number(e.target.value) : null)}
           readOnly={readOnly}
+          historyKey="tyre_pressure_fr"
         />
         <Input
           label="RL"
@@ -42,6 +44,7 @@ export function TyrePressureGrid({ setup, onChange, unit, readOnly }: TyrePressu
           value={setup.tyre_pressure_rl ?? ''}
           onChange={e => onChange('tyre_pressure_rl', e.target.value ? Number(e.target.value) : null)}
           readOnly={readOnly}
+          historyKey="tyre_pressure_rl"
         />
         <Input
           label="RR"
@@ -51,6 +54,7 @@ export function TyrePressureGrid({ setup, onChange, unit, readOnly }: TyrePressu
           value={setup.tyre_pressure_rr ?? ''}
           onChange={e => onChange('tyre_pressure_rr', e.target.value ? Number(e.target.value) : null)}
           readOnly={readOnly}
+          historyKey="tyre_pressure_rr"
         />
       </div>
     </div>

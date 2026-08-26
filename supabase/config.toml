@@ -1,0 +1,8 @@
+[functions.guest-session-read]
+verify_jwt = false
+
+[functions.guest-session-save]
+verify_jwt = false
+
+[functions.cron-expire-weekends]
+verify_jwt = false

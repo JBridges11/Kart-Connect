@@ -47,7 +47,7 @@ create table if not exists subscriptions (
   status                   text not null default 'trialing'
     check (status in ('trialing','active','past_due','canceled','incomplete')),
   trial_start              timestamptz not null default now(),
-  trial_end                timestamptz not null default (now() + interval '3 days'),
+  trial_end                timestamptz not null default (now() + interval '14 days'),
   current_period_end       timestamptz,
   created_at               timestamptz not null default now()
 );

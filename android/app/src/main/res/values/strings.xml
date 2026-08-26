@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Kart Connect</string>
+    <string name="title_activity_main">Kart Connect</string>
+    <string name="package_name">uk.co.prsuk.kartconnect</string>
+    <string name="custom_url_scheme">uk.co.prsuk.kartconnect</string>
+</resources>

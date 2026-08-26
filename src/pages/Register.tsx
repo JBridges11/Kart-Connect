@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Zap } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Button, Input } from '@/components/ui'
 
@@ -27,7 +26,7 @@ export function RegisterPage() {
   if (done) {
     return (
       <div className="w-full max-w-sm text-center">
-        <Zap size={28} className="text-accent-primary fill-accent-primary mx-auto mb-4" />
+        <img src="/logo-pdf.png" alt="Kart Connect" className="w-36 object-contain mx-auto mb-4" />
         <h2 className="font-heading text-2xl font-bold tracking-wide uppercase text-text-primary mb-2">
           Check your email
         </h2>
@@ -44,11 +43,8 @@ export function RegisterPage() {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="flex items-center justify-center gap-2 mb-8">
-        <Zap size={28} className="text-accent-primary fill-accent-primary" />
-        <span className="font-heading text-3xl font-bold tracking-widest text-text-primary uppercase">
-          Kart Connect
-        </span>
+      <div className="flex justify-center mb-8">
+        <img src="/logo-pdf.png" alt="Kart Connect" className="w-48 object-contain" />
       </div>
 
       <div className="bg-bg-card border border-border-color rounded-card p-6">

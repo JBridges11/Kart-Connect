@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'npm:stripe'
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2024-06-20' })
+const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!)
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -28,22 +28,26 @@ serve(async (req) => {
       if (session.mode !== 'subscription') break
       const stripeSub = await stripe.subscriptions.retrieve(session.subscription as string)
       const userId = stripeSub.metadata.supabase_user_id
+      const tier   = stripeSub.metadata.tier ?? 'privateer'
       if (!userId) break
       await supabase.from('subscriptions').upsert({
         user_id: userId,
         stripe_customer_id: session.customer as string,
         stripe_subscription_id: stripeSub.id,
         status: stripeSub.status,
+        tier,
         current_period_end: new Date(stripeSub.current_period_end * 1000).toISOString(),
       })
       break
     }
 
     case 'customer.subscription.updated': {
-      const sub = event.data.object as Stripe.Subscription
+      const sub  = event.data.object as Stripe.Subscription
+      const tier = sub.metadata.tier ?? undefined
       await supabase.from('subscriptions')
         .update({
           status: sub.status,
+          tier,
           current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
         })
         .eq('stripe_subscription_id', sub.id)
@@ -53,7 +57,7 @@ serve(async (req) => {
     case 'customer.subscription.deleted': {
       const sub = event.data.object as Stripe.Subscription
       await supabase.from('subscriptions')
-        .update({ status: 'canceled' })
+        .update({ status: 'canceled', tier: null })
         .eq('stripe_subscription_id', sub.id)
       break
     }

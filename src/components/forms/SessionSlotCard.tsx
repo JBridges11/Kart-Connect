@@ -1,17 +1,20 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, CheckCircle2, Circle, Trash2, CloudSun } from 'lucide-react'
+import { ChevronDown, ChevronUp, CheckCircle2, Circle, Trash2, CloudSun, ClipboardCheck } from 'lucide-react'
 import { Card, Input, Badge, SegmentedControl, Select } from '@/components/ui'
 import { SetupForm } from '@/components/forms/SetupForm'
 import { stringToLapMs, lapMsToString, lapMsDelta } from '@/lib/formatters'
-import type { SessionSlot, SetupFormData, SlotWeather, PressureUnit, Session, WeatherDescription } from '@/types'
+import type { SessionSlot, SetupFormData, SlotWeather, PressureUnit, TempUnit, SpeedUnit, Session, WeatherDescription } from '@/types'
+import {
+  displayTemp, inputTempToC, tempUnitLabel,
+  displayWind, inputWindToMph, speedUnitLabel,
+} from '@/lib/units'
 
 interface BaseWeather {
   conditions: Session['conditions']
   weather_description: Session['weather_description']
   air_temp_c: number | null
-  track_temp_c: number | null
   humidity_pct: number | null
-  wind_description: string | null
+  wind_speed_mph: number | null
 }
 
 interface Props {
@@ -25,7 +28,7 @@ const WEATHER_OPTIONS = [
   { label: 'Select…',     value: '' },
   { label: 'Sunny',       value: 'Sunny' },
   { label: 'Light Sun',   value: 'Light Sun' },
-  { label: 'Cloudy',      value: 'Cloudy' },
+  { label: 'Overcast',    value: 'Overcast' },
   { label: 'Light Rain',  value: 'Light Rain' },
   { label: 'Rain',        value: 'Rain' },
   { label: 'Heavy Rain',  value: 'Heavy Rain' },
@@ -34,19 +37,21 @@ const WEATHER_OPTIONS = [
 
 export function SessionSlotCard({ slot, baseSetup, baseWeather, onChange }: Props) {
   const [open, setOpen]         = useState(false)
+  const [postOpen, setPostOpen] = useState(false)
   const [lapInput, setLapInput] = useState('')
   const [lapError, setLapError] = useState(false)
 
   const pressureUnit: PressureUnit = (localStorage.getItem('kc_pressure_unit') as PressureUnit) ?? 'bar'
+  const tempUnit: TempUnit   = (localStorage.getItem('kc_temp_unit')  as TempUnit)  ?? 'c'
+  const speedUnit: SpeedUnit = (localStorage.getItem('kc_speed_unit') as SpeedUnit) ?? 'kph'
 
   // Effective weather: slot override if set, otherwise fall back to base
   const ew = {
     conditions:          slot.weatherOverrides?.conditions          ?? baseWeather.conditions,
     weather_description: slot.weatherOverrides?.weather_description ?? baseWeather.weather_description,
     air_temp_c:          slot.weatherOverrides?.air_temp_c          ?? baseWeather.air_temp_c,
-    track_temp_c:        slot.weatherOverrides?.track_temp_c        ?? baseWeather.track_temp_c,
     humidity_pct:        slot.weatherOverrides?.humidity_pct        ?? baseWeather.humidity_pct,
-    wind_description:    slot.weatherOverrides?.wind_description    ?? baseWeather.wind_description,
+    wind_speed_mph:      slot.weatherOverrides?.wind_speed_mph      ?? baseWeather.wind_speed_mph,
   }
 
   function setWeather<K extends keyof SlotWeather>(key: K, value: SlotWeather[K]) {
@@ -57,6 +62,11 @@ export function SessionSlotCard({ slot, baseSetup, baseWeather, onChange }: Prop
     const next = !slot.enabled
     onChange({ ...slot, enabled: next })
     if (next) setOpen(true)
+  }
+
+  function setSetupField<K extends keyof SetupFormData>(key: K, value: SetupFormData[K]) {
+    const updated = { ...mergedSetup, [key]: value }
+    handleSetupChange(updated as Partial<SetupFormData>)
   }
 
   function handleSetupChange(newSetup: Partial<SetupFormData>) {
@@ -191,24 +201,11 @@ export function SessionSlotCard({ slot, baseSetup, baseWeather, onChange }: Prop
                 options={WEATHER_OPTIONS}
               />
               <Input
-                label="Wind"
-                value={ew.wind_description ?? ''}
-                onChange={e => setWeather('wind_description', e.target.value || null)}
-                placeholder="e.g. Light SW breeze"
-              />
-              <Input
                 label="Air Temp"
                 type="number"
-                unit="°C"
-                value={ew.air_temp_c ?? ''}
-                onChange={e => setWeather('air_temp_c', e.target.value ? Number(e.target.value) : null)}
-              />
-              <Input
-                label="Track Temp"
-                type="number"
-                unit="°C"
-                value={ew.track_temp_c ?? ''}
-                onChange={e => setWeather('track_temp_c', e.target.value ? Number(e.target.value) : null)}
+                unit={tempUnitLabel(tempUnit)}
+                value={displayTemp(ew.air_temp_c, tempUnit)}
+                onChange={e => setWeather('air_temp_c', inputTempToC(e.target.value, tempUnit))}
               />
               <Input
                 label="Humidity"
@@ -216,6 +213,13 @@ export function SessionSlotCard({ slot, baseSetup, baseWeather, onChange }: Prop
                 unit="%"
                 value={ew.humidity_pct ?? ''}
                 onChange={e => setWeather('humidity_pct', e.target.value ? Number(e.target.value) : null)}
+              />
+              <Input
+                label="Wind Speed"
+                type="number"
+                unit={speedUnitLabel(speedUnit)}
+                value={displayWind(ew.wind_speed_mph, speedUnit)}
+                onChange={e => setWeather('wind_speed_mph', inputWindToMph(e.target.value, speedUnit))}
               />
             </div>
           </div>
@@ -232,19 +236,34 @@ export function SessionSlotCard({ slot, baseSetup, baseWeather, onChange }: Prop
             />
           </div>
 
-          {/* Lap times */}
-          <div>
-            <p className="font-heading text-xs uppercase tracking-wider text-text-muted mb-3">
-              Lap Times
-            </p>
+          {/* Post Session */}
+          <div className="border-t border-border-color pt-4">
+            <button
+              type="button"
+              onClick={() => setPostOpen(o => !o)}
+              className="w-full flex items-center gap-2 cursor-pointer"
+            >
+              <ClipboardCheck size={13} className="text-accent-primary" />
+              <p className="font-heading text-xs uppercase tracking-wider text-text-muted flex-1 text-left">
+                Post Session
+              </p>
+              {postOpen ? <ChevronUp size={13} className="text-text-muted" /> : <ChevronDown size={13} className="text-text-muted" />}
+            </button>
+
+            {postOpen && (
+              <div className="mt-4 space-y-5">
+
+                {/* Lap times */}
+                <div>
+                  <p className="font-heading text-xs uppercase tracking-wider text-text-muted mb-3">Lap Times</p>
             <div className="flex gap-2 mb-3">
               <div className="flex-1">
                 <Input
                   value={lapInput}
                   onChange={e => { setLapInput(e.target.value); setLapError(false) }}
                   onKeyDown={(e: React.KeyboardEvent) => e.key === 'Enter' && addLap()}
-                  placeholder="M:SS.mmm"
-                  error={lapError ? 'Use format 1:23.456' : undefined}
+                  placeholder="0.00.00"
+                  error={lapError ? 'Use format 0.45.52' : undefined}
                 />
               </div>
               <button
@@ -289,6 +308,104 @@ export function SessionSlotCard({ slot, baseSetup, baseWeather, onChange }: Prop
                     </div>
                   )
                 })}
+                  </div>
+                )}
+                </div>
+
+                {/* Engine Monitoring */}
+                <div>
+                  <p className="font-heading text-xs uppercase tracking-wider text-text-muted mb-3">Engine Monitoring</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    {/* Engine Temp */}
+                    <div className="space-y-2">
+                      <p className="text-xs text-text-muted text-center">Engine Temp</p>
+                      <Input
+                        label="Max"
+                        type="number"
+                        unit={tempUnitLabel(tempUnit)}
+                        value={displayTemp(mergedSetup.max_engine_temp_c ?? null, tempUnit)}
+                        onChange={e => setSetupField('max_engine_temp_c', inputTempToC(e.target.value, tempUnit))}
+                      />
+                      <Input
+                        label="Low"
+                        type="number"
+                        unit={tempUnitLabel(tempUnit)}
+                        value={displayTemp(mergedSetup.low_engine_temp_c ?? null, tempUnit)}
+                        onChange={e => setSetupField('low_engine_temp_c', inputTempToC(e.target.value, tempUnit))}
+                      />
+                    </div>
+                    {/* Exhaust Temp */}
+                    <div className="space-y-2">
+                      <p className="text-xs text-text-muted text-center">Exhaust Temp</p>
+                      <Input
+                        label="Max"
+                        type="number"
+                        unit={tempUnitLabel(tempUnit)}
+                        value={displayTemp(mergedSetup.max_exhaust_temp_c ?? null, tempUnit)}
+                        onChange={e => setSetupField('max_exhaust_temp_c', inputTempToC(e.target.value, tempUnit))}
+                      />
+                      <Input
+                        label="Low"
+                        type="number"
+                        unit={tempUnitLabel(tempUnit)}
+                        value={displayTemp(mergedSetup.low_exhaust_temp_c ?? null, tempUnit)}
+                        onChange={e => setSetupField('low_exhaust_temp_c', inputTempToC(e.target.value, tempUnit))}
+                      />
+                    </div>
+                    {/* RPM */}
+                    <div className="space-y-2">
+                      <p className="text-xs text-text-muted text-center">RPM</p>
+                      <Input
+                        label="Max"
+                        type="number"
+                        value={mergedSetup.max_rpm ?? ''}
+                        onChange={e => setSetupField('max_rpm', e.target.value ? Number(e.target.value) : null)}
+                      />
+                      <Input
+                        label="Low"
+                        type="number"
+                        value={mergedSetup.low_rpm ?? ''}
+                        onChange={e => setSetupField('low_rpm', e.target.value ? Number(e.target.value) : null)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hot Pressures */}
+                <div>
+                  <p className="font-heading text-xs uppercase tracking-wider text-text-muted mb-3">Hot Pressures</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      label="Front Left"
+                      type="number"
+                      unit={pressureUnit}
+                      value={mergedSetup.hot_pressure_fl ?? ''}
+                      onChange={e => setSetupField('hot_pressure_fl', e.target.value ? Number(e.target.value) : null)}
+                    />
+                    <Input
+                      label="Front Right"
+                      type="number"
+                      unit={pressureUnit}
+                      value={mergedSetup.hot_pressure_fr ?? ''}
+                      onChange={e => setSetupField('hot_pressure_fr', e.target.value ? Number(e.target.value) : null)}
+                    />
+                    <Input
+                      label="Rear Left"
+                      type="number"
+                      unit={pressureUnit}
+                      value={mergedSetup.hot_pressure_rl ?? ''}
+                      onChange={e => setSetupField('hot_pressure_rl', e.target.value ? Number(e.target.value) : null)}
+                    />
+                    <Input
+                      label="Rear Right"
+                      type="number"
+                      unit={pressureUnit}
+                      value={mergedSetup.hot_pressure_rr ?? ''}
+                      onChange={e => setSetupField('hot_pressure_rr', e.target.value ? Number(e.target.value) : null)}
+                    />
+                  </div>
+                </div>
+
               </div>
             )}
           </div>
