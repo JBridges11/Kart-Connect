@@ -12,7 +12,9 @@ export function SubscriptionGate() {
     )
   }
 
-  if (subscription?.status !== 'active') return <Navigate to="/subscribe" replace />
+  const hasAccess = !!subscription?.stripe_subscription_id &&
+    (subscription.status === 'active' || subscription.status === 'trialing')
+  if (!hasAccess) return <Navigate to="/subscribe" replace />
 
   return <Outlet />
 }

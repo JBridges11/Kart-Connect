@@ -49,7 +49,10 @@ function ProtectedLayout() {
   }
 
   if (!user) return <Navigate to="/login" replace />
-  if (subscription?.status !== 'active') return <Navigate to="/subscribe" replace />
+
+  const hasAccess = !!subscription?.stripe_subscription_id &&
+    (subscription.status === 'active' || subscription.status === 'trialing')
+  if (!hasAccess) return <Navigate to="/subscribe" replace />
 
   return (
     <div className="flex h-screen bg-bg-primary overflow-hidden">

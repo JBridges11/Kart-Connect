@@ -83,8 +83,12 @@ export function SubscribePage() {
     if (!isSuccess) return
     async function verify() {
       if (sessionId) {
-        const { data, error: fnErr } = await supabase.functions.invoke('verify-subscription', {
+        const { data: { session: freshSession } } = await supabase.auth.getSession()
+        const { error: fnErr } = await supabase.functions.invoke('verify-subscription', {
           body: { session_id: sessionId },
+          headers: freshSession?.access_token
+            ? { Authorization: `Bearer ${freshSession.access_token}` }
+            : undefined,
         })
         if (fnErr) {
           let msg = fnErr.message
@@ -94,11 +98,9 @@ export function SubscribePage() {
             if (body?.error) msg = body.error
           } catch { /* ignore */ }
           console.error('[verify] failed:', msg)
-        } else {
-          console.log('[verify] success:', data)
         }
       }
-      // Full reload so SubscriptionGate re-evaluates with fresh DB data
+      // Full reload so ProtectedLayout re-evaluates with fresh DB data
       window.location.replace('/')
     }
     const timer = setTimeout(() => void verify(), 1500)
