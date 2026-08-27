@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { createBrowserRouter, RouterProvider, Navigate, Outlet, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import { useSubscription } from '@/hooks/useSubscription'
 import { LanguageProvider } from '@/contexts/LanguageContext'
@@ -37,21 +37,10 @@ function AuthLayout({ children }: { children: React.ReactNode }) {
 }
 
 function ProtectedLayout() {
-  const { user, loading, freshConfirmation } = useAuth()
+  const { user, loading } = useAuth()
   const { subscription, loading: subLoading } = useSubscription()
-  const navigate = useNavigate()
-  const didRedirect = useRef(false)
 
-  useEffect(() => {
-    if (didRedirect.current || loading || !user || !freshConfirmation) return
-    if (subLoading) return
-    didRedirect.current = true
-    if (subscription?.status !== 'active') {
-      navigate('/subscribe', { replace: true })
-    }
-  }, [loading, subLoading, user, subscription, freshConfirmation, navigate])
-
-  if (loading || (freshConfirmation && subLoading)) {
+  if (loading || subLoading) {
     return (
       <div className="min-h-screen bg-bg-primary flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
@@ -60,6 +49,7 @@ function ProtectedLayout() {
   }
 
   if (!user) return <Navigate to="/login" replace />
+  if (subscription?.status !== 'active') return <Navigate to="/subscribe" replace />
 
   return (
     <div className="flex h-screen bg-bg-primary overflow-hidden">

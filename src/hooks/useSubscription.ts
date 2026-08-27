@@ -10,6 +10,7 @@ export function useSubscription() {
 
   const fetch = useCallback(async () => {
     if (!user) { setLoading(false); return }
+    setLoading(true)
 
     const { data, error } = await supabase
       .from('subscriptions')
