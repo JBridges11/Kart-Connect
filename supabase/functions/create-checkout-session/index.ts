@@ -46,14 +46,23 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    const { tier = 'privateer' } = await req.json().catch(() => ({})) as { tier?: string }
-    const PRICE_IDS: Record<string, string | undefined> = {
-      privateer: Deno.env.get('STRIPE_PRICE_ID_PRIVATEER'),
-      team:      Deno.env.get('STRIPE_PRICE_ID_TEAM'),
-      pro_team:  Deno.env.get('STRIPE_PRICE_ID_PRO_TEAM'),
+    const { tier = 'privateer', interval = 'month' } = await req.json().catch(() => ({})) as { tier?: string; interval?: string }
+    const PRICE_IDS: Record<string, Record<string, string | undefined>> = {
+      privateer: {
+        month: Deno.env.get('STRIPE_PRICE_ID_PRIVATEER'),
+        year:  Deno.env.get('STRIPE_PRICE_ID_PRIVATEER_ANNUAL'),
+      },
+      team: {
+        month: Deno.env.get('STRIPE_PRICE_ID_TEAM'),
+        year:  Deno.env.get('STRIPE_PRICE_ID_TEAM_ANNUAL'),
+      },
+      pro_team: {
+        month: Deno.env.get('STRIPE_PRICE_ID_PRO_TEAM'),
+        year:  Deno.env.get('STRIPE_PRICE_ID_PRO_TEAM_ANNUAL'),
+      },
     }
-    const priceId = PRICE_IDS[tier]
-    console.log('[checkout] tier:', tier, 'priceId:', priceId)
+    const priceId = PRICE_IDS[tier]?.[interval] ?? PRICE_IDS[tier]?.['month']
+    console.log('[checkout] tier:', tier, 'interval:', interval, 'priceId:', priceId)
 
     if (!priceId) {
       return new Response(JSON.stringify({ error: `Unknown tier or missing price ID: ${tier}` }), {
@@ -63,11 +72,12 @@ serve(async (req) => {
 
     const { data: sub } = await adminClient
       .from('subscriptions')
-      .select('stripe_customer_id')
+      .select('stripe_customer_id, has_trialed')
       .eq('user_id', userId)
       .single()
 
     let customerId = sub?.stripe_customer_id as string | null
+    const hasTrialed = !!(sub as any)?.has_trialed
 
     if (!customerId) {
       console.log('[checkout] creating stripe customer')
@@ -81,6 +91,25 @@ serve(async (req) => {
         .upsert({ user_id: userId, stripe_customer_id: customerId }, { onConflict: 'user_id' })
     }
 
+    // Only offer the trial once — if the DB flag is missing (old row) we also
+    // check Stripe's subscription history for this customer to be safe
+    let trialEligible = tier === 'privateer' && !hasTrialed
+    if (trialEligible) {
+      // Double-check via Stripe: if the customer has any prior subscription (even canceled)
+      // on this price, they've already trialed
+      const priorSubs = await stripe.subscriptions.list({
+        customer: customerId,
+        price: priceId,
+        limit: 1,
+        status: 'all',
+      })
+      if (priorSubs.data.length > 0) {
+        console.log('[checkout] customer has prior Privateer subscription — no trial')
+        trialEligible = false
+      }
+    }
+    console.log('[checkout] trial eligible:', trialEligible, '| hasTrialed flag:', hasTrialed)
+
     const origin = req.headers.get('origin') ?? 'http://localhost:5173'
 
     const session = await stripe.checkout.sessions.create({
@@ -91,7 +120,7 @@ serve(async (req) => {
       success_url: `${origin}/subscribe?subscription=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/subscribe`,
       subscription_data: {
-        trial_period_days: tier === 'privateer' ? 30 : undefined,
+        trial_period_days: trialEligible ? 30 : undefined,
         metadata: { supabase_user_id: userId, tier },
       },
     })

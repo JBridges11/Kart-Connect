@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { CheckCircle2, ChevronDown, ChevronUp, Zap, Camera, ShieldCheck, ShieldOff, ImagePlus, Trash2, AlertTriangle } from 'lucide-react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { CheckCircle2, ChevronDown, ChevronUp, Zap, Camera, ShieldCheck, ShieldOff, ImagePlus, Trash2, AlertTriangle, Pencil, X, Lock } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { PageWrapper } from '@/components/layout/PageWrapper'
-import { Card, Button, Input, SegmentedControl } from '@/components/ui'
+import { Card, Button, Input, SegmentedControl, ConfirmPasswordModal, ConfirmTotpModal } from '@/components/ui'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LANGUAGES } from '@/i18n'
@@ -33,11 +33,11 @@ const BILLING_TIERS = [
   },
 ]
 
-const TIER_ORDER = ['privateer', 'team', 'pro_team']
 
 export function SettingsPage() {
   const navigate = useNavigate()
-  const { user }  = useAuth()
+  const location  = useLocation()
+  const { user } = useAuth()
   const { language, setLanguage, t } = useLanguage()
   const { subscription, tier, trialDaysLeft } = useSubscription()
   const { branding, save: saveBranding, uploadLogo, uploadLogoDark } = useTeamBranding()
@@ -54,7 +54,25 @@ export function SettingsPage() {
     (localStorage.getItem('kc_speed_unit') as SpeedUnit) ?? 'kph'
   )
   const [signingOut, setSigningOut] = useState(false)
-  const [billingOpen, setBillingOpen] = useState(false)
+  const [billingOpen, setBillingOpen]       = useState(false)
+  const [portalLoading, setPortalLoading]   = useState(false)
+  const [portalError, setPortalError]       = useState<string | null>(null)
+
+  async function openBillingPortal() {
+    console.log('[billing] openBillingPortal called | subscription:', JSON.stringify(subscription), '| tier:', tier)
+    setPortalLoading(true)
+    setPortalError(null)
+    const { data, error } = await supabase.functions.invoke('create-portal-session', {})
+    console.log('[billing] create-portal-session response | data:', JSON.stringify(data), '| error:', error ? JSON.stringify({ message: error.message, context: (error as any).context }) : null)
+    setPortalLoading(false)
+    if (error || !data?.url) {
+      console.error('[billing] portal session failed — staying on Settings, setting portalError')
+      setPortalError('Could not open billing portal — please try again or contact support.')
+      return
+    }
+    console.log('[billing] redirecting to Stripe portal:', data.url)
+    window.location.href = data.url
+  }
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [deletingAccount, setDeletingAccount] = useState(false)
 
@@ -91,9 +109,28 @@ export function SettingsPage() {
   const [mfaStep, setMfaStep]           = useState<'idle' | 'scan' | 'confirmed'>('idle')
 
   useEffect(() => {
-    void supabase.auth.mfa.listFactors().then(({ data }) => {
-      const verified = data?.totp?.find(f => f.status === 'verified')
-      if (verified) { setMfaEnabled(true); setMfaFactorId(verified.id) }
+    void supabase.auth.mfa.listFactors().then(({ data, error }) => {
+      // Full dump so we can see every field Supabase returns
+      console.log('[MFA] listFactors RAW:', JSON.stringify({ data, error }, null, 2))
+      if (error) { console.error('[MFA] listFactors error:', error.message); return }
+
+      // data.totp  — may be undefined/empty in older SDK versions
+      // data.all   — flat list of every factor regardless of type; use as fallback
+      const fromTotp = data?.totp?.find(f => f.status === 'verified')
+      const fromAll  = (data as any)?.all?.find(
+        (f: { factor_type: string; status: string }) =>
+          f.factor_type === 'totp' && f.status === 'verified'
+      )
+      const verified = fromTotp ?? fromAll ?? null
+      console.log('[MFA] fromTotp:', fromTotp ?? null, '| fromAll:', fromAll ?? null, '| using:', verified)
+
+      if (verified) {
+        setMfaEnabled(true)
+        setMfaFactorId(verified.id)
+        console.log('[MFA] ✓ mfaEnabled = true, factorId =', verified.id)
+      } else {
+        console.warn('[MFA] No verified TOTP factor found — TOTP gate will be skipped')
+      }
     })
   }, [])
 
@@ -132,15 +169,255 @@ export function SettingsPage() {
     setMfaStep('idle')
   }
 
-  const [fullName, setFullName] = useState<string>(
-    (user?.user_metadata?.full_name as string | undefined) ?? ''
-  )
-  const [savingName, setSavingName] = useState(false)
+  // ── Profile fields ──────────────────────────────────────────────────────────
+  const [editingProfile, setEditingProfile]     = useState(false)
+  const [profileName, setProfileName]           = useState('')
+  const [profileEmail, setProfileEmail]         = useState('')
+  const [profilePhone, setProfilePhone]         = useState('')
+  const [profileRaceNum, setProfileRaceNum]     = useState('')
+  const [savingProfile, setSavingProfile]       = useState(false)
+  const [profileError, setProfileError]         = useState<string | null>(null)
+  const [emailChangePending, setEmailChangePending] = useState(false)
+  const [pendingNewEmail, setPendingNewEmail]   = useState('')
+  const [emailChangeConfirmed, setEmailChangeConfirmed] = useState(false)
+  const [profileSaved, setProfileSaved]         = useState(false)
+  // Re-authentication gate — shown before sensitive changes (email/phone) are applied.
+  // Prefer TOTP modal when MFA is enabled; fall back to password modal for
+  // password-auth users who haven't set up Google Authenticator yet.
+  const [totpModalOpen,    setTotpModalOpen]    = useState(false)
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false)
+  // Captures the intended new email before a modal opens.
+  // Both signInWithPassword (password modal) and challengeAndVerify (TOTP modal)
+  // fire onAuthStateChange → useEffect([user]) which resets profileEmail back
+  // to user.email (old address).  Use a ref so the intended value survives.
+  const pendingEmailRef = useRef('')
+
+  // Detect return from the email-change confirmation link.
+  //
+  // With the direct Supabase verify URL approach, Supabase redirects to
+  // /settings#access_token=…&type=email_change after verifying the token.
+  // Supabase's detectSessionInUrl processes that hash asynchronously (Promise
+  // microtask) and may clear it from window.location before useEffect runs
+  // (useEffect fires as a macrotask, after microtasks).  Capture the raw hash
+  // synchronously at render time — before any async cleanup can touch it.
+  const initialHash     = useRef(window.location.hash)
+  const initialSearch   = useRef(window.location.search)
+  // Guard: set true when the confirmation flow starts so useEffect([user])
+  // never overwrites profileEmail for the rest of this Settings mount.
+  const emailConfirmingRef = useRef(false)
+
+  useEffect(() => {
+    // Primary signal: React Router navigation state (set by ConfirmEmail.tsx
+    // if still using the old /confirm-email flow).
+    const locState = location.state as Record<string, unknown> | null
+    const fromEmailConfirm = locState?.emailChanged === true
+
+    // URL hash / query: use the values captured synchronously at render time
+    // (initialHash / initialSearch refs) rather than window.location.hash /
+    // window.location.search — Supabase's detectSessionInUrl clears the hash
+    // in a Promise microtask that runs before this useEffect macrotask fires.
+    const hashParams  = new URLSearchParams(initialHash.current.replace(/^#/, ''))
+    const queryParams = new URLSearchParams(initialSearch.current)
+    const typeParam   = hashParams.get('type') ?? queryParams.get('type')
+
+    console.log(
+      '[Settings] mount | fromEmailConfirm:', fromEmailConfirm,
+      '| typeParam:', typeParam,
+    )
+
+    if (!fromEmailConfirm && typeParam !== 'email_change') return
+
+    // Flip the guard immediately so useEffect([user]) never overwrites
+    // profileEmail for the rest of this Settings mount.  The ref is never
+    // reset — once we're in a confirmation flow, let getUser() be the sole
+    // source of truth for the displayed email address.
+    emailConfirmingRef.current = true
+    window.history.replaceState({}, '', window.location.pathname)
+
+    // Single authoritative read — no updateUser, no refreshUser, no further
+    // side-effects that could fire more auth events or trigger re-mounts.
+    supabase.auth.getUser().then(({ data: { user: freshUser } }) => {
+      const freshEmail = freshUser?.email
+      console.log('[Settings] getUser() result | freshEmail:', freshEmail)
+      if (freshEmail) {
+        setProfileEmail(freshEmail)
+        setEmailChangePending(false)
+        setPendingNewEmail('')
+        setEmailChangeConfirmed(true)
+        setTimeout(() => setEmailChangeConfirmed(false), 6000)
+      }
+    })
+  // location.state is read once at mount — intentionally omitted from deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Keep a stable copy for the display name / initials outside edit mode
+  const fullName = profileName
+
+  useEffect(() => {
+    if (user) {
+      setProfileName((user.user_metadata?.full_name as string | undefined) ?? '')
+      // Skip email sync when the confirmation flow has run — getUser() above
+      // is the sole source of truth for profileEmail in that case.
+      if (!emailConfirmingRef.current) {
+        setProfileEmail(user.email ?? '')
+      }
+      setProfilePhone((user.user_metadata?.phone_number as string | undefined) ?? '')
+      setProfileRaceNum((user.user_metadata?.race_number as string | undefined) ?? '')
+    }
+  }, [user])
+
+  // Determine whether the user has a password-based identity (email provider).
+  // OAuth-only users have no password to verify, so we skip the re-auth gate for them.
+  const hasPasswordAuth = user?.identities?.some(id => id.provider === 'email') ?? false
+
+  /**
+   * Called when the user clicks "Save Profile".
+   * If a sensitive change (email) is requested and the user has a password,
+   * we capture the intended email in a ref (so it survives the auth state
+   * change triggered by signInWithPassword inside the modal) then open the
+   * re-auth modal. Non-sensitive changes go straight through.
+   */
+  function saveProfile() {
+    const trimmedEmail = profileEmail.trim()
+    const trimmedPhone = profilePhone.trim()
+    const emailChanging = trimmedEmail !== '' && trimmedEmail !== (user?.email ?? '')
+    const phoneChanging = trimmedPhone !== ((user?.user_metadata?.phone_number as string | undefined) ?? '')
+    const contactChanging = emailChanging || phoneChanging
+
+    console.log('[saveProfile] emailChanging:', emailChanging, '| phoneChanging:', phoneChanging, '| contactChanging:', contactChanging, '| mfaEnabled:', mfaEnabled, '| mfaFactorId:', mfaFactorId, '| hasPasswordAuth:', hasPasswordAuth)
+    console.log('[saveProfile] trimmedEmail:', trimmedEmail, '| user.email:', user?.email)
+    console.log('[saveProfile] trimmedPhone:', trimmedPhone, '| user phone:', user?.user_metadata?.phone_number)
+
+    if (contactChanging) {
+      // Capture the intended email before the modal opens — both challengeAndVerify
+      // (TOTP) and signInWithPassword (password) fire onAuthStateChange, which
+      // triggers useEffect([user]) and resets profileEmail to the old value.
+      if (emailChanging) pendingEmailRef.current = trimmedEmail
+
+      if (mfaEnabled && mfaFactorId) {
+        // Preferred gate: Google Authenticator TOTP code
+        console.log('[saveProfile] → opening TOTP modal')
+        setTotpModalOpen(true)
+      } else if (emailChanging && hasPasswordAuth) {
+        // Fallback for users who haven't set up TOTP yet (email changes only)
+        console.log('[saveProfile] → opening password modal (no MFA)')
+        setConfirmModalOpen(true)
+      } else {
+        // Phone-only change with no MFA and no password auth — proceed directly
+        console.log('[saveProfile] → proceeding without gate (no MFA, no password auth)')
+        void executeSaveProfile()
+      }
+      return
+    }
+
+    void executeSaveProfile()
+  }
+
+  /**
+   * The actual save — called either directly (no sensitive change / OAuth user)
+   * or after ConfirmPasswordModal has verified the user's password.
+   *
+   * Reads the intended new email from pendingEmailRef rather than profileEmail
+   * state, because signInWithPassword fires onAuthStateChange which resets
+   * profileEmail back to user.email before this function runs.
+   */
+  async function executeSaveProfile() {
+    // Read and immediately clear the ref so it never carries a stale value
+    const intendedEmail = pendingEmailRef.current
+    pendingEmailRef.current = ''
+
+    console.log('[executeSaveProfile] start | intendedEmail:', intendedEmail, '| user.email:', user?.email)
+
+    setSavingProfile(true)
+    setProfileError(null)
+    setEmailChangePending(false)
+    try {
+      // 1. Save non-sensitive metadata (name, phone, race number)
+      console.log('[executeSaveProfile] saving metadata...')
+      const { error: metaErr } = await supabase.auth.updateUser({
+        data: {
+          full_name:    profileName.trim(),
+          phone_number: profilePhone.trim(),
+          race_number:  profileRaceNum.trim(),
+        },
+      })
+      if (metaErr) {
+        console.error('[executeSaveProfile] metadata error:', metaErr.message)
+        throw metaErr
+      }
+      console.log('[executeSaveProfile] metadata saved OK')
+
+      // 2. Handle email change — use the ref value (immune to state reset)
+      const newEmail = intendedEmail || profileEmail.trim()
+      const emailChanging = newEmail !== '' && newEmail !== (user?.email ?? '')
+      console.log('[executeSaveProfile] email check | newEmail:', newEmail, '| emailChanging:', emailChanging)
+
+      if (emailChanging) {
+        // v2 — email change now uses update-email Edge Function (admin API), not updateUser({ email })
+        // Store the new email in metadata so the account-emails Edge Function
+        // can include it in the security notice sent to the old address.
+        console.log('[executeSaveProfile] storing _pending_email_change in metadata:', newEmail)
+        await supabase.auth.updateUser({ data: { _pending_email_change: newEmail } })
+
+        // Use the update-email Edge Function which calls admin.updateUserById()
+        // server-side — this bypasses Supabase's email confirmation requirement
+        // entirely.  The TOTP check that ran before executeSaveProfile() is the
+        // security gate; admin.updateUserById() + email_confirm:true completes
+        // the change immediately without a confirmation link.
+        console.log('[executeSaveProfile] invoking update-email Edge Function for:', newEmail)
+        const { error: fnErr } = await supabase.functions.invoke('update-email', {
+          body: { newEmail },
+        })
+        console.log('[executeSaveProfile] update-email result | error:', fnErr?.message ?? null)
+
+        if (fnErr) {
+          void supabase.auth.updateUser({ data: { _pending_email_change: null } })
+          throw new Error(fnErr.message ?? 'Failed to update email')
+        }
+
+        // Force the client session to reload so the JWT reflects the new email.
+        // admin.updateUserById() changes the email server-side but the existing
+        // access token still carries the old email claim; refreshSession() fetches
+        // a new token with the updated claim, which fires TOKEN_REFRESHED →
+        // AuthContext updates user → useEffect([user]) → profileEmail shows new value.
+        console.log('[executeSaveProfile] refreshing session to pick up new email...')
+        await supabase.auth.refreshSession()
+
+        setEmailChangePending(false)
+        setPendingNewEmail('')
+        console.log('[executeSaveProfile] ✓ email changed immediately to:', newEmail)
+      }
+
+      setProfileSaved(true)
+      setEditingProfile(false)
+      setTimeout(() => setProfileSaved(false), 4000)
+      console.log('[executeSaveProfile] done')
+    } catch (e) {
+      console.error('[executeSaveProfile] caught error:', e)
+      setProfileError(e instanceof Error ? e.message : 'Failed to save profile')
+    } finally {
+      setSavingProfile(false)
+    }
+  }
+
+  function cancelEdit() {
+    // Reset fields back to current user values
+    setProfileName((user?.user_metadata?.full_name as string | undefined) ?? '')
+    setProfileEmail(user?.email ?? '')
+    setProfilePhone((user?.user_metadata?.phone_number as string | undefined) ?? '')
+    setProfileRaceNum((user?.user_metadata?.race_number as string | undefined) ?? '')
+    setProfileError(null)
+    setPendingNewEmail('')
+    setEmailChangePending(false)
+    setEditingProfile(false)
+  }
+
   const [avatarUrl, setAvatarUrl] = useState<string | null>(
     (user?.user_metadata?.avatar_url as string | undefined) ?? null
   )
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
-  const [avatarError, setAvatarError] = useState<string | null>(null)
+  const [avatarError, setAvatarError]         = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   function savePressureUnit(unit: PressureUnit) {
@@ -158,13 +435,6 @@ export function SettingsPage() {
   function saveSpeedUnit(unit: SpeedUnit) {
     setSpeedUnitState(unit)
     localStorage.setItem('kc_speed_unit', unit)
-  }
-
-  async function saveName() {
-    if (!fullName.trim()) return
-    setSavingName(true)
-    await supabase.auth.updateUser({ data: { full_name: fullName.trim() } })
-    setSavingName(false)
   }
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -257,6 +527,7 @@ export function SettingsPage() {
       await supabase.from('karts').delete().eq('user_id', user.id)
       await supabase.from('team_branding').delete().eq('user_id', user.id)
       await supabase.auth.signOut()
+      await new Promise(resolve => setTimeout(resolve, 3000))
       navigate('/login')
     } catch {
       setDeletingAccount(false)
@@ -285,9 +556,21 @@ export function SettingsPage() {
       <div className="max-w-lg mx-auto space-y-5">
         {/* Profile */}
         <Card>
-          <h3 className="font-heading text-sm uppercase tracking-wider text-text-primary mb-4">{t('settings.profile')}</h3>
-          <div className="flex items-center gap-4 mb-4">
-            {/* Avatar */}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-heading text-sm uppercase tracking-wider text-text-primary">{t('settings.profile')}</h3>
+            {!editingProfile && (
+              <button
+                type="button"
+                onClick={() => setEditingProfile(true)}
+                className="flex items-center gap-1.5 text-xs text-accent-primary hover:text-accent-primary/80 font-semibold transition-colors cursor-pointer"
+              >
+                <Pencil size={11} /> Edit
+              </button>
+            )}
+          </div>
+
+          {/* Avatar row */}
+          <div className="flex items-center gap-4 mb-5">
             <div className="relative flex-shrink-0">
               <div className="w-16 h-16 rounded-full bg-accent-primary/20 flex items-center justify-center overflow-hidden">
                 {avatarUrl ? (
@@ -307,32 +590,111 @@ export function SettingsPage() {
                   : <Camera size={11} className="text-bg-primary" />
                 }
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAvatarChange}
-              />
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-text-primary truncate">{displayName}</p>
               <p className="text-xs text-text-muted truncate">{user?.email ?? '—'}</p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <Input
-                placeholder={t('settings.full_name')}
-                value={fullName}
-                onChange={e => setFullName(e.target.value)}
-                onKeyDown={(e: React.KeyboardEvent) => e.key === 'Enter' && void saveName()}
-              />
+
+          {/* Read-only view */}
+          {!editingProfile && (
+            <div className="space-y-3">
+              {[
+                { label: 'Full Name',    value: profileName    || '—' },
+                { label: 'Email',        value: profileEmail   || '—' },
+                { label: 'Phone Number', value: profilePhone   || '—' },
+                { label: 'Race Number',  value: profileRaceNum ? `#${profileRaceNum}` : '—' },
+              ].map(({ label, value }) => (
+                <div key={label} className="flex items-center justify-between py-2 border-b border-border-color last:border-0">
+                  <span className="text-xs text-text-muted font-heading uppercase tracking-wider">{label}</span>
+                  <span className="text-sm text-text-primary font-medium">{value}</span>
+                </div>
+              ))}
+              {profileSaved && (
+                <p className="text-xs text-green-400 flex items-center gap-1 pt-1">
+                  <CheckCircle2 size={11} /> Profile saved
+                </p>
+              )}
+              {emailChangeConfirmed && (
+                <p className="text-xs text-green-400 flex items-center gap-1 pt-1">
+                  <CheckCircle2 size={11} /> Email address confirmed and updated successfully.
+                </p>
+              )}
+              {emailChangePending && !emailChangeConfirmed && (
+                <p className="text-xs text-amber-400 pt-1">
+                  Verification sent to <strong>{pendingNewEmail}</strong>. Click the link in your inbox to confirm the change. A security notice has been sent to your old address.
+                </p>
+              )}
             </div>
-            <Button size="sm" onClick={() => void saveName()} loading={savingName} disabled={!fullName.trim()}>
-              {t('settings.save')}
-            </Button>
-          </div>
+          )}
+
+          {/* Edit form */}
+          {editingProfile && (
+            <div className="space-y-3">
+              <Input
+                label="Full Name"
+                placeholder="e.g. Jack Smith"
+                value={profileName}
+                onChange={e => setProfileName(e.target.value)}
+              />
+              <div>
+                <Input
+                  label="Email Address"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={profileEmail}
+                  onChange={e => setProfileEmail(e.target.value)}
+                />
+                {profileEmail !== (user?.email ?? '') ? (
+                  <p className="text-xs text-amber-400 mt-1 flex items-center gap-1">
+                    <Lock size={10} className="flex-shrink-0" />
+                    {mfaEnabled
+                      ? 'You\'ll be asked for your authenticator code before this change is applied.'
+                      : 'You\'ll be asked to confirm your password before this change is applied.'}
+                  </p>
+                ) : (
+                  (mfaEnabled || hasPasswordAuth) && (
+                    <p className="text-xs text-text-muted mt-1 flex items-center gap-1">
+                      <Lock size={10} className="flex-shrink-0" />
+                      {mfaEnabled ? 'Authenticator code required to change email' : 'Password required to change email'}
+                    </p>
+                  )
+                )}
+              </div>
+              <Input
+                label="Phone Number"
+                type="tel"
+                placeholder="e.g. +44 7700 900000"
+                value={profilePhone}
+                onChange={e => setProfilePhone(e.target.value)}
+              />
+              <Input
+                label="Race Number"
+                placeholder="e.g. 42"
+                value={profileRaceNum}
+                onChange={e => setProfileRaceNum(e.target.value.replace(/\D/g, '').slice(0, 3))}
+              />
+              {profileError && (
+                <p className="text-xs text-red-400">{profileError}</p>
+              )}
+              <div className="flex gap-2 pt-1">
+                <Button size="sm" onClick={saveProfile} loading={savingProfile}>
+                  Save Profile
+                </Button>
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  disabled={savingProfile}
+                  className="flex items-center gap-1.5 text-xs text-text-muted hover:text-text-primary transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  <X size={12} /> Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           {avatarError && (
             <p className="text-xs text-amber-400 mt-2">{avatarError}</p>
           )}
@@ -427,6 +789,9 @@ export function SettingsPage() {
 
           {billingOpen && (
             <div className="mt-4 space-y-4">
+              {/* Debug: log subscription state whenever billing section opens */}
+              {void console.log('[billing] section rendered | subscription:', JSON.stringify(subscription), '| tier:', tier, '| stripe_customer_id:', (subscription as any)?.stripe_customer_id ?? null, '| stripe_subscription_id:', subscription?.stripe_subscription_id ?? null, '| status:', subscription?.status ?? null)}
+
               {/* Current plan */}
               <div className="rounded-card border border-accent-primary/40 bg-accent-primary/5 p-4">
                 <div className="flex items-start justify-between gap-2 mb-2">
@@ -459,46 +824,23 @@ export function SettingsPage() {
                 </div>
               </div>
 
-              {/* Change plan */}
-              <div>
-                <p className="font-heading text-xs uppercase tracking-wider text-text-muted mb-2">Change Plan</p>
-                <div className="space-y-2">
-                  {BILLING_TIERS.filter(t => t.id !== tier).map(plan => {
-                    const currentIdx = tier ? TIER_ORDER.indexOf(tier) : -1
-                    const planIdx = TIER_ORDER.indexOf(plan.id)
-                    const isUpgrade = planIdx > currentIdx
-                    return (
-                      <div key={plan.id} className="rounded-card border border-border-color bg-bg-elevated p-4">
-                        <div className="flex items-start gap-3">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-heading font-bold text-sm text-text-primary">{plan.name}</p>
-                            <p className="font-mono text-base text-text-secondary leading-none mt-0.5">
-                              {plan.monthlyPrice}
-                              <span className="text-xs text-text-muted font-sans ml-1">/ month</span>
-                            </p>
-                            <ul className="mt-2 space-y-0.5">
-                              {plan.features.map(f => (
-                                <li key={f} className="flex items-center gap-1.5 text-xs text-text-muted">
-                                  <CheckCircle2 size={10} className="text-accent-primary flex-shrink-0" />
-                                  {f}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div className="flex-shrink-0">
-                            <Button
-                              size="sm"
-                              variant={isUpgrade ? 'primary' : 'secondary'}
-                              onClick={() => navigate('/subscribe')}
-                            >
-                              {isUpgrade ? 'Upgrade' : 'Downgrade'}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
+              {/* Manage subscription via Stripe portal */}
+              <div className="space-y-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => void openBillingPortal()}
+                  loading={portalLoading}
+                  className="w-full"
+                >
+                  Manage Subscription
+                </Button>
+                {portalError && (
+                  <p className="text-xs text-red-400">{portalError}</p>
+                )}
+                <p className="text-xs text-text-muted">
+                  Upgrade, downgrade, update payment method or cancel — all managed securely through Stripe.
+                </p>
               </div>
 
               <p className="text-xs text-text-muted pt-1">
@@ -691,6 +1033,29 @@ export function SettingsPage() {
           </button>
         </Card>
       </div>
+
+      {/* TOTP gate — preferred when Google Authenticator is set up */}
+      <ConfirmTotpModal
+        open={totpModalOpen}
+        factorId={mfaFactorId}
+        onCancel={() => setTotpModalOpen(false)}
+        onConfirmed={() => {
+          setTotpModalOpen(false)
+          void executeSaveProfile()
+        }}
+      />
+
+      {/* Password gate — fallback for users without TOTP (email changes only) */}
+      <ConfirmPasswordModal
+        open={confirmModalOpen}
+        title="Confirm your identity"
+        description="Enter your current password to change your email address."
+        onCancel={() => setConfirmModalOpen(false)}
+        onConfirmed={() => {
+          setConfirmModalOpen(false)
+          void executeSaveProfile()
+        }}
+      />
 
       {/* Delete Account Modal */}
       {deleteModalOpen && (

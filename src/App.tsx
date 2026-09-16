@@ -12,6 +12,8 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
 
 import { LoginPage }                from '@/pages/Login'
+import { ResetPasswordPage }        from '@/pages/ResetPassword'
+import { ConfirmEmailPage }          from '@/pages/ConfirmEmail'
 import { SubscribePage }            from '@/pages/Subscribe'
 import { DashboardPage }            from '@/pages/Dashboard'
 import { EventDetailPage }          from '@/pages/EventDetail'
@@ -88,6 +90,16 @@ const router = createBrowserRouter([
     // /register shows the same combined auth page with Create Account tab pre-selected
     path: '/register',
     element: <AuthLayout><LoginPage defaultMode="register" /></AuthLayout>,
+  },
+  {
+    // Accessible without auth — token in query string signs the user in
+    path: '/reset-password',
+    element: <ResetPasswordPage />,
+  },
+  {
+    // Accessible without auth — verifies email-change token from confirmation link
+    path: '/confirm-email',
+    element: <ConfirmEmailPage />,
   },
   {
     path: '/subscribe',

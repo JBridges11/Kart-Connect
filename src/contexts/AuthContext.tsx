@@ -6,9 +6,21 @@ interface AuthContextValue {
   user: User | null
   session: Session | null
   loading: boolean
+  /**
+   * Force a server-authoritative refresh of the user object in context.
+   * Call this after operations that change the user's email (or other
+   * fields) when you need the context to reflect the new value immediately,
+   * rather than waiting for the next onAuthStateChange event to resolve.
+   */
+  refreshUser: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextValue>({ user: null, session: null, loading: true })
+const AuthContext = createContext<AuthContextValue>({
+  user: null,
+  session: null,
+  loading: true,
+  refreshUser: async () => {},
+})
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -22,16 +34,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
-      setSession(s)
-      setUser(s?.user ?? null)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, s) => {
+      if (event === 'USER_UPDATED') {
+        // USER_UPDATED fires for any user attribute change (email, password, metadata).
+        // The session JWT may still carry the old email claim until the token is
+        // refreshed server-side, so call getUser() which always fetches the
+        // authoritative record from Supabase — this ensures the new email shows
+        // immediately after the confirmation link is clicked.
+        const { data } = await supabase.auth.getUser()
+        setSession(s)
+        setUser(data.user ?? s?.user ?? null)
+      } else {
+        setSession(s)
+        setUser(s?.user ?? null)
+      }
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
+  async function refreshUser() {
+    const { data } = await supabase.auth.getUser()
+    setUser(data.user ?? null)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, session, loading }}>
+    <AuthContext.Provider value={{ user, session, loading, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

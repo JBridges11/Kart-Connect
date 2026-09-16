@@ -72,6 +72,9 @@ export function SubscribePage() {
   const [searchParams] = useSearchParams()
   useAuth()
   const { subscription, trialDaysLeft } = useSubscription()
+  // has_trialed is set by the webhook the moment a trial starts, and persists
+  // even after the trial ends or the subscription is cancelled
+  const hasTrialed = !!(subscription as any)?.has_trialed
   const [interval, setInterval] = useState<Interval>('month')
   const [loadingTier, setLoadingTier] = useState<Tier | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -173,7 +176,9 @@ export function SubscribePage() {
           <h1 className="font-heading text-2xl font-bold uppercase tracking-wide text-text-primary">
             Choose your plan
           </h1>
-          <p className="text-text-muted text-sm">30-day free trial on Privateer. Cancel any time.</p>
+          <p className="text-text-muted text-sm">
+            {hasTrialed ? 'Subscribe to get back on track. Cancel any time.' : '30-day free trial on Privateer. Cancel any time.'}
+          </p>
 
           {/* Billing toggle */}
           <div className="flex items-center gap-1 bg-bg-elevated border border-border-color rounded-full p-1 mt-1">
@@ -234,7 +239,7 @@ export function SubscribePage() {
                   Most Popular
                 </div>
               )}
-              {tier.id === 'privateer' && (
+              {tier.id === 'privateer' && !hasTrialed && (
                 <div className="absolute -top-3 right-4 bg-green-500 text-white text-xs font-heading font-bold uppercase tracking-wider px-3 py-1 rounded-full">
                   Free Trial
                 </div>
@@ -284,7 +289,7 @@ export function SubscribePage() {
               >
                 {loadingTier === tier.id
                   ? <><span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" /> Redirecting…</>
-                  : tier.id === 'privateer' ? 'Start Free Trial' : 'Subscribe'
+                  : tier.id === 'privateer' && !hasTrialed ? 'Start Free Trial' : 'Subscribe'
                 }
               </button>
             </div>

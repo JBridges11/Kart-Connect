@@ -1,0 +1,106 @@
+﻿export const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to Kart Connect — Privateer</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background-color: #F2F2F2; font-family: 'Inter', Arial, sans-serif; color: #1A1A1A; -webkit-font-smoothing: antialiased; }
+    .email-wrapper { max-width: 600px; margin: 32px auto; background-color: #FFFFFF; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
+    .accent-bar { height: 4px; background: linear-gradient(90deg, #F5C518 0%, #7AC943 50%, #7B5EA7 100%); }
+    .header { background-color: #FFFFFF; padding: 12px 40px; border-bottom: 1px solid #F0F0F0; text-align: center; overflow: visible; }
+    .logo-img { height: 130px; width: auto; display: inline-block; margin: -10px 0; }
+    .hero { background: #FAFAFA; padding: 40px 40px 36px; border-bottom: 1px solid #F0F0F0; }
+    .hero-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #C9930A; margin-bottom: 12px; }
+    .hero-headline { font-size: 32px; font-weight: 700; line-height: 1.2; color: #1A1A1A; margin-bottom: 14px; }
+    .hero-headline span { color: #C9930A; }
+    .hero-sub { font-size: 15px; color: #555555; line-height: 1.65; max-width: 440px; }
+    .body-section { padding: 36px 40px 0; }
+    .greeting { font-size: 15px; color: #333333; line-height: 1.7; margin-bottom: 24px; }
+    .greeting strong { color: #1A1A1A; font-weight: 600; }
+    .plan-badge { display: inline-block; background-color: #FFF8E1; border: 1.5px solid #C9930A; color: #C9930A; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 14px; border-radius: 4px; margin-bottom: 8px; }
+    .plan-price { font-size: 13px; color: #AAAAAA; margin-bottom: 28px; }
+    .features-label { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #AAAAAA; margin-bottom: 14px; }
+    .section-divider { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #C9930A; background-color: #FFF8E1; padding: 7px 12px; border-radius: 4px; margin: 20px 0 14px; display: inline-block; }
+    .feature-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid #F2F2F2; }
+    .feature-item:last-child { border-bottom: none; }
+    .feature-icon { width: 34px; height: 34px; background-color: #FFF8E1; border-radius: 8px; flex-shrink: 0; font-size: 16px; line-height: 34px; text-align: center; }
+    .feature-icon.green { background-color: #F0FAE8; }
+    .feature-icon.purple { background-color: #F2EBFF; }
+    .feature-text strong { font-size: 14px; font-weight: 600; color: #1A1A1A; display: block; margin-bottom: 2px; }
+    .feature-text span { font-size: 13px; color: #777777; line-height: 1.5; }
+    .cta-section { padding: 36px 40px 32px; text-align: center; }
+    .cta-button { display: inline-block; background-color: #C9930A; color: #FFFFFF; font-size: 15px; font-weight: 700; letter-spacing: 0.04em; text-decoration: none; padding: 15px 44px; border-radius: 8px; }
+    .cta-sub { font-size: 12px; color: #AAAAAA; margin-top: 12px; }
+    .divider { height: 1px; background-color: #F0F0F0; margin: 0 40px; }
+    .support-section { padding: 28px 40px; }
+    .support-text { font-size: 13px; color: #888888; line-height: 1.7; }
+    .support-text a { color: #C9930A; text-decoration: none; font-weight: 500; }
+    .footer { background-color: #FAFAFA; border-top: 1px solid #F0F0F0; padding: 24px 40px; }
+    .footer-logo { font-size: 13px; font-weight: 700; color: #CCCCCC; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+    .footer-text { font-size: 11px; color: #BBBBBB; line-height: 1.7; }
+    .footer-links { margin-top: 10px; }
+    .footer-links a { font-size: 11px; color: #BBBBBB; text-decoration: none; margin-right: 14px; }
+    .footer-legal { margin-top: 14px; padding-top: 14px; border-top: 1px solid #EBEBEB; }
+    .footer-legal p { font-size: 11px; color: #BBBBBB; line-height: 1.7; }
+    .footer-legal a { color: #BBBBBB; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="accent-bar"></div>
+    <div class="header">
+      <img src="https://kartconnect.netlify.app/logo-email.png" alt="Kart Connect" class="logo-img" />
+    </div>
+    <div class="hero">
+      <div class="hero-eyebrow">Account activated</div>
+      <div class="hero-headline">Welcome to<br /><span>Kart Connect.</span></div>
+      <div class="hero-sub">Your setup platform is live. Log every session, track your best times, and make smarter decisions every race weekend.</div>
+    </div>
+    <div class="body-section">
+      <p class="greeting">Hi <strong>{{first_name}}</strong>,<br /><br />You're now set up on the <strong>Privateer</strong> plan. Here's everything included in your subscription:</p>
+      <div class="plan-badge">Privateer — Active</div>
+      <div class="plan-price">£12.99 / month &nbsp;&middot;&nbsp; 1 Driver</div>
+      <div class="features-label">What's included</div>
+      <div class="feature-item"><div class="feature-icon">🤖</div><div class="feature-text"><strong>AI Setup Advisor</strong><span>Real-time setup recommendations based on session data, track conditions, and weather.</span></div></div>
+      <div class="feature-item"><div class="feature-icon">📋</div><div class="feature-text"><strong>Session Logging</strong><span>Record lap times, chassis settings, tyre data, and driver feedback after every run.</span></div></div>
+      <div class="feature-item"><div class="feature-icon">📄</div><div class="feature-text"><strong>PDF Comparison Reports</strong><span>Generate side-by-side setup reports to review progress and share with your crew.</span></div></div>
+      <div class="feature-item"><div class="feature-icon">🌦</div><div class="feature-text"><strong>Met Office Integration</strong><span>Live weather data automatically tied to every session you log.</span></div></div>
+      <div class="feature-item"><div class="feature-icon">📷</div><div class="feature-text"><strong>Post Session Dashboard Scanner</strong><span>Scan your kart dashboard after each session to capture data instantly.</span></div></div>
+      <div class="feature-item"><div class="feature-icon">🔵</div><div class="feature-text"><strong>Post Session Tyre Pressure Gauge Scanner</strong><span>Scan your tyre pressure gauge to log readings accurately straight after the session.</span></div></div>
+      <div class="feature-item"><div class="feature-icon">⚖️</div><div class="feature-text"><strong>Tyre Pressure Stagger Tool</strong><span>Calculate and manage tyre pressure stagger to optimise kart balance for any circuit.</span></div></div>
+      <div class="feature-item"><div class="feature-icon">🏆</div><div class="feature-text"><strong>Leaderboards</strong><span>Automatically log your best lap times at every track, along with the exact setup that produced them.</span></div></div>
+
+    </div>
+    <div class="cta-section">
+      <a href="{{app_url}}" class="cta-button">Open Kart Connect</a>
+      <div class="cta-sub">Your dashboard is ready — log your first session today.</div>
+    </div>
+    <div class="divider"></div>
+    <div class="support-section">
+      <p class="support-text">Questions or need help? Reach us at <a href="mailto:info@kart-connect.com">info@kart-connect.com</a> — we'll get back to you fast.<br /><br />Manage your subscription, billing, and account details from your dashboard at any time.</p>
+    </div>
+    <div class="footer">
+      <div class="footer-logo">Kart Connect</div>
+      <div class="footer-text">
+        &copy; 2026 Kart Connect Ltd. All rights reserved.<br />
+        You're receiving this because you created an account at kart-connect.com.
+      </div>
+      <div class="footer-links">
+        <a href="{{privacy_url}}">Privacy Policy</a>
+        <a href="{{terms_url}}">Terms of Service</a>
+        <a href="{{unsubscribe_url}}">Unsubscribe</a>
+      </div>
+      <div class="footer-legal">
+        <p>
+          <a href="https://find-and-update.company-information.service.gov.uk/company/17357229" target="_blank">Kart Connect Ltd</a> &nbsp;&middot;&nbsp; Company No. 17357229<br />
+          71&ndash;75 Shelton Street, Covent Garden, London, United Kingdom, WC2H&nbsp;9JQ
+        </p>
+      </div>
+    </div>
+    <div class="accent-bar"></div>
+  </div>
+</body>
+</html>`

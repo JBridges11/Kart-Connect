@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { Button, Input } from '@/components/ui'
 import { useLanguage } from '@/contexts/LanguageContext'
 
-type Mode = 'signin' | 'register'
+type Mode = 'signin' | 'register' | 'forgot'
 
 interface Props {
   defaultMode?: Mode
@@ -24,6 +24,10 @@ export function LoginPage({ defaultMode = 'signin' }: Props) {
   const [error, setError]       = useState<string | null>(null)
   const [loading, setLoading]   = useState(false)
   const [registered, setRegistered] = useState(false)
+
+  // Forgot password
+  const [forgotSent, setForgotSent]       = useState(false)
+  const [forgotLoading, setForgotLoading] = useState(false)
 
   // MFA
   const [mfaStep, setMfaStep]       = useState(false)
@@ -74,6 +78,18 @@ export function LoginPage({ defaultMode = 'signin' }: Props) {
     setLoading(false)
   }
 
+  async function handleForgot(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    setForgotLoading(true)
+    const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    if (err) setError(err.message)
+    else setForgotSent(true)
+    setForgotLoading(false)
+  }
+
   async function verifyMfa() {
     if (!mfaFactorId || !mfaChallengeId || mfaCode.length !== 6) return
     setMfaLoading(true)
@@ -92,6 +108,7 @@ export function LoginPage({ defaultMode = 'signin' }: Props) {
     setError(null)
     setEmail('')
     setPassword('')
+    setForgotSent(false)
   }
 
   if (mfaStep) {
@@ -134,6 +151,76 @@ export function LoginPage({ defaultMode = 'signin' }: Props) {
           >
             Back to sign in
           </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Forgot password: sent confirmation ─────────────────────────────────────
+  if (mode === 'forgot' && forgotSent) {
+    return (
+      <div className="w-full max-w-sm text-center">
+        <img src="/logo-pdf.png" alt="Kart Connect" className="w-36 object-contain mx-auto mb-6" />
+        <h2 className="font-heading text-2xl font-bold tracking-wide uppercase text-text-primary mb-2">
+          Check Your Email
+        </h2>
+        <p className="text-text-muted text-sm leading-relaxed">
+          We sent a password reset link to <strong>{email}</strong>. Check your inbox and follow the link to set a new password.
+        </p>
+        <button
+          type="button"
+          onClick={() => switchMode('signin')}
+          className="inline-block mt-6 text-accent-primary hover:underline text-sm cursor-pointer"
+        >
+          Back to sign in
+        </button>
+      </div>
+    )
+  }
+
+  // ── Forgot password: email form ─────────────────────────────────────────────
+  if (mode === 'forgot') {
+    return (
+      <div className="w-full max-w-sm">
+        <div className="flex justify-center mb-8">
+          <img src="/logo-pdf.png" alt="Kart Connect" className="w-48 object-contain" />
+        </div>
+        <div className="bg-bg-card border border-border-color rounded-card overflow-hidden">
+          <div className="border-b border-border-color px-6 py-4">
+            <p className="font-heading font-bold text-xs uppercase tracking-wider text-text-primary">
+              Reset Password
+            </p>
+            <p className="text-xs text-text-muted mt-1">
+              Enter your email and we'll send you a reset link.
+            </p>
+          </div>
+          <div className="p-6">
+            <form onSubmit={handleForgot} className="space-y-4">
+              <Input
+                label={L.email}
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+              />
+              {error && (
+                <p className="text-sm text-accent-secondary bg-accent-secondary/10 border border-accent-secondary/20 rounded-card px-3 py-2">
+                  {error}
+                </p>
+              )}
+              <Button type="submit" loading={forgotLoading} className="w-full">
+                Send Reset Link
+              </Button>
+            </form>
+            <button
+              type="button"
+              onClick={() => switchMode('signin')}
+              className="w-full text-center text-xs text-text-muted hover:text-text-primary transition-colors cursor-pointer mt-4"
+            >
+              ← Back to sign in
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -217,6 +304,16 @@ export function LoginPage({ defaultMode = 'signin' }: Props) {
             <Button type="submit" loading={loading} className="w-full">
               {mode === 'signin' ? L.submit_signin : L.submit_register}
             </Button>
+
+            {mode === 'signin' && (
+              <button
+                type="button"
+                onClick={() => { setMode('forgot'); setError(null) }}
+                className="w-full text-center text-xs text-text-muted hover:text-text-primary transition-colors cursor-pointer mt-3"
+              >
+                Forgot password?
+              </button>
+            )}
           </form>
         </div>
       </div>

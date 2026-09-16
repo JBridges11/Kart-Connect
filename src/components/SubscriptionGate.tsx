@@ -14,7 +14,11 @@ export function SubscriptionGate() {
 
   const hasAccess = !!subscription?.stripe_subscription_id &&
     (subscription.status === 'active' || subscription.status === 'trialing')
-  if (!hasAccess) return <Navigate to="/subscribe" replace />
+  console.log('[SubscriptionGate] hasAccess:', hasAccess, '| stripe_subscription_id:', subscription?.stripe_subscription_id ?? null, '| status:', subscription?.status ?? null, '| tier:', subscription?.tier ?? null)
+  if (!hasAccess) {
+    console.warn('[SubscriptionGate] → redirecting to /subscribe — subscription does not qualify:', JSON.stringify(subscription))
+    return <Navigate to="/subscribe" replace />
+  }
 
   return <Outlet />
 }

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Plus, ArrowRight, Activity, Layers, CalendarDays, MapPin, Search, X, Check, Trash2, Flag, Radio } from 'lucide-react'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { Card, Button, Badge } from '@/components/ui'
@@ -7,6 +7,7 @@ import { useSessions } from '@/hooks/useSessions'
 import { useRaceWeekends } from '@/hooks/useRaceWeekends'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTeamBranding } from '@/hooks/useTeamBranding'
+import { useSubscription } from '@/hooks/useSubscription'
 import { supabase } from '@/lib/supabase'
 import { lapMsToString, formatDate } from '@/lib/formatters'
 
@@ -39,8 +40,10 @@ const conditionVariant: Record<string, 'info' | 'positive' | 'neutral'> = {
 
 export function DashboardPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { user } = useAuth()
   const { branding } = useTeamBranding()
+  const { subscription } = useSubscription()
   const { data: sessions, loading, refetch } = useSessions()
   const { data: raceWeekends, loading: rwLoading, refetch: refetchRW } = useRaceWeekends()
 
@@ -56,6 +59,20 @@ export function DashboardPage() {
   const [selectedRW, setSelectedRW] = useState<string[]>([])
   const [confirmDeleteRW, setConfirmDeleteRW] = useState(false)
   const [deletingRW, setDeletingRW] = useState(false)
+
+  // Post-checkout welcome banner
+  const [showBanner, setShowBanner] = useState(() => searchParams.get('subscription') === 'success')
+  useEffect(() => {
+    if (!showBanner) return
+    navigate('/dashboard', { replace: true })
+    const t = setTimeout(() => setShowBanner(false), 6000)
+    return () => clearTimeout(t)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const bannerMessage = subscription?.status === 'trialing'
+    ? 'Your 30-day free trial has started 🎉'
+    : subscription?.status === 'active'
+      ? 'Welcome! Your subscription is now active 🎉'
+      : 'Welcome! You\'re all set 🎉'
 
   function toggleSession(id: string, e: React.MouseEvent) {
     e.stopPropagation()
@@ -116,6 +133,26 @@ export function DashboardPage() {
 
   return (
     <PageWrapper title="">
+      {/* Post-checkout welcome banner */}
+      {showBanner && (
+        <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-green-500/25 bg-green-500/10 px-5 py-4 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl leading-none">🎉</span>
+            <div>
+              <p className="text-sm font-semibold text-green-700 dark:text-green-400">{bannerMessage}</p>
+              <p className="mt-0.5 text-xs text-green-600/70 dark:text-green-500/70">Your dashboard is ready — log your first session below.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowBanner(false)}
+            aria-label="Dismiss"
+            className="flex-shrink-0 text-green-600/50 transition-colors hover:text-green-700 dark:text-green-500/50 dark:hover:text-green-400"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       {/* Greeting + actions */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
