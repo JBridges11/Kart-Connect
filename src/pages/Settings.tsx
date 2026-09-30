@@ -3,19 +3,17 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import {
   CheckCircle2, ChevronDown, Zap, Camera, ShieldCheck, ShieldOff,
   ImagePlus, Trash2, AlertTriangle, Pencil, X, Lock,
-  User, Palette, CalendarDays, Bell, Globe, Tag, Shield, LogOut,
+  User, Palette, Bell, Globe, Tag, Shield, LogOut,
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { PageWrapper } from '@/components/layout/PageWrapper'
-import { Card, Button, Input, SegmentedControl, Select, ConfirmPasswordModal, ConfirmTotpModal } from '@/components/ui'
+import { Card, Button, Input, SegmentedControl, ConfirmPasswordModal, ConfirmTotpModal } from '@/components/ui'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LANGUAGES } from '@/i18n'
 import { supabase } from '@/lib/supabase'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useTeamBranding } from '@/hooks/useTeamBranding'
-import { useTracks } from '@/hooks/useTracks'
-import { useKarts } from '@/hooks/useKarts'
 import type { PressureUnit, TempUnit, SpeedUnit } from '@/types'
 
 // ─── Billing tiers ────────────────────────────────────────────────────────────
@@ -113,10 +111,7 @@ export function SettingsPage() {
   const { language, setLanguage, t } = useLanguage()
   const { subscription, tier, trialDaysLeft } = useSubscription()
   const { branding, save: saveBranding, uploadLogo, uploadLogoDark } = useTeamBranding()
-  const { data: tracks } = useTracks()
-  const { data: karts }  = useKarts()
-
-  // ── Accordion open state — persisted to sessionStorage so a mid-save auth
+// ── Accordion open state — persisted to sessionStorage so a mid-save auth
   //    state change (which remounts this component) doesn't collapse everything
   const OPENS_KEY = 'kc_settings_opens'
   const [opens, setOpens] = useState(() => {
@@ -125,7 +120,7 @@ export function SettingsPage() {
       if (saved) return JSON.parse(saved) as Record<string, boolean>
     } catch { /* ignore */ }
     return {
-      profile: false, appearance: false, sessionDefaults: false,
+      profile: false, appearance: false,
       notifications: false, language: false, branding: false,
       billing: false, privacy: false, security: false, account: false,
     }
@@ -162,23 +157,6 @@ const [tempUnit, setTempUnit] = useState<TempUnit>(
 function saveTempUnit(u: TempUnit)         { setTempUnit(u);     localStorage.setItem('kc_temp_unit', u) }
   function saveSpeedUnit(u: SpeedUnit)       { setSpeedUnit(u);    localStorage.setItem('kc_speed_unit', u) }
 
-  // ── Session defaults ──────────────────────────────────────────────────────
-  const [sessDefaults, setSessDefaults] = useState({
-    track_id:   '',
-    kart_id:    '',
-    visibility: 'private' as 'private' | 'team',
-  })
-  const [savingSessDefaults, setSavingSessDefaults] = useState(false)
-  const [sessDefaultsSaved, setSessDefaultsSaved]   = useState(false)
-
-  async function saveSessDefaults() {
-    setSavingSessDefaults(true)
-    await supabase.auth.updateUser({ data: { session_defaults: sessDefaults } })
-    setSavingSessDefaults(false)
-    setSessDefaultsSaved(true)
-    setTimeout(() => setSessDefaultsSaved(false), 3000)
-  }
-
   // ── Notifications ─────────────────────────────────────────────────────────
   const [notifs, setNotifs] = useState({
     setup_shared:     true,
@@ -202,7 +180,6 @@ function saveTempUnit(u: TempUnit)         { setTempUnit(u);     localStorage.se
   useEffect(() => {
     if (!user) return
     const meta = user.user_metadata as Record<string, unknown> | undefined ?? {}
-    if (meta.session_defaults) setSessDefaults(prev => ({ ...prev, ...(meta.session_defaults as typeof sessDefaults) }))
     if (meta.notifications)    setNotifs(prev =>       ({ ...prev, ...(meta.notifications as typeof notifs) }))
   }, [user])
 
@@ -708,38 +685,7 @@ function saveTempUnit(u: TempUnit)         { setTempUnit(u);     localStorage.se
           </div>
         </AccSection>
 
-        {/* ── 3. Session defaults ─────────────────────────────────────────── */}
-        <AccSection icon={<CalendarDays size={14} />} title="Session Defaults" open={opens.sessionDefaults} onToggle={() => toggle('sessionDefaults')}>
-          <div className="space-y-4">
-            <Select
-              label="Default Track"
-              placeholder="No default"
-              value={sessDefaults.track_id}
-              onChange={e => setSessDefaults(d => ({ ...d, track_id: e.target.value }))}
-              options={tracks.map(t => ({ label: t.name, value: t.id }))}
-            />
-            <Select
-              label="Default Kart"
-              placeholder="No default"
-              value={sessDefaults.kart_id}
-              onChange={e => setSessDefaults(d => ({ ...d, kart_id: e.target.value }))}
-              options={karts.map(k => ({ label: k.nickname || k.kart_class || 'Unnamed kart', value: k.id }))}
-            />
-            <SegmentedControl
-              label="Default Visibility"
-              options={[{ label: 'Private', value: 'private' }, { label: 'Team', value: 'team' }]}
-              value={sessDefaults.visibility}
-              onChange={v => setSessDefaults(d => ({ ...d, visibility: v as 'private' | 'team' }))}
-            />
-            <div className="pt-1">
-              <Button size="sm" onClick={() => void saveSessDefaults()} loading={savingSessDefaults}>
-                {sessDefaultsSaved ? '✓ Saved' : 'Save Defaults'}
-              </Button>
-            </div>
-          </div>
-        </AccSection>
-
-        {/* ── 4. Notifications ───────────────────────────────────────────── */}
+        {/* ── 3. Notifications ───────────────────────────────────────────── */}
         <AccSection icon={<Bell size={14} />} title="Notifications" open={opens.notifications} onToggle={() => toggle('notifications')}>
           <div className="space-y-0">
             <SwitchRow
