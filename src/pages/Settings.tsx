@@ -116,21 +116,26 @@ export function SettingsPage() {
   const { data: tracks } = useTracks()
   const { data: karts }  = useKarts()
 
-  // ── Accordion open state (all closed by default) ──────────────────────────
-  const [opens, setOpens] = useState({
-    profile:         false,
-    appearance:      false,
-    sessionDefaults: false,
-    notifications:   false,
-    language:        false,
-    branding:        false,
-    billing:         false,
-    privacy:         false,
-    security:        false,
-    account:         false,
+  // ── Accordion open state — persisted to sessionStorage so a mid-save auth
+  //    state change (which remounts this component) doesn't collapse everything
+  const OPENS_KEY = 'kc_settings_opens'
+  const [opens, setOpens] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(OPENS_KEY)
+      if (saved) return JSON.parse(saved) as Record<string, boolean>
+    } catch { /* ignore */ }
+    return {
+      profile: false, appearance: false, sessionDefaults: false,
+      notifications: false, language: false, branding: false,
+      billing: false, privacy: false, security: false, account: false,
+    }
   })
   function toggle(key: keyof typeof opens) {
-    setOpens(o => ({ ...o, [key]: !o[key] }))
+    setOpens(o => {
+      const next = { ...o, [key]: !o[key] }
+      try { sessionStorage.setItem(OPENS_KEY, JSON.stringify(next)) } catch { /* ignore */ }
+      return next
+    })
   }
 
   // ── Theme ─────────────────────────────────────────────────────────────────
