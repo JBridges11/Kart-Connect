@@ -16,7 +16,7 @@ import { useSubscription } from '@/hooks/useSubscription'
 import { useTeamBranding } from '@/hooks/useTeamBranding'
 import { useTracks } from '@/hooks/useTracks'
 import { useKarts } from '@/hooks/useKarts'
-import type { PressureUnit, AltUnit, TempUnit, SpeedUnit } from '@/types'
+import type { PressureUnit, TempUnit, SpeedUnit } from '@/types'
 
 // ─── Billing tiers ────────────────────────────────────────────────────────────
 const BILLING_TIERS = [
@@ -152,18 +152,14 @@ export function SettingsPage() {
   const [pressureUnit, setPressureUnit] = useState<PressureUnit>(
     (localStorage.getItem('kc_pressure_unit') as PressureUnit) ?? 'bar'
   )
-  const [altUnit, setAltUnit] = useState<AltUnit>(
-    (localStorage.getItem('kc_alt_unit') as AltUnit) ?? 'm'
-  )
-  const [tempUnit, setTempUnit] = useState<TempUnit>(
+const [tempUnit, setTempUnit] = useState<TempUnit>(
     (localStorage.getItem('kc_temp_unit') as TempUnit) ?? 'c'
   )
   const [speedUnit, setSpeedUnit] = useState<SpeedUnit>(
     (localStorage.getItem('kc_speed_unit') as SpeedUnit) ?? 'kph'
   )
   function savePressureUnit(u: PressureUnit) { setPressureUnit(u); localStorage.setItem('kc_pressure_unit', u) }
-  function saveAltUnit(u: AltUnit)           { setAltUnit(u);      localStorage.setItem('kc_alt_unit', u) }
-  function saveTempUnit(u: TempUnit)         { setTempUnit(u);     localStorage.setItem('kc_temp_unit', u) }
+function saveTempUnit(u: TempUnit)         { setTempUnit(u);     localStorage.setItem('kc_temp_unit', u) }
   function saveSpeedUnit(u: SpeedUnit)       { setSpeedUnit(u);    localStorage.setItem('kc_speed_unit', u) }
 
   // ── Session defaults ──────────────────────────────────────────────────────
@@ -696,13 +692,7 @@ export function SettingsPage() {
                 value={pressureUnit}
                 onChange={v => savePressureUnit(v as PressureUnit)}
               />
-              <SegmentedControl
-                label={t('settings.altitude_unit')}
-                options={[{ label: 'Metres (m)', value: 'm' }, { label: 'Feet (ft)', value: 'ft' }]}
-                value={altUnit}
-                onChange={v => saveAltUnit(v as AltUnit)}
-              />
-              <SegmentedControl
+<SegmentedControl
                 label={t('settings.temperature_unit')}
                 options={[{ label: 'Celsius (°C)', value: 'c' }, { label: 'Fahrenheit (°F)', value: 'f' }]}
                 value={tempUnit}

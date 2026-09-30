@@ -334,9 +334,7 @@ export function RaceWeekendDetailPage() {
               {weekend.wind_speed_mph != null && (
                 <div><span className="text-text-muted text-xs uppercase tracking-wider block">Wind</span><span className="text-text-primary font-medium">{weekend.wind_speed_mph} mph</span></div>
               )}
-              {weekend.altitude_m != null && (
-                <div><span className="text-text-muted text-xs uppercase tracking-wider block">Altitude</span><span className="text-text-primary font-medium">{weekend.altitude_m} m</span></div>
-              )}
+
             </div>
           ) : (
             <p className="text-text-muted text-sm mt-2">No weather set — tap Edit to add conditions before going live.</p>
@@ -583,7 +581,6 @@ export function RaceWeekendDetailPage() {
             <Input label="Air Temp" type="number" unit="°C"  value={weatherForm.air_temp_c}     onChange={wf('air_temp_c')}     placeholder="e.g. 18" />
             <Input label="Humidity" type="number" unit="%"   value={weatherForm.humidity_pct}   onChange={wf('humidity_pct')}   placeholder="e.g. 65" />
             <Input label="Wind"     type="number" unit="mph" value={weatherForm.wind_speed_mph}  onChange={wf('wind_speed_mph')}  placeholder="e.g. 8"  />
-            <Input label="Altitude" type="number" unit="m"   value={weatherForm.altitude_m}     onChange={wf('altitude_m')}     placeholder="e.g. 120" />
           </div>
           <div className="flex gap-2 justify-end pt-1">
             <Button variant="ghost" size="sm" onClick={() => setWeatherOpen(false)}>Cancel</Button>
