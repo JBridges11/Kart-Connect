@@ -510,7 +510,7 @@ function saveTempUnit(u: TempUnit)         { setTempUnit(u);     localStorage.se
 
   return (
     <PageWrapper title={t('nav.settings')}>
-      <div className="max-w-lg mx-auto space-y-3">
+      <div className="max-w-lg mx-auto space-y-3 pb-16">
 
         {/* ── 1. Profile ─────────────────────────────────────────────────── */}
         <AccSection icon={<User size={14} />} title={t('settings.profile')} open={opens.profile} onToggle={() => toggle('profile')}>
