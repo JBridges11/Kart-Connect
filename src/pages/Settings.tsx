@@ -417,21 +417,6 @@ function saveTempUnit(u: TempUnit)         { setTempUnit(u);     localStorage.se
     window.location.href = data.url
   }
 
-  // ── Data export ───────────────────────────────────────────────────────────
-  const [exporting,    setExporting]    = useState(false)
-  const [exportError,  setExportError]  = useState<string | null>(null)
-
-  async function exportData() {
-    setExporting(true)
-    setExportError(null)
-    const { data, error } = await supabase.functions.invoke('export-user-data', {})
-    setExporting(false)
-    if (error || !data?.url) {
-      setExportError('Data export is not available yet. Contact info@kart-connect.com to request your data.')
-      return
-    }
-    window.location.href = data.url
-  }
 
   // ── 2FA ───────────────────────────────────────────────────────────────────
   const [enrollUri,       setEnrollUri]       = useState<string | null>(null)
@@ -881,18 +866,6 @@ function saveTempUnit(u: TempUnit)         { setTempUnit(u);     localStorage.se
                 <p className="text-sm font-semibold text-text-primary">Session data protected</p>
                 <p className="text-xs text-text-muted mt-0.5">Your setup data is encrypted at rest and in transit. Only you can access it.</p>
               </div>
-            </div>
-
-            {/* Export */}
-            <div>
-              <p className="text-sm font-medium text-text-primary mb-1">Export your data</p>
-              <p className="text-xs text-text-muted mb-3">
-                Download a copy of all your sessions, setups, and account information as a ZIP file.
-              </p>
-              <Button size="sm" variant="secondary" onClick={() => void exportData()} loading={exporting}>
-                Export Data
-              </Button>
-              {exportError && <p className="text-xs text-amber-400 mt-2">{exportError}</p>}
             </div>
 
             {/* Links */}
