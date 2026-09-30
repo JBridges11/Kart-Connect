@@ -4,12 +4,14 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import type { Language } from '@/i18n'
 
 const LANG_MAP: Record<Language, string> = {
-  en:      'en-GB',
-  'en-us': 'en-US',
-  es:      'es-ES',
-  fr:      'fr-FR',
-  it:      'it-IT',
-  ar:      'ar-SA',
+  en: 'en-GB',
+  de: 'de-DE',
+  pt: 'pt-BR',
+  ja: 'ja-JP',
+  es: 'es-ES',
+  fr: 'fr-FR',
+  it: 'it-IT',
+  ar: 'ar-SA',
 }
 
 interface Props {

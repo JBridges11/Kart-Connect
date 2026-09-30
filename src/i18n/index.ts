@@ -1,12 +1,14 @@
-export type Language = 'en' | 'en-us' | 'es' | 'fr' | 'it' | 'ar'
+export type Language = 'en' | 'es' | 'fr' | 'it' | 'ar' | 'de' | 'pt' | 'ja'
 
 export const LANGUAGES: { code: Language; flag: string; name: string; native: string; rtl?: boolean }[] = [
-  { code: 'en',    flag: '🇬🇧', name: 'English',          native: 'English'   },
-  { code: 'en-us', flag: '🇺🇸', name: 'English (US)',      native: 'English'   },
-  { code: 'es',    flag: '🇪🇸', name: 'Spanish',           native: 'Español'   },
-  { code: 'fr',    flag: '🇫🇷', name: 'French',            native: 'Français'  },
-  { code: 'it',    flag: '🇮🇹', name: 'Italian',           native: 'Italiano'  },
-  { code: 'ar',    flag: '🇸🇦', name: 'Arabic',            native: 'العربية', rtl: true },
+  { code: 'en', flag: '🇬🇧', name: 'English',            native: 'English'    },
+  { code: 'de', flag: '🇩🇪', name: 'German',             native: 'Deutsch'    },
+  { code: 'es', flag: '🇪🇸', name: 'Spanish',            native: 'Español'    },
+  { code: 'fr', flag: '🇫🇷', name: 'French',             native: 'Français'   },
+  { code: 'it', flag: '🇮🇹', name: 'Italian',            native: 'Italiano'   },
+  { code: 'pt', flag: '🇧🇷', name: 'Portuguese (BR)',    native: 'Português'  },
+  { code: 'ar', flag: '🇸🇦', name: 'Arabic',             native: 'العربية', rtl: true },
+  { code: 'ja', flag: '🇯🇵', name: 'Japanese',           native: '日本語'      },
 ]
 
 type Translations = {
@@ -112,13 +114,151 @@ const en: Translations = {
   'common.new':     'New',
 }
 
-const enUs: Translations = {
-  ...en,
-  'lang.title':   'Choose Your Language',
-  'nav.home':     'Dashboard',
-  'nav.garage':   'Garage',
-  'nav.my_kart':  'My Kart',
-  'settings.pressure_unit': 'Tire Pressure Unit',
+const de: Translations = {
+  'lang.title':   'Sprache wählen',
+  'lang.subtitle': 'Du kannst dies jederzeit in den Einstellungen ändern',
+  'lang.continue': 'Weiter',
+
+  'nav.home':        'Dashboard',
+  'nav.new_session': 'Neue Session',
+  'nav.tracks':      'Strecken',
+  'nav.garage':      'Garage',
+  'nav.my_kart':     'Mein Kart',
+  'nav.my_team':     'Mein Team',
+  'nav.analytics':   'Statistiken',
+  'nav.leaderboard': 'Rangliste',
+  'nav.stats':       'Statistiken',
+  'nav.settings':    'Einstellungen',
+
+  'sidebar.live_session':     'Live-Session',
+  'sidebar.end_live_session': 'Live-Session beenden',
+  'sidebar.are_you_sure':     'Bist du sicher?',
+  'sidebar.yes_end_it':       'Ja, beenden',
+  'sidebar.cancel':           'Abbrechen',
+
+  'settings.profile':          'Profil',
+  'settings.preferences':      'Einstellungen',
+  'settings.billing':          'Abrechnung & Abonnement',
+  'settings.sign_out':         'Abmelden',
+  'settings.signing_out':      'Abmelden…',
+  'settings.pressure_unit':    'Reifendruckeinheit',
+  'settings.altitude_unit':    'Höheneinheit',
+  'settings.temperature_unit': 'Temperatureinheit',
+  'settings.speed_unit':       'Geschwindigkeitseinheit',
+  'settings.language':         'Sprache',
+  'settings.save':             'Speichern',
+  'settings.full_name':        'Vollständiger Name',
+  'settings.billing_contact':  'Zur Verwaltung deines Abonnements wende dich an den Support unter',
+
+  'common.save':    'Speichern',
+  'common.cancel':  'Abbrechen',
+  'common.delete':  'Löschen',
+  'common.edit':    'Bearbeiten',
+  'common.back':    'Zurück',
+  'common.loading': 'Lädt…',
+  'common.error':   'Etwas ist schiefgelaufen',
+  'common.search':  'Suchen',
+  'common.confirm': 'Bestätigen',
+  'common.done':    'Fertig',
+  'common.new':     'Neu',
+}
+
+const pt: Translations = {
+  'lang.title':   'Escolha seu idioma',
+  'lang.subtitle': 'Você pode alterar isso a qualquer momento nas Configurações',
+  'lang.continue': 'Continuar',
+
+  'nav.home':        'Painel',
+  'nav.new_session': 'Nova Sessão',
+  'nav.tracks':      'Pistas',
+  'nav.garage':      'Garagem',
+  'nav.my_kart':     'Meu Kart',
+  'nav.my_team':     'Meu Time',
+  'nav.analytics':   'Estatísticas',
+  'nav.leaderboard': 'Classificação',
+  'nav.stats':       'Estatísticas',
+  'nav.settings':    'Configurações',
+
+  'sidebar.live_session':     'Sessão ao Vivo',
+  'sidebar.end_live_session': 'Encerrar sessão ao vivo',
+  'sidebar.are_you_sure':     'Tem certeza?',
+  'sidebar.yes_end_it':       'Sim, encerrar',
+  'sidebar.cancel':           'Cancelar',
+
+  'settings.profile':          'Perfil',
+  'settings.preferences':      'Preferências',
+  'settings.billing':          'Faturamento e Assinatura',
+  'settings.sign_out':         'Sair',
+  'settings.signing_out':      'Saindo…',
+  'settings.pressure_unit':    'Unidade de Pressão dos Pneus',
+  'settings.altitude_unit':    'Unidade de Altitude',
+  'settings.temperature_unit': 'Unidade de Temperatura',
+  'settings.speed_unit':       'Unidade de Velocidade',
+  'settings.language':         'Idioma',
+  'settings.save':             'Salvar',
+  'settings.full_name':        'Nome completo',
+  'settings.billing_contact':  'Para gerenciar sua assinatura, entre em contato com o suporte em',
+
+  'common.save':    'Salvar',
+  'common.cancel':  'Cancelar',
+  'common.delete':  'Excluir',
+  'common.edit':    'Editar',
+  'common.back':    'Voltar',
+  'common.loading': 'Carregando…',
+  'common.error':   'Algo deu errado',
+  'common.search':  'Pesquisar',
+  'common.confirm': 'Confirmar',
+  'common.done':    'Concluído',
+  'common.new':     'Novo',
+}
+
+const ja: Translations = {
+  'lang.title':   '言語を選択',
+  'lang.subtitle': '設定からいつでも変更できます',
+  'lang.continue': '続ける',
+
+  'nav.home':        'ダッシュボード',
+  'nav.new_session': '新しいセッション',
+  'nav.tracks':      'サーキット',
+  'nav.garage':      'ガレージ',
+  'nav.my_kart':     'マイカート',
+  'nav.my_team':     'マイチーム',
+  'nav.analytics':   '分析',
+  'nav.leaderboard': 'ランキング',
+  'nav.stats':       '統計',
+  'nav.settings':    '設定',
+
+  'sidebar.live_session':     'ライブセッション',
+  'sidebar.end_live_session': 'ライブセッションを終了',
+  'sidebar.are_you_sure':     '本当によろしいですか？',
+  'sidebar.yes_end_it':       'はい、終了します',
+  'sidebar.cancel':           'キャンセル',
+
+  'settings.profile':          'プロフィール',
+  'settings.preferences':      '設定',
+  'settings.billing':          '請求とサブスクリプション',
+  'settings.sign_out':         'サインアウト',
+  'settings.signing_out':      'サインアウト中…',
+  'settings.pressure_unit':    'タイヤ空気圧単位',
+  'settings.altitude_unit':    '高度単位',
+  'settings.temperature_unit': '温度単位',
+  'settings.speed_unit':       '速度単位',
+  'settings.language':         '言語',
+  'settings.save':             '保存',
+  'settings.full_name':        'フルネーム',
+  'settings.billing_contact':  'サブスクリプションの管理はサポートまでお問い合わせください',
+
+  'common.save':    '保存',
+  'common.cancel':  'キャンセル',
+  'common.delete':  '削除',
+  'common.edit':    '編集',
+  'common.back':    '戻る',
+  'common.loading': '読み込み中…',
+  'common.error':   'エラーが発生しました',
+  'common.search':  '検索',
+  'common.confirm': '確認',
+  'common.done':    '完了',
+  'common.new':     '新規',
 }
 
 const es: Translations = {
@@ -317,7 +457,7 @@ const ar: Translations = {
   'common.new':     'جديد',
 }
 
-const dict: Record<Language, Translations> = { en, 'en-us': enUs, es, fr, it, ar }
+const dict: Record<Language, Translations> = { en, de, pt, ja, es, fr, it, ar }
 
 export function getTranslations(lang: Language) {
   return dict[lang] ?? en
