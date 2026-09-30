@@ -136,6 +136,10 @@ export function NewSessionPage() {
   const [wxFetched, setWxFetched] = useState(false)
   const weatherAppliedRef = useRef(false)
 
+  const [prevPressureRec, setPrevPressureRec] = useState<{
+    fl: number | null; fr: number | null; rl: number | null; rr: number | null; sessionLabel: string
+  } | null>(null)
+
   const { data: tracks, refetch: refetchTracks } = useTracks()
   const { data: karts,  refetch: refetchKarts  } = useKarts()
   const { data: sessions } = useSessions()
@@ -170,6 +174,39 @@ export function NewSessionPage() {
       .catch(() => setWxError(true))
       .finally(() => setWxLoading(false))
   }, [state.step, state.trackId, tracks]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // When entering Step 5 (Base Setup), look up the previous session in this event
+  // and calculate recommended cold pressures to show alongside the tyre pressure inputs
+  useEffect(() => {
+    if (state.step !== 5 || !state.eventId) return
+    const eventSessions = sessions
+      .filter(s => s.event_id === state.eventId)
+      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    if (!eventSessions.length) return
+    // The most recent saved session in this event is the "previous" one
+    const prev = eventSessions[eventSessions.length - 1]
+    const prevLabel = prev.session_name ?? `Test ${eventSessions.length}`
+    void supabase
+      .from('setups')
+      .select('tyre_pressure_fl, tyre_pressure_fr, tyre_pressure_rl, tyre_pressure_rr, hot_pressure_fl, hot_pressure_fr, hot_pressure_rl, hot_pressure_rr')
+      .eq('session_id', prev.id)
+      .maybeSingle()
+      .then(({ data: prevSetup }) => {
+        if (!prevSetup) return
+        const { hot_pressure_fl: hfl, hot_pressure_fr: hfr, hot_pressure_rl: hrl, hot_pressure_rr: hrr } = prevSetup
+        if (hfl == null || hfr == null || hrl == null || hrr == null) return
+        const avg = (hfl + hfr + hrl + hrr) / 4
+        const calc = (hot: number, cold: number | null) =>
+          cold != null ? Math.round((cold + (avg - hot)) * 100) / 100 : null
+        setPrevPressureRec({
+          fl: calc(hfl, prevSetup.tyre_pressure_fl),
+          fr: calc(hfr, prevSetup.tyre_pressure_fr),
+          rl: calc(hrl, prevSetup.tyre_pressure_rl),
+          rr: calc(hrr, prevSetup.tyre_pressure_rr),
+          sessionLabel: prevLabel,
+        })
+      })
+  }, [state.step, state.eventId, sessions])
 
   function retryWeather() {
     weatherAppliedRef.current = false
@@ -303,9 +340,13 @@ export function NewSessionPage() {
 
       const kart = karts.find(k => k.id === state.kartId)
       const kartIdentifiers: Partial<SetupFormData> = kart ? {
-        chassis_type: kart.chassis_type,
-        chassis_make: kart.kart_make ?? null,
-        engine_type:  kart.engine_type,
+        driver_name:    kart.driver_name ?? null,
+        chassis_type:   kart.chassis_type,
+        chassis_make:   kart.kart_make ?? null,
+        chassis_number: kart.chassis_number ?? null,
+        engine_type:    kart.engine_type,
+        engine_make:    kart.engine_make ?? null,
+        engine_number:  kart.engine_number ?? null,
       } : {}
 
       const loadedBaseSetup = setup
@@ -439,7 +480,13 @@ export function NewSessionPage() {
     setSaving(true)
     setSaveError(null)
     try {
-      // Save a single Test 1 session — more tests added via the event page
+      // Count existing sessions for this event to assign the correct test number
+      const { count: existingCount } = await supabase
+        .from('sessions')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_id', state.eventId)
+      const sessionNumber = (existingCount ?? 0) + 1
+
       const { data: sessionRows, error: sessionErr } = await supabase
         .from('sessions')
         .insert([{
@@ -456,7 +503,7 @@ export function NewSessionPage() {
           humidity_pct:        state.sessionMeta.humidity_pct,
           wind_speed_mph:      state.sessionMeta.wind_speed_mph,
           notes:               state.sessionMeta.notes,
-          session_name:        'Test 1',
+          session_name:        `Test ${sessionNumber}`,
           session_type:        'testing' as const,
           best_lap_time_ms:    null,
           total_laps:          null,
@@ -646,7 +693,16 @@ export function NewSessionPage() {
                   onClick={() => {
                     update({
                       kartId: k.id,
-                      baseSetup: { ...state.baseSetup, chassis_type: k.chassis_type, engine_type: k.engine_type, chassis_make: k.kart_make ?? null },
+                      baseSetup: {
+                        ...state.baseSetup,
+                        driver_name:    k.driver_name ?? null,
+                        chassis_type:   k.chassis_type,
+                        chassis_make:   k.kart_make ?? null,
+                        chassis_number: k.chassis_number ?? null,
+                        engine_type:    k.engine_type,
+                        engine_make:    k.engine_make ?? null,
+                        engine_number:  k.engine_number ?? null,
+                      },
                     })
                     nextStep()
                   }}
@@ -655,20 +711,35 @@ export function NewSessionPage() {
                     selected ? 'border-accent-primary bg-accent-primary/5' : 'hover:border-accent-primary/30',
                   ].join(' ')}
                 >
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    {/* Driver initials avatar */}
+                    <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-heading font-bold text-sm ${selected ? 'bg-accent-primary text-bg-primary' : 'bg-bg-elevated text-text-muted'}`}>
+                      {driverLabel.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()}
+                    </div>
                     <div className="min-w-0 flex-1">
+                      {/* Driver name + class badge */}
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-heading font-semibold text-base text-text-primary">{driverLabel}</p>
+                        <p className="font-heading font-semibold text-base text-text-primary leading-tight">{driverLabel}</p>
                         {k.kart_class && (
                           <span className="text-xs px-2 py-0.5 rounded-full bg-accent-primary/15 text-accent-primary font-medium">{k.kart_class}</span>
                         )}
                       </div>
-                      <p className="text-sm text-text-muted mt-0.5">{kartLine}</p>
-                      {k.chassis_number && (
-                        <p className="text-xs text-text-muted/70 mt-0.5 font-mono">#{k.chassis_number}</p>
-                      )}
+                      {/* Chassis line */}
+                      <p className="text-sm text-text-muted mt-1">{kartLine}</p>
+                      {/* Serial numbers */}
+                      <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1">
+                        {k.chassis_number && (
+                          <p className="text-xs text-text-muted/70 font-mono">Chassis #{k.chassis_number}</p>
+                        )}
+                        {k.engine_number && (
+                          <p className="text-xs text-text-muted/70 font-mono">Engine #{k.engine_number}</p>
+                        )}
+                        {k.engine_make && (
+                          <p className="text-xs text-text-muted/70">{k.engine_make}</p>
+                        )}
+                      </div>
                     </div>
-                    {selected && <Check size={16} className="text-accent-primary flex-shrink-0" />}
+                    {selected && <Check size={16} className="text-accent-primary flex-shrink-0 mt-1" />}
                   </div>
                 </Card>
               )
@@ -889,6 +960,7 @@ export function NewSessionPage() {
             pressureUnit={pressureUnit}
             hideIdentifiers={!!state.kartId}
             engines={karts.find(k => k.id === state.kartId)?.engines ?? []}
+            prevPressureRec={prevPressureRec}
           />
         )}
 
@@ -904,13 +976,13 @@ export function NewSessionPage() {
                 <h3 className="font-heading text-sm uppercase tracking-wider text-text-muted mb-3">Event Summary</h3>
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                   <dt className="text-text-muted">Track</dt>
-                  <dd className="text-text-primary font-medium">{trackName}</dd>
+                  <dd className="text-text-primary">{trackName}</dd>
                   <dt className="text-text-muted">Driver</dt>
-                  <dd className="text-text-primary font-medium">{driverName}</dd>
+                  <dd className="text-text-primary">{driverName}</dd>
                   <dt className="text-text-muted">Kart</dt>
-                  <dd className="text-text-primary font-medium">{kartDisplay}</dd>
+                  <dd className="text-text-primary">{kartDisplay}</dd>
                   <dt className="text-text-muted">Date</dt>
-                  <dd className="text-text-primary font-mono text-xs">{formatDate(state.sessionMeta.session_date)}</dd>
+                  <dd className="text-text-primary">{formatDate(state.sessionMeta.session_date)}</dd>
                   {state.sessionMeta.event_name && (
                     <>
                       <dt className="text-text-muted">Event</dt>
@@ -919,10 +991,6 @@ export function NewSessionPage() {
                   )}
                   <dt className="text-text-muted">Conditions</dt>
                   <dd className="text-text-primary">{state.sessionMeta.conditions ?? '—'}</dd>
-                  <dt className="text-text-muted">Chassis</dt>
-                  <dd className="text-text-primary">{state.baseSetup.chassis_type ?? '—'}</dd>
-                  <dt className="text-text-muted">Engine</dt>
-                  <dd className="text-text-primary">{state.baseSetup.engine_type ?? '—'}</dd>
                 </dl>
               </Card>
 
@@ -933,7 +1001,7 @@ export function NewSessionPage() {
               )}
 
               <Button onClick={() => void handleSave()} loading={saving} className="w-full" size="lg">
-                Save &amp; Start Event
+                Save Session
               </Button>
             </div>
           )

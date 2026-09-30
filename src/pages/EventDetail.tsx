@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Plus, ArrowLeftRight, Clock, Check, Trash2 } from 'lucide-react'
+import { ArrowLeft, Plus, ArrowLeftRight, Clock, Check, Trash2, User } from 'lucide-react'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { Badge, Button } from '@/components/ui'
 import { supabase } from '@/lib/supabase'
@@ -17,11 +17,12 @@ export function EventDetailPage() {
   const { eventId } = useParams<{ eventId: string }>()
   const navigate = useNavigate()
 
-  const [sessions, setSessions]     = useState<Session[]>([])
-  const [loading, setLoading]       = useState(true)
-  const [selected, setSelected]     = useState<string[]>([])
+  const [sessions, setSessions]         = useState<Session[]>([])
+  const [driverNames, setDriverNames]   = useState<Record<string, string | null>>({})
+  const [loading, setLoading]           = useState(true)
+  const [selected, setSelected]         = useState<string[]>([])
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [deleting, setDeleting]     = useState(false)
+  const [deleting, setDeleting]         = useState(false)
 
   async function deleteSelected() {
     setDeleting(true)
@@ -36,11 +37,27 @@ export function EventDetailPage() {
     if (!eventId) return
     supabase
       .from('sessions')
-      .select('*, track:tracks(name, country), kart:karts(nickname, chassis_type)')
+      .select('*, track:tracks(name, country), kart:karts(nickname, chassis_type, driver_name, kart_class)')
       .eq('event_id', eventId)
       .order('created_at', { ascending: true })
-      .then(({ data }) => {
-        setSessions((data ?? []) as Session[])
+      .then(async ({ data }) => {
+        const rows = (data ?? []) as Session[]
+        setSessions(rows)
+
+        // Fetch driver names from setups (overrides kart default if set per session)
+        if (rows.length > 0) {
+          const ids = rows.map(s => s.id)
+          const { data: setups } = await supabase
+            .from('setups')
+            .select('session_id, driver_name')
+            .in('session_id', ids)
+          const map: Record<string, string | null> = {}
+          for (const s of setups ?? []) {
+            map[s.session_id] = s.driver_name ?? null
+          }
+          setDriverNames(map)
+        }
+
         setLoading(false)
       })
   }, [eventId])
@@ -83,9 +100,9 @@ export function EventDetailPage() {
               <>
                 <ArrowLeftRight size={14} className="text-accent-primary flex-shrink-0" />
                 <span className="text-sm text-text-primary flex-1">
-                  <span className="font-semibold">{selA?.session_name ?? selA?.session_type}</span>
+                  <span className="font-semibold">{selA ? `Test ${sessions.indexOf(selA) + 1}` : '—'}</span>
                   {' vs '}
-                  <span className="font-semibold">{selB?.session_name ?? selB?.session_type}</span>
+                  <span className="font-semibold">{selB ? `Test ${sessions.indexOf(selB) + 1}` : '—'}</span>
                 </span>
                 <Button size="sm" onClick={() => navigate(`/compare?a=${selected[0]}&b=${selected[1]}`)}>
                   <ArrowLeftRight size={12} /> Compare
@@ -172,6 +189,15 @@ export function EventDetailPage() {
                 <div className="pr-6">
                   <p className="font-heading font-bold text-sm text-text-primary leading-tight">Test {i + 1}</p>
                   <p className="text-xs text-text-muted mt-0.5">{s.kart?.nickname ?? '—'}</p>
+                  {(() => {
+                    const name = driverNames[s.id] ?? s.kart?.driver_name ?? null
+                    return name ? (
+                      <p className="flex items-center gap-1 text-xs text-accent-primary/80 mt-1 font-medium">
+                        <User size={10} className="flex-shrink-0" />
+                        {name}
+                      </p>
+                    ) : null
+                  })()}
                 </div>
 
                 {/* Badges */}

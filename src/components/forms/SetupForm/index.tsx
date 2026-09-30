@@ -29,6 +29,7 @@ interface SetupFormProps {
   showSaveButton?: boolean
   hideIdentifiers?: boolean
   engines?: KartEngine[]
+  prevPressureRec?: { fl: number | null; fr: number | null; rl: number | null; rr: number | null; sessionLabel: string } | null
 }
 
 export function SetupForm({
@@ -41,6 +42,7 @@ export function SetupForm({
   showSaveButton = false,
   hideIdentifiers = false,
   engines,
+  prevPressureRec,
 }: SetupFormProps) {
   const [setup, setSetup] = useState<Partial<SetupFormData>>(initialSetup)
   const setupRef = useRef(setup)
@@ -61,7 +63,7 @@ export function SetupForm({
       case 'rear':    return <RearTab />
       case 'engine':  return <EngineTab />
       case 'front':   return <FrontEndTab />
-      case 'wheels':  return <WheelsTyresTab pressureUnit={pressureUnit} />
+      case 'wheels':  return <WheelsTyresTab pressureUnit={pressureUnit} prevPressureRec={prevPressureRec} />
       case 'chassis': return <ChassisTab />
       default:        return null
     }

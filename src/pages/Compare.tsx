@@ -20,9 +20,7 @@ import type { SetupFormData } from '@/types'
 
 const SETUP_FIELDS: { key: keyof SetupFormData; label: string; section?: string }[] = [
   // Kart
-  { key: 'chassis_type',           label: 'Chassis',                  section: 'Kart' },
-  { key: 'chassis_make',           label: 'Chassis Make' },
-  { key: 'engine_type',            label: 'Engine' },
+  { key: 'engine_type',            label: 'Engine',                   section: 'Kart' },
   { key: 'engine_number',          label: 'Engine Number' },
   { key: 'engine_rank',            label: 'Engine Rank' },
   { key: 'carb_rank',              label: 'Carb Rank' },
@@ -71,6 +69,7 @@ const SETUP_FIELDS: { key: keyof SetupFormData; label: string; section?: string 
   { key: 'tyre_pressure_rr',       label: 'Pressure RR' },
   // Chassis / Seat
   { key: 'seat_hardness',          label: 'Seat Hardness',            section: 'Chassis & Seat' },
+  { key: 'seat_position',          label: 'Seat Position' },
   { key: 'seat_bolts_front',       label: 'Seat Bolts Front' },
   { key: 'seat_bolts_back',        label: 'Seat Bolts Back' },
   { key: 'seat_stay_left',         label: 'Seat Stay Left' },
@@ -169,11 +168,13 @@ export function ComparePage() {
     }
   }
 
-  // Compute test number per session within its event (ordered by created_at)
+  // Compute test number per session within its event (ordered by created_at).
+  // Sessions with no event_id are all grouped together so they get sequential
+  // numbers (Test 1, Test 2 … Test N) rather than every one being "Test 1".
   const sessionTestLabel = useMemo(() => {
     const byEvent: Record<string, typeof sessions> = {}
     for (const s of sessions) {
-      const key = s.event_id ?? s.id
+      const key = s.event_id ?? '__no_event__'
       if (!byEvent[key]) byEvent[key] = []
       byEvent[key].push(s)
     }
@@ -189,8 +190,17 @@ export function ComparePage() {
     return labels
   }, [sessions])
 
+  // Short label for header display — just "Test N" extracted from the full event-aware label
+  const getShortLabel = (id: string) => {
+    const full = sessionTestLabel[id]
+    if (!full) return null
+    const m = full.match(/Test \d+/)
+    return m ? m[0] : full
+  }
+
+  // Dropdown: always use the event-aware label (track + date + test number) so numbers are correct
   const sessionOptions = sessions.map(s => ({
-    label: s.session_name ?? sessionTestLabel[s.id] ?? `${s.track?.name ?? '?'} — ${formatDate(s.session_date)}`,
+    label: sessionTestLabel[s.id] ?? `${s.track?.name ?? '?'} — ${formatDate(s.session_date)}`,
     value: s.id,
   }))
 
@@ -251,7 +261,7 @@ export function ComparePage() {
               <div>
                 <p className="font-heading text-xs uppercase tracking-wider text-text-muted">Session A</p>
                 <p className="text-sm font-semibold text-text-primary mt-0.5">
-                  {sessionA ? (sessionTestLabel[sessionA.id] ?? sessionA.track?.name ?? '—') : '—'}
+                  {sessionA ? (getShortLabel(sessionA.id) ?? sessionA.track?.name ?? '—') : '—'}
                 </p>
                 <p className="text-xs text-text-muted font-mono">
                   {sessionA ? formatDate(sessionA.session_date) : ''}
@@ -265,7 +275,7 @@ export function ComparePage() {
               <div>
                 <p className="font-heading text-xs uppercase tracking-wider text-text-muted">Session B</p>
                 <p className="text-sm font-semibold text-text-primary mt-0.5">
-                  {sessionB ? (sessionTestLabel[sessionB.id] ?? sessionB.track?.name ?? '—') : '—'}
+                  {sessionB ? (getShortLabel(sessionB.id) ?? sessionB.track?.name ?? '—') : '—'}
                 </p>
                 <p className="text-xs text-text-muted font-mono">
                   {sessionB ? formatDate(sessionB.session_date) : ''}

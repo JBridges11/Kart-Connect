@@ -93,7 +93,7 @@ export function Sidebar() {
         <div className="mx-3 mt-3 rounded-lg border border-green-500/30 bg-green-500/10">
           <button
             type="button"
-            onClick={() => liveSession.event_id && navigate(`/events/${liveSession.event_id}`)}
+            onClick={() => navigate(liveSession.event_id ? `/events/${liveSession.event_id}` : `/sessions/${liveSession.id}`)}
             className="w-full px-3 pt-2.5 pb-2 text-left cursor-pointer hover:bg-green-500/10 transition-colors rounded-t-lg"
           >
             <div className="flex items-center gap-2 mb-1">

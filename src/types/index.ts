@@ -60,7 +60,7 @@ export interface Session {
   total_laps: number | null
   notes: string | null
   created_at: string
-  track?: { name: string; country: string | null }
+  track?: { name: string; country: string | null; location: string | null }
   kart?: { nickname: string; chassis_type: string; driver_name: string | null; kart_class: string | null }
 }
 
@@ -141,7 +141,10 @@ export interface Setup {
   best_lap_time: string | null
 
   // Kart & Driver
+  driver_name: string | null
   chassis_make: string | null
+  chassis_number: string | null
+  engine_make: string | null
   engine_number: string | null
   engine_rank: number | null
   carb_rank: number | null
@@ -151,6 +154,7 @@ export interface Setup {
   // Chassis / Seat
   torsion_bar: 'None' | 'Soft' | 'Med' | 'Hard' | null
   seat_hardness: 'Very Soft' | 'Soft' | 'Medium' | 'Hard' | null
+  seat_position: 'Standard' | 'Back 10mm' | 'Back 20mm' | 'Forward 10mm' | 'Forward 20mm' | null
   seat_bolts_front: 'Loose' | 'Tight' | null
   seat_bolts_back: 'Loose' | 'Tight' | null
   seat_stay_left: 'None' | '1' | '2' | null
@@ -253,7 +257,7 @@ export interface RaceWeekend {
   expires_at: string | null
   ended_at: string | null
   created_at: string
-  track?: { name: string; country: string | null }
+  track?: { name: string; country: string | null; location: string | null }
 }
 
 export interface RaceWeekendDriver {

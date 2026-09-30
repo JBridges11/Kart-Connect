@@ -79,7 +79,7 @@ export function Input({
       <div className="relative">
         <div
           className={[
-            'flex items-center bg-bg-elevated border border-border-color rounded-card transition-all duration-150',
+            'flex items-center bg-bg-elevated border border-border-color rounded-card transition-all duration-150 overflow-hidden',
             'focus-within:border-l-2 focus-within:border-accent-primary',
             error ? 'border-accent-secondary' : '',
           ].join(' ')}
@@ -87,8 +87,8 @@ export function Input({
           <input
             id={inputId}
             className={[
-              'flex-1 bg-transparent px-3 py-2 text-sm text-text-primary placeholder-text-muted outline-none',
-              unit ? 'pr-1' : '',
+              'flex-1 min-w-0 bg-transparent px-3 py-2 text-sm text-text-primary placeholder-text-muted outline-none',
+              unit ? 'pr-10' : '',
               className,
             ].join(' ')}
             onChange={historyKey ? handleChange : onChange}
@@ -98,7 +98,7 @@ export function Input({
             {...props}
           />
           {unit && (
-            <span className="px-3 text-xs font-mono text-text-muted select-none whitespace-nowrap">
+            <span className="absolute right-0 top-0 bottom-0 flex items-center pr-2.5 text-xs font-mono text-text-muted select-none pointer-events-none">
               {unit}
             </span>
           )}

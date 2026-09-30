@@ -29,6 +29,8 @@ import { CreateRaceWeekendPage }    from '@/pages/CreateRaceWeekend'
 import { RaceWeekendDetailPage }    from '@/pages/RaceWeekendDetail'
 import { LiveSetupPage }            from '@/pages/LiveSetup'
 import { DataComparisonPage }       from '@/pages/DataComparison'
+import { TermsPage }                from '@/pages/Terms'
+import { PrivacyPage }              from '@/pages/Privacy'
 
 function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -133,6 +135,8 @@ const router = createBrowserRouter([
     ],
   },
   { path: '/live/:token', element: <LiveSetupPage /> },
+  { path: '/terms',   element: <TermsPage /> },
+  { path: '/privacy', element: <PrivacyPage /> },
   { path: '*', element: <Navigate to="/" replace /> },
 ])
 

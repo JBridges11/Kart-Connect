@@ -39,7 +39,7 @@ const s = StyleSheet.create({
   // Table rows
   row:         { flexDirection: 'row', paddingHorizontal: 25, paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: BORDER },
   rowDiff:     { backgroundColor: DIFF },
-  rowLabel:    { width: 150, fontSize: 12, color: MUTED },
+  rowLabel:    { width: 150, fontSize: 12, color: DARK },
   rowVal:      { fontSize: 12, color: DARK },
   rowValDiff:  { color: DIFF_TEXT, fontFamily: 'Helvetica-Bold' },
   // Section
@@ -229,16 +229,13 @@ function ComparePDFDoc({ sessionA, sessionB, setupA, setupB, lapTimesA, lapTimes
         })}
 
         {/* Full comparison */}
-        <View style={s.section}>
-          <Text style={s.sectionTxt}>FULL SETUP</Text>
-          <View style={s.sectionLine} />
-        </View>
         {SETUP_FIELDS.map(({ key, label, section }) => {
           const vA = fmt((setupA as Record<string, unknown> | null)?.[key])
           const vB = fmt((setupB as Record<string, unknown> | null)?.[key])
           const differs = vA !== vB
+          const forceBreak = section === 'KART' || section === 'ENGINE MONITORING'
           return (
-            <View key={key}>
+            <View key={key} wrap={!section} break={forceBreak}>
               {section && (
                 <View style={s.section}>
                   <Text style={s.sectionTxt}>{section}</Text>
@@ -258,7 +255,7 @@ function ComparePDFDoc({ sessionA, sessionB, setupA, setupB, lapTimesA, lapTimes
         {(lapTimesA.length > 0 || lapTimesB.length > 0) && (
           <View>
             <View style={s.section}>
-              <Text style={s.sectionTxt}>LAP TIMES</Text>
+              <Text style={s.sectionTxt}>BEST LAP TIMES FROM SESSION</Text>
               <View style={s.sectionLine} />
             </View>
 
@@ -281,7 +278,7 @@ function ComparePDFDoc({ sessionA, sessionB, setupA, setupB, lapTimesA, lapTimes
               const lapB = lapTimesB[i]
               return (
                 <View key={i} style={s.row}>
-                  <Text style={[s.rowLabel, { color: '#71717A' }]}>{i + 1}</Text>
+                  <Text style={s.rowLabel}>{i + 1}</Text>
                   <View style={s.colCell}>
                     <Text style={[s.rowVal, lapA?.lap_time_ms === bestA ? { color: AMBER, fontFamily: 'Helvetica-Bold' } : {}]}>
                       {lapA ? lapMsToString(lapA.lap_time_ms) : '—'}

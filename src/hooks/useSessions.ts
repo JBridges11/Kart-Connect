@@ -3,7 +3,7 @@ import type { Session } from '@/types'
 import { supabase } from '@/lib/supabase'
 import { cacheAll, getCached } from '@/lib/localDB'
 
-const SESSION_SELECT = '*, track:tracks(name, country), kart:karts(nickname, chassis_type, driver_name, kart_class)'
+const SESSION_SELECT = '*, track:tracks(name, country, location), kart:karts(nickname, chassis_type, driver_name, kart_class)'
 
 export function useSessions() {
   const [data, setData] = useState<Session[]>([])

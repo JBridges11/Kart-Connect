@@ -5,9 +5,10 @@ import type { PressureUnit } from '@/types'
 
 interface WheelsTyresTabProps {
   pressureUnit: PressureUnit
+  prevPressureRec?: { fl: number | null; fr: number | null; rl: number | null; rr: number | null; sessionLabel: string } | null
 }
 
-export function WheelsTyresTab({ pressureUnit }: WheelsTyresTabProps) {
+export function WheelsTyresTab({ pressureUnit, prevPressureRec }: WheelsTyresTabProps) {
   const { setup, onChange, readOnly } = useSetupForm()
 
   return (
@@ -66,6 +67,7 @@ export function WheelsTyresTab({ pressureUnit }: WheelsTyresTabProps) {
           onChange={onChange}
           unit={pressureUnit}
           readOnly={readOnly}
+          prevPressureRec={prevPressureRec}
         />
       </div>
     </div>

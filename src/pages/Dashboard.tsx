@@ -398,7 +398,7 @@ export function DashboardPage() {
                 </button>
 
                 {/* Sessions in this event */}
-                {group.sessions.map(s => {
+                {group.sessions.map((s, si) => {
                   const isSelected = selectedSessions.includes(s.id)
                   return (
                     <div
@@ -424,7 +424,7 @@ export function DashboardPage() {
                       </button>
                       <div className="flex-1 min-w-0">
                         <span className="font-heading font-semibold text-xs text-text-primary leading-snug">
-                          {s.session_name ?? s.session_type}
+                          {`Test ${si + 1}`}
                         </span>
                         <div className="flex items-center gap-2 flex-wrap mt-1">
                           <Badge label={s.session_type} variant="neutral" />

@@ -80,7 +80,7 @@
     </div>
     <div class="divider"></div>
     <div class="support-section">
-      <p class="support-text">Questions or need help? Reach us at <a href="mailto:info@kart-connect.com">info@kart-connect.com</a> — we'll get back to you fast.<br /><br />Manage your subscription, billing, and account details from your dashboard at any time.</p>
+      <p class="support-text">Questions or need help? Reach us at <a href="mailto:info@kart-connect.com">info@kart-connect.com</a> — we'll get back to you fast.</p>
     </div>
     <div class="footer">
       <div class="footer-logo">Kart Connect</div>
@@ -89,8 +89,8 @@
         You're receiving this because you created an account at kart-connect.com.
       </div>
       <div class="footer-links">
-        <a href="{{privacy_url}}">Privacy Policy</a>
-        <a href="{{terms_url}}">Terms of Service</a>
+        <a href="https://kartconnect.netlify.app/privacy">Privacy Policy</a>
+        <a href="https://kartconnect.netlify.app/terms">Terms of Service</a>
         <a href="{{unsubscribe_url}}">Unsubscribe</a>
       </div>
       <div class="footer-legal">

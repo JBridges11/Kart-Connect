@@ -38,6 +38,23 @@ export function ChassisTab() {
         />
       </div>
 
+      {/* Seat Position */}
+      <div className="border-t border-border-color pt-5">
+        <h3 className="font-heading text-sm uppercase tracking-wider text-text-muted mb-4">Seat Position</h3>
+        <SegmentedControl
+          label="Seat Position"
+          options={[
+            { label: 'Back 20mm',    value: 'Back 20mm'    },
+            { label: 'Back 10mm',    value: 'Back 10mm'    },
+            { label: 'Standard',     value: 'Standard'     },
+            { label: 'Forward 10mm', value: 'Forward 10mm' },
+            { label: 'Forward 20mm', value: 'Forward 20mm' },
+          ]}
+          value={setup.seat_position ?? null}
+          onChange={v => onChange('seat_position', v as 'Standard' | 'Back 10mm' | 'Back 20mm' | 'Forward 10mm' | 'Forward 20mm')}
+        />
+      </div>
+
       {/* Seat Stays */}
       <div className="border-t border-border-color pt-5">
         <h3 className="font-heading text-sm uppercase tracking-wider text-text-muted mb-4">Seat Stays</h3>

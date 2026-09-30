@@ -3,6 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes scan-progress {
+  from { width: 0% }
+  to   { width: 100% }
+}
+
 :root {
   /* Team accent — space-separated RGB so Tailwind opacity variants work: bg-accent-primary/10 */
   --kc-primary: 202 138 4;       /* default #CA8A04 (amber/bronze) */
