@@ -13,14 +13,22 @@
   --kc-primary: 202 138 4;       /* default #CA8A04 (amber/bronze) */
   --kc-secondary: 18 18 26;      /* default #12121A */
 
-  --bg-primary:        #FFFFFF;
-  --bg-card:           #FFFFFF;
-  --bg-elevated:       #F4F4F5;
-  --accent-primary:    #CA8A04;
-  --accent-secondary:  #FF4D00;
-  --text-primary:      #18181B;
-  --text-muted:        #71717A;
-  --border:            #E4E4E7;
+  /* Light theme (default) */
+  --bg-primary:   #FFFFFF;
+  --bg-card:      #FFFFFF;
+  --bg-elevated:  #F4F4F5;
+  --text-primary: #18181B;
+  --text-muted:   #71717A;
+  --border:       #E4E4E7;
+}
+
+[data-theme="dark"] {
+  --bg-primary:   #12121A;
+  --bg-card:      #1A1A26;
+  --bg-elevated:  #22222E;
+  --text-primary: #F4F4F5;
+  --text-muted:   #A1A1AA;
+  --border:       #2E2E3A;
 }
 
 *,

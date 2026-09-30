@@ -139,15 +139,13 @@ export function SettingsPage() {
   }
 
   // ── Theme ─────────────────────────────────────────────────────────────────
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>(
-    (localStorage.getItem('kc_theme') as 'light' | 'dark' | 'system') ?? 'system'
+  const [theme, setTheme] = useState<'light' | 'dark'>(
+    (localStorage.getItem('kc_theme') as 'light' | 'dark') ?? 'light'
   )
-  function applyTheme(t: 'light' | 'dark' | 'system') {
+  function applyTheme(t: 'light' | 'dark') {
     setTheme(t)
     localStorage.setItem('kc_theme', t)
-    const html = document.documentElement
-    if (t === 'system') html.removeAttribute('data-theme')
-    else html.setAttribute('data-theme', t)
+    document.documentElement.setAttribute('data-theme', t)
   }
 
   // ── Units ─────────────────────────────────────────────────────────────────
@@ -670,8 +668,8 @@ export function SettingsPage() {
             {/* Theme */}
             <div>
               <p className="font-heading text-xs uppercase tracking-wider text-text-muted mb-3">Theme</p>
-              <div className="grid grid-cols-3 gap-2">
-                {(['light', 'dark', 'system'] as const).map(opt => (
+              <div className="grid grid-cols-2 gap-2">
+                {(['light', 'dark'] as const).map(opt => (
                   <button
                     key={opt}
                     type="button"
@@ -683,7 +681,7 @@ export function SettingsPage() {
                         : 'border-border-color bg-bg-elevated text-text-muted hover:border-accent-primary/40 hover:text-text-primary',
                     ].join(' ')}
                   >
-                    {opt === 'light' ? '☀️ Light' : opt === 'dark' ? '🌙 Dark' : '⚙️ System'}
+                    {opt === 'light' ? '☀️ Light' : '🌙 Dark'}
                   </button>
                 ))}
               </div>

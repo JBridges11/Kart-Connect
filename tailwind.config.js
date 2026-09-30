@@ -4,14 +4,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        'bg-primary':       '#FFFFFF',
-        'bg-card':          '#FFFFFF',
-        'bg-elevated':      '#F4F4F5',
+        'bg-primary':       'var(--bg-primary)',
+        'bg-card':          'var(--bg-card)',
+        'bg-elevated':      'var(--bg-elevated)',
         'accent-primary':   'rgb(var(--kc-primary) / <alpha-value>)',
         'accent-secondary': '#FF4D00',
-        'text-primary':     '#18181B',
-        'text-muted':       '#71717A',
-        'border-color':     '#E4E4E7',
+        'text-primary':     'var(--text-primary)',
+        'text-muted':       'var(--text-muted)',
+        'border-color':     'var(--border)',
       },
       fontFamily: {
         heading: ['Inter', 'sans-serif'],
