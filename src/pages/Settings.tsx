@@ -275,17 +275,12 @@ export function SettingsPage() {
   }, [])
 
   function saveProfile() {
-    const trimmedEmail   = profileEmail.trim()
-    const trimmedPhone   = profilePhone.trim()
-    const emailChanging  = trimmedEmail !== '' && trimmedEmail !== (user?.email ?? '')
-    const phoneChanging  = trimmedPhone !== ((user?.user_metadata?.phone_number as string | undefined) ?? '')
-    const contactChanging = emailChanging || phoneChanging
-    if (contactChanging) {
-      if (emailChanging) pendingEmailRef.current = trimmedEmail
+    const trimmedEmail  = profileEmail.trim()
+    const emailChanging = trimmedEmail !== '' && trimmedEmail !== (user?.email ?? '')
+    if (emailChanging) {
+      pendingEmailRef.current = trimmedEmail
       if (mfaEnabled && mfaFactorId) { setTotpModalOpen(true); return }
-      if (emailChanging && hasPasswordAuth) { setConfirmModalOpen(true); return }
-      void executeSaveProfile()
-      return
+      if (hasPasswordAuth) { setConfirmModalOpen(true); return }
     }
     void executeSaveProfile()
   }
@@ -344,23 +339,31 @@ export function SettingsPage() {
     const file = e.target.files?.[0]
     if (!file || !user) return
     setAvatarError(null)
-    const reader = new FileReader()
-    reader.onload = ev => { if (ev.target?.result) setAvatarUrl(ev.target.result as string) }
-    reader.readAsDataURL(file)
     setUploadingAvatar(true)
-    const ext = file.name.split('.').pop() ?? 'jpg'
-    const path = `${user.id}/avatar.${ext}`
-    const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true })
-    if (!error) {
-      const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-      const url = `${data.publicUrl}?t=${Date.now()}`
-      setAvatarUrl(url)
-      await supabase.auth.updateUser({ data: { avatar_url: url } })
-    } else {
-      setAvatarError('Photo saved locally but could not be stored.')
+    // Resize to max 256px and convert to base64 for reliable storage
+    const canvas = document.createElement('canvas')
+    const img    = new Image()
+    const url    = URL.createObjectURL(file)
+    img.onload = async () => {
+      const size = Math.min(img.width, img.height)
+      canvas.width  = 256
+      canvas.height = 256
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, 256, 256)
+      URL.revokeObjectURL(url)
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
+      setAvatarUrl(dataUrl)
+      const { error } = await supabase.auth.updateUser({ data: { avatar_url: dataUrl } })
+      if (error) setAvatarError('Could not save profile photo.')
+      setUploadingAvatar(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
     }
-    setUploadingAvatar(false)
-    if (fileInputRef.current) fileInputRef.current.value = ''
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      setAvatarError('Could not read image file.')
+      setUploadingAvatar(false)
+    }
+    img.src = url
   }
 
   // ── Team branding ─────────────────────────────────────────────────────────
