@@ -1,7 +1,6 @@
 import { useState, useMemo, useRef } from 'react'
 import { Search, X, Download } from 'lucide-react'
 import { Document, Page } from 'react-pdf'
-import { generateSessionReportUrl } from '@/components/SessionReportPDF'
 import { supabase } from '@/lib/supabase'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { Card, Select } from '@/components/ui'
@@ -22,19 +21,27 @@ export function AnalyticsPage() {
 
   async function getOrBuildPdf(sessionId: string) {
     setDownloadingId(sessionId)
-    const [{ data: session }, { data: setup }, { data: lapTimes }] = await Promise.all([
+    const [{ data: session }, { data: setup }, { data: lapTimes }, { data: changes }] = await Promise.all([
       supabase.from('sessions').select('*, track:tracks(name, country), kart:karts(*)').eq('id', sessionId).single(),
       supabase.from('setups').select('*').eq('session_id', sessionId).single(),
       supabase.from('lap_times').select('*').eq('session_id', sessionId).order('lap_number'),
+      supabase.from('setup_changes').select('*').eq('session_id', sessionId).order('created_at'),
     ])
     setDownloadingId(null)
     if (!session) return null
-    return generateSessionReportUrl({
+    const laps = lapTimes ?? []
+    const bestLap = laps.length ? laps.reduce((a, b) => a.lap_time_ms < b.lap_time_ms ? a : b) : null
+    const { generateSessionPDFUrl } = await import('@/components/SessionPDF')
+    return generateSessionPDFUrl({
       session: session as any,
       setup: setup ?? null,
-      lapTimes: lapTimes ?? [],
+      lapTimes: laps,
+      changes: changes ?? [],
+      bestLap,
       teamName: branding.team_name,
       teamLogoUrl: branding.logo_url,
+      teamPrimaryColor: branding.primary_color,
+      teamSecondaryColor: branding.secondary_color,
     })
   }
 
