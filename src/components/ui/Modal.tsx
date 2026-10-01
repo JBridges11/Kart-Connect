@@ -30,12 +30,12 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' 
       />
       <div
         className={[
-          'relative bg-bg-card border border-border-color rounded-card w-full shadow-2xl',
+          'relative bg-bg-card border border-border-color rounded-card w-full shadow-2xl flex flex-col max-h-[90vh]',
           maxWidth,
         ].join(' ')}
       >
         {title && (
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border-color">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border-color flex-shrink-0">
             <h2 className="font-heading text-lg font-semibold tracking-wide text-text-primary">
               {title}
             </h2>
@@ -47,7 +47,7 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' 
             </button>
           </div>
         )}
-        <div className="p-5">{children}</div>
+        <div className="p-5 overflow-y-auto flex-1">{children}</div>
       </div>
     </div>,
     document.body,
