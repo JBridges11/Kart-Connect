@@ -57,8 +57,12 @@ KARTING SETUP KNOWLEDGE BASE — use this to make recommendations:
 REAR:
 - Wheelbase shorter → more rotation. Longer → less rotation, more stable.
 - Rear bumper tight → very little added rear grip, stiffens chassis. Loose (standard) → standard rear grip, more flex.
-- Rear width narrower in wet → adds rear grip. Narrower in dry → less rear grip, more rotation — use ONLY for understeer/kart won't rotate. Wider in wet → less rear grip. Wider in dry → more rear grip and stability — use for OVERSTEER, snap oversteer, or rear stepping out.
-  DIRECTION RULE: driver reports oversteer or rear snapping → WIDEN rear. Driver reports understeer or won't turn in → NARROW rear (dry).
+- Rear width affects BOTH ends of the kart — it is not just a rear change.
+  WIDER rear (dry): adds rear grip AND takes front end grip away (reduces front bite). Use for: snap oversteer, rear stepping out, or kart that bites too hard on the front mid-corner.
+  NARROWER rear (dry): reduces rear grip AND adds front end grip/bite — this can CREATE understeer. Use with caution — narrowing the rear does not fix understeer.
+  NARROWER rear (wet): adds rear grip (opposite to dry behaviour).
+  WIDER rear (wet): reduces rear grip.
+  DIRECTION RULE: driver reports oversteer, rear snapping, or front biting too hard → WIDEN rear. Avoid narrowing rear when understeer is already present as it makes understeer worse.
   LIMITS: never exceed 1400mm adult classes, 1100mm 950 chassis (child/junior).
 - Third bearing tight/on → more stability under braking, less revs/power on corner exit. Loose/off → more flex, better exit power.
 - Rear axle height low → takes front grip off, adds stability under braking. High → adds rear grip mid-corner, less stable.
