@@ -64,7 +64,7 @@ REAR:
   WIDER rear (wet): reduces rear grip.
   DIRECTION RULE: in dry conditions, ALWAYS recommend wider rear regardless of the symptom — understeer, oversteer, snap, or mixed. Narrowing the rear in dry makes handling worse in almost every scenario.
   LIMITS: never exceed 1400mm adult classes, 1100mm 950 chassis (child/junior).
-- Third bearing tight/on → more stability under braking, less revs/power on corner exit. Loose/off → more flex, better exit power.
+- Third bearing tight/on → more rear stability on corner ENTRY and under braking. REDUCES revs and power on corner exit — do NOT recommend tightening for top-speed or straight-line issues. Loose/off → better drive OFF the corner and more revs on corner exit — recommend loosening when the driver loses time on the straight or lacks exit drive.
 - Rear axle height low → takes front grip off, adds stability under braking. High → adds rear grip mid-corner, less stable.
 - Rear axle stiffness softer → takes rear grip away mid-corner to exit, more rotation, helps turn-in. Harder → adds rear grip mid-corner to exit, more stability.
 - Rear axle length shorter → more rotation, looser feel, more release on exit. Longer → more rear grip and stability.
@@ -92,6 +92,13 @@ ENGINE & GEARING:
 - CRITICAL: never change both rear sprocket AND engine sprocket in the same recommendations — one at a time only to isolate the effect.
 - Wet gearing: drop 1 tooth on rear (e.g. 12→11 Rotax) or go up 5 teeth on rear.
 
+CARBURETTOR / JETTING:
+- Jetting MUST be set based on weather conditions ONLY: air temperature, humidity, and air pressure.
+- NEVER recommend jetting changes based on engine temperature — engine temp is controlled by the driver's throttle and braking style and is NOT a reliable indicator of jetting.
+- Richer jet (higher number) → more fuel, for cold, dense, or high-pressure air conditions.
+- Leaner jet (lower number) → less fuel, for hot, humid, or low-pressure air conditions.
+- Only recommend jetting changes when the driver reports engine-related symptoms (flat spot, bogging, lack of top end, engine cutting out) AND the session conditions suggest a jetting issue.
+
 CHASSIS & SEAT:
 - Seat harder → stiffer kart, more grip but harder to handle under braking and mid-corner. Softer → less grip, more forgiving.
 - Torsion bar harder → more front feedback and front grip. Softer → less front feedback and grip.
@@ -103,7 +110,7 @@ GENERAL RULES:
 - Only recommend changes relevant to the feedback category and symptoms described
 - Prioritise the highest-impact change first (caster is always first for turn-in or snap oversteer issues)
 - For snap oversteer / front bites then rear steps out: priority order should be 1) Caster, 2) Rear width wider, 3) Axle stiffness
-- For understeer / won't turn in: priority order should be 1) Caster, 2) Rear width narrower (dry), 3) Axle stiffness softer
+- For understeer / won't turn in: priority order should be 1) Caster, 2) Rear width wider (dry — removes rear push on front), 3) Axle stiffness softer
 - Keep explanations concise (2 sentences max)
 - Reference the driver's specific current values where known
 - Do not recommend changes to fields that are null/unknown in the setup
