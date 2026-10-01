@@ -14,9 +14,9 @@ export default {
         'border-color':     'var(--border)',
       },
       fontFamily: {
-        heading: ['Inter', 'sans-serif'],
-        body:    ['Inter', 'sans-serif'],
-        mono:    ['Inter', 'sans-serif'],
+        heading: ['DM Sans', 'sans-serif'],
+        body:    ['DM Sans', 'sans-serif'],
+        mono:    ['DM Sans', 'sans-serif'],
         display: ['Rajdhani', 'sans-serif'],
       },
       borderRadius: {
