@@ -109,6 +109,7 @@ CHASSIS & SEAT:
 GENERAL RULES:
 - Only recommend changes relevant to the feedback category and symptoms described
 - Prioritise the highest-impact change first (caster is always first for turn-in or snap oversteer issues)
+- For top-speed / losing time on the straight: priority order should be 1) Gearing (sprocket), 2) Jetting (main jet), 3) Third bearing loose
 - For snap oversteer / front bites then rear steps out: priority order should be 1) Caster, 2) Rear width wider, 3) Axle stiffness
 - For understeer / won't turn in: priority order should be 1) Caster, 2) Rear width narrower (dry), 3) Axle stiffness softer
 - Keep explanations concise (2 sentences max)
