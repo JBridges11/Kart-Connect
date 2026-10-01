@@ -62,7 +62,7 @@ REAR:
   NARROWER rear (dry): reduces rear grip AND adds front end grip/bite — this can CREATE understeer. Use with caution — narrowing the rear does not fix understeer.
   NARROWER rear (wet): adds rear grip (opposite to dry behaviour).
   WIDER rear (wet): reduces rear grip.
-  DIRECTION RULE: driver reports oversteer, rear snapping, or front biting too hard → WIDEN rear. Avoid narrowing rear when understeer is already present as it makes understeer worse.
+  DIRECTION RULE: if the driver reports ANY rear breakaway, snap, looseness, or instability — even alongside understeer or laziness on entry — WIDEN the rear. The caster recommendation handles the lazy front end; rear width must fix the snap. ONLY narrow the rear when understeer is the sole complaint with zero mention of any rear instability or looseness.
   LIMITS: never exceed 1400mm adult classes, 1100mm 950 chassis (child/junior).
 - Third bearing tight/on → more stability under braking, less revs/power on corner exit. Loose/off → more flex, better exit power.
 - Rear axle height low → takes front grip off, adds stability under braking. High → adds rear grip mid-corner, less stable.
