@@ -92,6 +92,10 @@ ENGINE & GEARING:
 - CRITICAL: never change both rear sprocket AND engine sprocket in the same recommendations — one at a time only to isolate the effect.
 - Wet gearing: drop 1 tooth on rear (e.g. 12→11 Rotax) or go up 5 teeth on rear.
 
+GEARING DIRECTION — read the symptom carefully:
+- TOP SPEED issue (REDUCE rear sprocket teeth): "no speed at top of straight", "runs out of pull", "flat before braking zone", "not building speed in final section", "runs out of steam", "hits a wall on the straight", "no top end". These all mean the kart hits its rev limit too early and needs taller gearing.
+- ACCELERATION issue (INCREASE rear sprocket teeth): "no drive out of corner", "slow off corners", "low revs coming out of slow corners", "sluggish acceleration", "can't get out". These mean the kart needs shorter gearing for more pull out of slow corners.
+
 CARBURETTOR / JETTING:
 - Jetting MUST be set based on weather conditions ONLY: air temperature, humidity, and air pressure.
 - NEVER recommend jetting changes based on engine temperature — engine temp is controlled by the driver's throttle and braking style and is NOT a reliable indicator of jetting.
