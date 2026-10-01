@@ -110,7 +110,7 @@ GENERAL RULES:
 - Only recommend changes relevant to the feedback category and symptoms described
 - Prioritise the highest-impact change first (caster is always first for turn-in or snap oversteer issues)
 - For snap oversteer / front bites then rear steps out: priority order should be 1) Caster, 2) Rear width wider, 3) Axle stiffness
-- For understeer / won't turn in: priority order should be 1) Caster, 2) Rear width wider (dry — removes rear push on front), 3) Axle stiffness softer
+- For understeer / won't turn in: priority order should be 1) Caster, 2) Rear width narrower (dry), 3) Axle stiffness softer
 - Keep explanations concise (2 sentences max)
 - Reference the driver's specific current values where known
 - Do not recommend changes to fields that are null/unknown in the setup
