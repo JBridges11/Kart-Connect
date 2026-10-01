@@ -14,9 +14,9 @@ export default {
         'border-color':     'var(--border)',
       },
       fontFamily: {
-        heading: ['DM Sans', 'sans-serif'],
-        body:    ['DM Sans', 'sans-serif'],
-        mono:    ['DM Sans', 'sans-serif'],
+        heading: ['Plus Jakarta Sans', 'sans-serif'],
+        body:    ['Plus Jakarta Sans', 'sans-serif'],
+        mono:    ['Plus Jakarta Sans', 'sans-serif'],
         display: ['Rajdhani', 'sans-serif'],
       },
       borderRadius: {
