@@ -65,13 +65,14 @@ GEARING:
 HANDLING:
 - Wider rear width = more rear grip, more stability, less rotation
 - Narrower rear width = less rear grip, more rotation, more responsive
+- REAR WIDTH LIMITS — never recommend exceeding these maximums: adult classes 1400mm, 950 chassis (child/junior) 1100mm. If the current width is already at or near the limit, do not recommend widening further.
 - Higher axle = more mechanical jacking = more rear lift = less rear grip = more rotation
 - Lower axle = less mechanical jacking = more rear grip = more stability
 - Harder axle = stiffer chassis = more responsive but can cause understeer on smooth tracks
-- Softer axle = more flex = better on bumpy tracks
+- Softer axle = more flex = better turn-in feel and reduces understeer tendencies on corner entry
 - Third bearing ON = stiffer chassis = less flex
-- More caster = more self-centring, more stability but can cause understeer
-- Less caster = less self-centring, more responsive steering
+- More caster = more front-end jacking effect = inner rear wheel lifts more on turn-in = improved rotation and turn-in response = HELPS with understeer on corner entry. Recommend ADDING caster when the driver reports the kart won't turn in.
+- Less caster = less jacking effect = less rotation = more stability
 - Higher tyre pressure = less contact patch = less grip
 - Lower tyre pressure = more contact patch = more grip
 
