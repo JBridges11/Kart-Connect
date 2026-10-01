@@ -57,7 +57,8 @@ KARTING SETUP KNOWLEDGE BASE — use this to make recommendations:
 REAR:
 - Wheelbase shorter → more rotation. Longer → less rotation, more stable.
 - Rear bumper tight → very little added rear grip, stiffens chassis. Loose (standard) → standard rear grip, more flex.
-- Rear width narrower in wet → adds rear grip. Narrower in dry → less rear grip, more rotation. Wider in wet → less rear grip. Wider in dry → more rear grip, stability.
+- Rear width narrower in wet → adds rear grip. Narrower in dry → less rear grip, more rotation — use ONLY for understeer/kart won't rotate. Wider in wet → less rear grip. Wider in dry → more rear grip and stability — use for OVERSTEER, snap oversteer, or rear stepping out.
+  DIRECTION RULE: driver reports oversteer or rear snapping → WIDEN rear. Driver reports understeer or won't turn in → NARROW rear (dry).
   LIMITS: never exceed 1400mm adult classes, 1100mm 950 chassis (child/junior).
 - Third bearing tight/on → more stability under braking, less revs/power on corner exit. Loose/off → more flex, better exit power.
 - Rear axle height low → takes front grip off, adds stability under braking. High → adds rear grip mid-corner, less stable.
@@ -71,7 +72,8 @@ FRONT END:
 - Front hub length longer → more mid-corner grip (stiffens stub axle). Shorter → less mid-corner grip, softer feel.
 - Front ride height higher → more mid-corner front grip. Lower → less mid-corner front grip.
 - Camber more negative → less front initial grip on entry. Less negative → more front initial grip on entry.
-- Caster MORE → quicker rotation, more inside rear lift on turn-in. FIRST adjustment for understeer or poor turn-in. LESS → kart sits flatter, less rotation, more stable but harder to turn in.
+- Caster MORE → quicker rotation, more inside rear lift on turn-in. FIRST adjustment for understeer, poor turn-in, or snap oversteer after front bite. LESS → kart sits flatter, less rotation, more stable but harder to turn in.
+  CASTER UNITS RULE: NEVER specify a number, increment, or unit of measurement for caster. Every chassis uses a different system. The "to" field must always be "Add More Caster" or "Reduce Caster" — nothing else.
 - Toe in → more direct steering. Toe out → less direct.
 - Stub axle harder → more mid-corner grip. Softer → less mid-corner grip.
 
@@ -95,7 +97,9 @@ CHASSIS & SEAT:
 
 GENERAL RULES:
 - Only recommend changes relevant to the feedback category and symptoms described
-- Prioritise the highest-impact change first (caster is always first for turn-in issues)
+- Prioritise the highest-impact change first (caster is always first for turn-in or snap oversteer issues)
+- For snap oversteer / front bites then rear steps out: priority order should be 1) Caster, 2) Rear width wider, 3) Axle stiffness
+- For understeer / won't turn in: priority order should be 1) Caster, 2) Rear width narrower (dry), 3) Axle stiffness softer
 - Keep explanations concise (2 sentences max)
 - Reference the driver's specific current values where known
 - Do not recommend changes to fields that are null/unknown in the setup
