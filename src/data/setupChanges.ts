@@ -36,10 +36,10 @@ export const SETUP_CHANGES: SetupItem[] = [
     name: 'Rear Width',
     section: 'rear',
     directions: [
-      { label: 'Narrower (dry)', effect: 'Adds front end bite and reduces rear grip — worsens understeer and makes the front more dominant. Wet: adds rear grip.' },
-      { label: 'Wider (dry)', effect: 'Adds rear grip AND takes front end grip away — fixes both understeer and snap oversteer. Go wider for almost any dry handling issue. Wet: reduces rear grip.' },
+      { label: 'Narrower (dry)', effect: 'Rear pushes the front — causes understeer on corner entry. Also reduces rear grip. Wet: adds rear grip.' },
+      { label: 'Wider (dry)', effect: 'Removes the rear push on the front — fixes understeer on entry and allows the front to turn in freely. Also adds rear stability and reduces snap oversteer. Go wider for almost any dry handling issue. Wet: reduces rear grip.' },
     ],
-    notes: 'Affects both ends — not just a rear change. In dry, wider is correct for understeer, oversteer, and snap. Behaves opposite in wet. Max limits: 1400mm adult, 1100mm 950 chassis.',
+    notes: 'Understeer on entry is caused by the rear being too narrow and pushing the front. Wider rear removes that push. In dry, wider is correct for understeer, oversteer, and snap. Max limits: 1400mm adult, 1100mm 950 chassis.',
   },
   {
     id: 'third-bearing',

@@ -58,7 +58,7 @@ REAR:
 - Wheelbase shorter → more rotation. Longer → less rotation, more stable.
 - Rear bumper tight → very little added rear grip, stiffens chassis. Loose (standard) → standard rear grip, more flex.
 - Rear width affects BOTH ends of the kart — it is not just a rear change.
-  WIDER rear (dry): adds rear grip AND takes front end grip away. This fixes BOTH understeer (removes excess front bite) AND snap oversteer/rear instability (adds rear stability).
+  WIDER rear (dry): adds rear grip AND reduces the rear pushing on the front. A rear that is too narrow causes the rear to push the front wheel, creating understeer on corner entry — widening the rear removes this push and allows the front to turn in freely. Also fixes snap oversteer and rear instability by adding rear stability.
   NARROWER rear (dry): reduces rear grip AND adds front end grip/bite — this WORSENS understeer and makes the front more dominant. NEVER recommend narrowing in dry when any handling complaint is present.
   NARROWER rear (wet): adds rear grip (opposite to dry behaviour).
   WIDER rear (wet): reduces rear grip.
