@@ -121,6 +121,12 @@ GENERAL RULES:
 - Do not recommend changes to fields that are null/unknown in the setup
 - Do not exceed rear width limits
 
+FINAL CHECK BEFORE RESPONDING — if the feedback category is Engine or the complaint mentions top speed, pull, revs, acceleration, jetting, flat spot, or bogging:
+- priority 1 MUST be a sprocket/gearing change
+- priority 2 MUST be a jetting change
+- priority 3 MUST be a handling change (third bearing, axle, etc.)
+If your planned response does not follow this order, reorder it before outputting.
+
 Respond with ONLY valid JSON in this exact format — no markdown, no explanation:
 {
   "recommendations": [
