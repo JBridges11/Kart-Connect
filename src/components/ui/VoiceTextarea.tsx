@@ -34,29 +34,36 @@ export function VoiceTextarea({ label, value, onChange, placeholder, rows = 3 }:
   const [listening, setListening] = useState(false)
   const [supported, setSupported] = useState(true)
   const [interim, setInterim] = useState('')
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null)
+  // Keep a live ref to value so onresult always appends to the latest text
+  const valueRef = useRef(value)
+  useEffect(() => { valueRef.current = value }, [value])
+  // Track intended listening state separately from recognition lifecycle
+  const activeRef = useRef(false)
+
   const textareaId = label?.toLowerCase().replace(/\s+/g, '-')
 
   useEffect(() => {
     if (!getSpeechRecognition()) setSupported(false)
   }, [])
 
-  function startListening() {
+  function buildRecognition() {
     const SR = getSpeechRecognition()
-    if (!SR) return
+    if (!SR) return null
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const recognition: any = new SR()
-    recognitionRef.current = recognition
-    recognition.lang = LANG_MAP[language] ?? 'en-GB'
-    recognition.continuous = true
-    recognition.interimResults = true
+    const r: any = new SR()
+    r.lang = LANG_MAP[language] ?? 'en-GB'
+    r.continuous = true
+    r.interimResults = true
+    r.maxAlternatives = 1
 
-    recognition.onstart = () => setListening(true)
+    r.onstart = () => setListening(true)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onresult = (event: any) => {
+    r.onresult = (event: any) => {
       let final = ''
       let interimText = ''
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -65,27 +72,47 @@ export function VoiceTextarea({ label, value, onChange, placeholder, rows = 3 }:
         else interimText += transcript
       }
       if (final) {
-        onChange(value ? value + ' ' + final.trim() : final.trim())
+        // Use valueRef so we always append to the very latest text, not stale closure
+        const current = valueRef.current
+        onChange(current ? current + ' ' + final.trim() : final.trim())
         setInterim('')
       } else {
         setInterim(interimText)
       }
     }
 
-    recognition.onerror = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    r.onerror = (event: any) => {
+      // 'no-speech' just means a pause — let onend restart it automatically
+      if (event.error === 'no-speech' || event.error === 'audio-capture') return
+      activeRef.current = false
       setListening(false)
       setInterim('')
     }
 
-    recognition.onend = () => {
-      setListening(false)
+    r.onend = () => {
       setInterim('')
+      // If the user is still intending to record, restart seamlessly
+      if (activeRef.current) {
+        try { r.start() } catch { /* ignore if already started */ }
+      } else {
+        setListening(false)
+      }
     }
 
-    recognition.start()
+    return r
+  }
+
+  function startListening() {
+    activeRef.current = true
+    const r = buildRecognition()
+    if (!r) return
+    recognitionRef.current = r
+    try { r.start() } catch { /* already started */ }
   }
 
   function stopListening() {
+    activeRef.current = false
     recognitionRef.current?.stop()
     setListening(false)
     setInterim('')
@@ -96,8 +123,10 @@ export function VoiceTextarea({ label, value, onChange, placeholder, rows = 3 }:
     else startListening()
   }
 
-  // Clean up on unmount
-  useEffect(() => () => { recognitionRef.current?.abort() }, [])
+  useEffect(() => () => {
+    activeRef.current = false
+    recognitionRef.current?.abort()
+  }, [])
 
   const displayValue = listening && interim ? value + (value ? ' ' : '') + interim : value
 
