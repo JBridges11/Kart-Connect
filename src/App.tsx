@@ -29,6 +29,7 @@ import { CreateRaceWeekendPage }    from '@/pages/CreateRaceWeekend'
 import { RaceWeekendDetailPage }    from '@/pages/RaceWeekendDetail'
 import { LiveSetupPage }            from '@/pages/LiveSetup'
 import { DataComparisonPage }       from '@/pages/DataComparison'
+import { SetupReferencePage }       from '@/pages/SetupReference'
 import { TermsPage }                from '@/pages/Terms'
 import { PrivacyPage }              from '@/pages/Privacy'
 
@@ -130,6 +131,7 @@ const router = createBrowserRouter([
           { path: 'race-weekend/new',       element: <CreateRaceWeekendPage /> },
           { path: 'race-weekend/:id',       element: <RaceWeekendDetailPage /> },
           { path: 'data-comparison',        element: <DataComparisonPage /> },
+          { path: 'setup-reference',        element: <SetupReferencePage /> },
         ],
       },
     ],

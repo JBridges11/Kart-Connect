@@ -52,36 +52,54 @@ ${sessionSummary}
 DRIVER FEEDBACK (category: ${category}):
 ${feedback}
 
-KARTING RULES — follow these exactly:
-GEARING:
-- More rear sprocket teeth = shorter gearing = MORE acceleration, LESS top speed
-- Fewer rear sprocket teeth = taller gearing = LESS acceleration, MORE top speed
-- More engine sprocket teeth = taller gearing = LESS acceleration, MORE top speed
-- Fewer engine sprocket teeth = shorter gearing = MORE acceleration, LESS top speed
-- To improve acceleration out of corners → INCREASE rear sprocket teeth OR DECREASE engine sprocket teeth
-- To improve top speed → DECREASE rear sprocket teeth OR INCREASE engine sprocket teeth
-- CRITICAL: NEVER recommend changing both rear sprocket AND engine sprocket in the same set of recommendations — always change only ONE sprocket at a time so you can isolate the effect. The only exception is if the resulting ratio is essentially identical and you are only adjusting for chain length.
+KARTING SETUP KNOWLEDGE BASE — use this to make recommendations:
 
-HANDLING:
-- Wider rear width = more rear grip, more stability, less rotation
-- Narrower rear width = less rear grip, more rotation, more responsive
-- REAR WIDTH LIMITS — never recommend exceeding these maximums: adult classes 1400mm, 950 chassis (child/junior) 1100mm. If the current width is already at or near the limit, do not recommend widening further.
-- Higher axle = more mechanical jacking = more rear lift = less rear grip = more rotation
-- Lower axle = less mechanical jacking = more rear grip = more stability
-- Harder axle = stiffer chassis = more responsive but can cause understeer on smooth tracks
-- Softer axle = more flex = better turn-in feel and reduces understeer tendencies on corner entry
-- Third bearing ON = stiffer chassis = less flex
-- More caster = more front-end jacking effect = inner rear wheel lifts more on turn-in = improved rotation and turn-in response = HELPS with understeer on corner entry. Recommend ADDING caster when the driver reports the kart won't turn in.
-- Less caster = less jacking effect = less rotation = more stability
-- Higher tyre pressure = less contact patch = less grip
-- Lower tyre pressure = more contact patch = more grip
+REAR:
+- Wheelbase shorter → more rotation. Longer → less rotation, more stable.
+- Rear bumper tight → very little added rear grip, stiffens chassis. Loose (standard) → standard rear grip, more flex.
+- Rear width narrower in wet → adds rear grip. Narrower in dry → less rear grip, more rotation. Wider in wet → less rear grip. Wider in dry → more rear grip, stability.
+  LIMITS: never exceed 1400mm adult classes, 1100mm 950 chassis (child/junior).
+- Third bearing tight/on → more stability under braking, less revs/power on corner exit. Loose/off → more flex, better exit power.
+- Rear axle height low → takes front grip off, adds stability under braking. High → adds rear grip mid-corner, less stable.
+- Rear axle stiffness softer → takes rear grip away mid-corner to exit, more rotation, helps turn-in. Harder → adds rear grip mid-corner to exit, more stability.
+- Rear axle length shorter → more rotation, looser feel, more release on exit. Longer → more rear grip and stability.
+- Brake pads softer → locks up quicker, more responsive. Harder → less response, driver must brake harder.
+- Brake bias more front → front locks up. More rear → rear locks up.
+
+FRONT END:
+- Front width wider → less steering response, more stable on entry. Narrower → more response, more reactive.
+- Front hub length longer → more mid-corner grip (stiffens stub axle). Shorter → less mid-corner grip, softer feel.
+- Front ride height higher → more mid-corner front grip. Lower → less mid-corner front grip.
+- Camber more negative → less front initial grip on entry. Less negative → more front initial grip on entry.
+- Caster MORE → quicker rotation, more inside rear lift on turn-in. FIRST adjustment for understeer or poor turn-in. LESS → kart sits flatter, less rotation, more stable but harder to turn in.
+- Toe in → more direct steering. Toe out → less direct.
+- Stub axle harder → more mid-corner grip. Softer → less mid-corner grip.
+
+WHEELS & TYRES:
+- Summer/hard rim → controls pressures, keeps tyre cooler, better in warm conditions. Winter/soft rim → warms tyre quicker but drops off sooner, better in cold. Wet rims → wet only, causes bad handling in dry.
+- Higher tyre pressure → less contact patch, less grip. Lower → more contact patch, more grip.
+
+ENGINE & GEARING:
+- More rear sprocket teeth → more revs, more acceleration, less top speed.
+- Fewer rear sprocket teeth → less revs, less acceleration, more top speed.
+- More engine sprocket teeth → less revs, more top speed. Fewer → more revs, more acceleration.
+- CRITICAL: never change both rear sprocket AND engine sprocket in the same recommendations — one at a time only to isolate the effect.
+- Wet gearing: drop 1 tooth on rear (e.g. 12→11 Rotax) or go up 5 teeth on rear.
+
+CHASSIS & SEAT:
+- Seat harder → stiffer kart, more grip but harder to handle under braking and mid-corner. Softer → less grip, more forgiving.
+- Torsion bar harder → more front feedback and front grip. Softer → less front feedback and grip.
+- Seat position further forward → more rotation. Further back → less rotation, more stability.
+- More seat stays → adds rear grip, stiffens chassis. Fewer → less rear grip, more flex.
+- Front seat bolts loose → adds front rotation, more responsive turn-in. Tight → less rotation, more stable.
 
 GENERAL RULES:
-- Only recommend changes relevant to the feedback
-- Prioritise changes most likely to have the biggest impact first
+- Only recommend changes relevant to the feedback category and symptoms described
+- Prioritise the highest-impact change first (caster is always first for turn-in issues)
 - Keep explanations concise (2 sentences max)
-- Reference specific current values where known
+- Reference the driver's specific current values where known
 - Do not recommend changes to fields that are null/unknown in the setup
+- Do not exceed rear width limits
 
 Respond with ONLY valid JSON in this exact format — no markdown, no explanation:
 {

@@ -11,6 +11,7 @@ import {
   WifiOff,
   Wifi,
   Activity,
+  BookOpen,
 } from 'lucide-react'
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
 import { useSessions } from '@/hooks/useSessions'
@@ -51,6 +52,7 @@ export function Sidebar() {
     { to: '/garage',            icon: Wrench,          label: garageLabel,          exact: false },
     { to: '/analytics',         icon: BarChart2,       label: analyticsLabel,       exact: false },
     { to: '/data-comparison',   icon: Activity,        label: 'Data Logger',        exact: false },
+    { to: '/setup-reference',   icon: BookOpen,        label: 'Setup Reference',    exact: false },
     { to: '/settings',          icon: Settings,        label: t('nav.settings'),    exact: false },
   ]
 
