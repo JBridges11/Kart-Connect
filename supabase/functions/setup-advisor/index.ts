@@ -64,7 +64,8 @@ REAR:
   WIDER rear (wet): reduces rear grip.
   DIRECTION RULE: in dry conditions, ALWAYS recommend wider rear regardless of the symptom — understeer, oversteer, snap, or mixed. Narrowing the rear in dry makes handling worse in almost every scenario.
   LIMITS: never exceed 1400mm adult classes, 1100mm 950 chassis (child/junior).
-- Third bearing tight/on → more rear stability on corner ENTRY and under braking. REDUCES revs and power on corner exit — do NOT recommend tightening for top-speed or straight-line issues. Loose/off → better drive OFF the corner and more revs on corner exit — recommend loosening when the driver loses time on the straight or lacks exit drive.
+- Third bearing tight/on → more rear stability on corner entry, under braking, AND at high speed on the straight. Recommend tightening when the kart is coasting, maxing out early, or needs straight-line stability. If already tight, confirm to keep it tight — do not change it.
+- Third bearing loose/off → better drive OFF the corner and more revs on exit. Recommend loosening ONLY when the driver lacks corner exit drive or acceleration out of slow corners — NOT for top-speed or straight-line stability issues.
 - Rear axle height low → takes front grip off, adds stability under braking. High → adds rear grip mid-corner, less stable.
 - Rear axle stiffness softer → takes rear grip away mid-corner to exit, more rotation, helps turn-in. Harder → adds rear grip mid-corner to exit, more stability.
 - Rear axle length shorter → more rotation, looser feel, more release on exit. Longer → more rear grip and stability.

@@ -46,8 +46,8 @@ export const SETUP_CHANGES: SetupItem[] = [
     name: 'Third Bearing',
     section: 'rear',
     directions: [
-      { label: 'Tight / On', effect: 'More rear stability on corner entry and under braking — reduces revs and drive off the corner' },
-      { label: 'Loose / Off', effect: 'Better drive off the corner and more revs on exit — use when losing time on the straight or lacking exit drive' },
+      { label: 'Tight / On', effect: 'More rear stability on entry, under braking, and at high speed on the straight — use when coasting or maxing out early' },
+      { label: 'Loose / Off', effect: 'Better drive off the corner and more revs on exit — use only when lacking corner exit acceleration, not for straight-line issues' },
     ],
   },
   {
