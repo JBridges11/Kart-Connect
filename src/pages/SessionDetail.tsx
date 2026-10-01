@@ -1221,7 +1221,11 @@ export function SessionDetailPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            <p className="text-sm text-text-muted">Based on your feedback, here are the recommended changes in priority order:</p>
+            <div className="bg-bg-elevated rounded-card p-3 border border-border-color">
+              <p className="text-xs font-heading font-bold text-text-muted uppercase mb-1">Your Feedback · {advisorCategory}</p>
+              <p className="text-sm text-text-primary leading-relaxed">{advisorFeedback}</p>
+            </div>
+            <p className="text-xs text-text-muted">Based on your feedback, here are the recommended changes in priority order:</p>
             {advisorResult.map(rec => (
               <div key={rec.priority} className="bg-bg-elevated rounded-card p-4 border border-border-color">
                 <div className="flex items-start gap-3">
