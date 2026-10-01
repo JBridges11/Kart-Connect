@@ -1,7 +1,8 @@
 import { useState, useMemo, useRef } from 'react'
 import { Search, X, Download } from 'lucide-react'
 import { Document, Page } from 'react-pdf'
-import { generateSetupPDF } from '@/lib/generateSetupPDF'
+import { generateSessionReportUrl } from '@/components/SessionReportPDF'
+import { supabase } from '@/lib/supabase'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { Card, Select } from '@/components/ui'
 import { LapProgressChart } from '@/components/charts/LapProgressChart'
@@ -21,9 +22,20 @@ export function AnalyticsPage() {
 
   async function getOrBuildPdf(sessionId: string) {
     setDownloadingId(sessionId)
-    const result = await generateSetupPDF(sessionId, branding)
+    const [{ data: session }, { data: setup }, { data: lapTimes }] = await Promise.all([
+      supabase.from('sessions').select('*, track:tracks(name, country), kart:karts(*)').eq('id', sessionId).single(),
+      supabase.from('setups').select('*').eq('session_id', sessionId).single(),
+      supabase.from('lap_times').select('*').eq('session_id', sessionId).order('lap_number'),
+    ])
     setDownloadingId(null)
-    return result
+    if (!session) return null
+    return generateSessionReportUrl({
+      session: session as any,
+      setup: setup ?? null,
+      lapTimes: lapTimes ?? [],
+      teamName: branding.team_name,
+      teamLogoUrl: branding.logo_url,
+    })
   }
 
   async function handlePreview(sessionId: string) {
