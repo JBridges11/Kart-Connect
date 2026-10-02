@@ -7,6 +7,7 @@ import 'react-pdf/dist/Page/TextLayer.css'
 pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString()
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { Card, Badge, Button, Modal, Input, Textarea, VoiceTextarea } from '@/components/ui'
+import { SymptomPicker } from '@/components/ui/SymptomPicker'
 import { SetupForm } from '@/components/forms/SetupForm'
 import { useSession } from '@/hooks/useSessions'
 import { useSetup } from '@/hooks/useSetup'
@@ -99,6 +100,7 @@ export function SessionDetailPage() {
   const [advisorFeedback, setAdvisorFeedback] = useState('')
   const [advisorCategory, setAdvisorCategory] = useState<'Handling' | 'Engine' | 'Both'>('Handling')
   const [advisorLoading, setAdvisorLoading] = useState(false)
+  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([])
   const [advisorResult, setAdvisorResult] = useState<Array<{
     priority: number
     change: string
@@ -1177,9 +1179,9 @@ export function SessionDetailPage() {
       {/* Setup Advisor Modal */}
       <Modal isOpen={advisorOpen} onClose={() => setAdvisorOpen(false)} title="Setup Advisor" maxWidth="max-w-2xl">
         {!advisorResult ? (
-          <div className="space-y-5">
+          <div className="space-y-4">
             <p className="text-sm text-text-muted">
-              Describe how the kart felt and the AI will suggest 3 setup changes in priority order.
+              Select what the kart is doing. Tap a section to expand it, then pick one or more scenarios.
             </p>
             <div>
               <p className="text-xs font-heading font-bold text-text-muted uppercase mb-2">Category</p>
@@ -1201,19 +1203,20 @@ export function SessionDetailPage() {
                 ))}
               </div>
             </div>
-            <VoiceTextarea
-              label="Driver Feedback *"
-              value={advisorFeedback}
-              onChange={setAdvisorFeedback}
-              placeholder="e.g. The kart was understeering heavily in slow corners, felt very stiff and wouldn't rotate. In fast corners it was fine but I couldn't get the front to turn in."
+            <SymptomPicker
+              selected={selectedSymptoms}
+              onChange={syms => {
+                setSelectedSymptoms(syms)
+                setAdvisorFeedback(syms.join(', '))
+              }}
             />
-            <div className="flex gap-2 justify-end">
+            <div className="flex gap-2 justify-end pt-1">
               <Button variant="ghost" size="sm" onClick={() => setAdvisorOpen(false)}>Cancel</Button>
               <Button
                 size="sm"
                 onClick={() => void runAdvisor()}
                 loading={advisorLoading}
-                disabled={!advisorFeedback.trim()}
+                disabled={selectedSymptoms.length === 0}
               >
                 <Sparkles size={13} /> Get Recommendations
               </Button>
@@ -1247,7 +1250,7 @@ export function SessionDetailPage() {
               </div>
             ))}
             <div className="flex gap-2 justify-end pt-2">
-              <Button variant="ghost" size="sm" onClick={() => { setAdvisorResult(null) }}>Ask Again</Button>
+              <Button variant="ghost" size="sm" onClick={() => { setAdvisorResult(null); setSelectedSymptoms([]); setAdvisorFeedback('') }}>Ask Again</Button>
               <Button size="sm" onClick={() => setAdvisorOpen(false)}>Done</Button>
             </div>
           </div>
