@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronDown, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { SYMPTOM_SECTIONS } from '@/data/setupSymptoms'
 
 interface Props {
@@ -8,15 +8,9 @@ interface Props {
 }
 
 export function SymptomPicker({ selected, onChange }: Props) {
-  const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const [activeSection, setActiveSection] = useState(SYMPTOM_SECTIONS[0].id)
 
-  function toggleSection(id: string) {
-    setExpanded(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
-  }
+  const current = SYMPTOM_SECTIONS.find(s => s.id === activeSection)!
 
   function toggleScenario(scenario: string) {
     if (selected.includes(scenario)) {
@@ -31,61 +25,63 @@ export function SymptomPicker({ selected, onChange }: Props) {
   }
 
   return (
-    <div className="space-y-2">
-      {SYMPTOM_SECTIONS.map(section => {
-        const isOpen = expanded.has(section.id)
-        const sectionSelected = section.scenarios.filter(s => selected.includes(s))
-
-        return (
-          <div key={section.id} className="border border-border-color rounded-card overflow-hidden">
+    <div className="space-y-3">
+      {/* Section tab bar — horizontal scroll */}
+      <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
+        {SYMPTOM_SECTIONS.map(section => {
+          const count = section.scenarios.filter(s => selected.includes(s)).length
+          const isActive = section.id === activeSection
+          return (
             <button
+              key={section.id}
               type="button"
-              onClick={() => toggleSection(section.id)}
-              className="w-full flex items-center justify-between px-3 py-2.5 bg-bg-elevated hover:bg-bg-elevated/80 transition-colors cursor-pointer"
+              onClick={() => setActiveSection(section.id)}
+              className={[
+                'flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-card border text-xs font-heading font-bold whitespace-nowrap transition-all cursor-pointer',
+                isActive
+                  ? 'bg-accent-primary text-bg-primary border-accent-primary'
+                  : 'bg-bg-elevated text-text-muted border-border-color hover:text-text-primary hover:border-accent-primary/30',
+              ].join(' ')}
             >
-              <div className="flex items-center gap-2">
-                <span className="font-heading font-bold text-sm text-text-primary">{section.label}</span>
-                {sectionSelected.length > 0 && (
-                  <span className="bg-accent-primary text-bg-primary text-xs font-heading font-bold rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
-                    {sectionSelected.length}
-                  </span>
-                )}
-              </div>
-              <ChevronDown
-                size={14}
-                className={`text-text-muted transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
-              />
+              {section.label}
+              {count > 0 && (
+                <span className={[
+                  'w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold',
+                  isActive ? 'bg-bg-primary text-accent-primary' : 'bg-accent-primary text-bg-primary',
+                ].join(' ')}>
+                  {count}
+                </span>
+              )}
             </button>
+          )
+        })}
+      </div>
 
-            {isOpen && (
-              <div className="px-3 py-3 flex flex-wrap gap-2 bg-bg-card">
-                {section.scenarios.map(scenario => {
-                  const isSelected = selected.includes(scenario)
-                  return (
-                    <button
-                      key={scenario}
-                      type="button"
-                      onClick={() => toggleScenario(scenario)}
-                      className={[
-                        'text-xs px-2.5 py-1.5 rounded-card border transition-all cursor-pointer text-left',
-                        isSelected
-                          ? 'bg-accent-primary/10 text-accent-primary border-accent-primary/50 font-semibold'
-                          : 'bg-bg-elevated text-text-muted border-border-color hover:text-text-primary hover:border-accent-primary/30',
-                      ].join(' ')}
-                    >
-                      {scenario}
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        )
-      })}
+      {/* Scenarios for active section */}
+      <div className="flex flex-wrap gap-2 min-h-[80px]">
+        {current.scenarios.map(scenario => {
+          const isSelected = selected.includes(scenario)
+          return (
+            <button
+              key={scenario}
+              type="button"
+              onClick={() => toggleScenario(scenario)}
+              className={[
+                'text-xs px-3 py-2 rounded-card border transition-all cursor-pointer text-left',
+                isSelected
+                  ? 'bg-accent-primary/10 text-accent-primary border-accent-primary/50 font-semibold'
+                  : 'bg-bg-elevated text-text-muted border-border-color hover:text-text-primary hover:border-accent-primary/30',
+              ].join(' ')}
+            >
+              {scenario}
+            </button>
+          )
+        })}
+      </div>
 
       {/* Selected Issues Summary */}
       {selected.length > 0 && (
-        <div className="mt-3 border border-accent-primary/30 rounded-card p-3 bg-accent-primary/5">
+        <div className="border border-accent-primary/30 rounded-card p-3 bg-accent-primary/5">
           <p className="text-xs font-heading font-bold text-accent-primary uppercase tracking-wider mb-2">
             Selected Issues ({selected.length})
           </p>
