@@ -1,0 +1,23 @@
+{
+  "slug": "post-s1-08-units",
+  "title": "Units, your way",
+  "slides": [
+    {
+      "label": "",
+      "html": "<div class=\"spacer\"></div><div class=\"label\" style=\"margin-bottom:12px;\">Settings</div><h1 style=\"font-size:34px;\">Bar or psi?</h1><h1 style=\"font-size:34px;margin-top:6px;color:var(--purple);\">Your call.</h1>"
+    },
+    {
+      "label": "Units",
+      "html": "<h1 style=\"font-size:26px;\">Set your units once.</h1><div style=\"margin-top:20px;border-radius:8px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.10);border:1px solid var(--rule);\"><img src=\"assets/shots/units.png\" alt=\"Units settings in Kart Connect\" style=\"display:block;width:100%;\"></div><p style=\"margin-top:18px;\">Tyre pressure in <span style=\"white-space:nowrap\">bar or psi</span>. Temperature in <span style=\"white-space:nowrap\">°C or °F</span>. Speed in <span style=\"white-space:nowrap\">km/h or mph</span>.</p>"
+    },
+    {
+      "label": "Kart Connect",
+      "html": "<div class=\"spacer\"></div><h1>Your units. Your way.</h1><p style=\"margin-top:16px;font-size:14px;\">Every number reads the way you are used to reading it, wherever you race.</p><div class=\"spacer\"></div>"
+    }
+  ],
+  "captions": [
+    "Bar or psi? Your call.\n\nSet your units once in Kart Connect: tyre pressure in bar or psi, temperature in °C or °F, speed in km/h or mph. Every number then reads the way you're used to.\n\nkart-connect.com\n\n#karting #kartsetup #kartracing",
+    "Do you run your pressures in bar or psi?\n\nWhichever it is, Kart Connect works the way you do. Pick your pressure, temperature and speed units once and you're set.\n\nkart-connect.com\n\n#karting #kartsetup #motorsport",
+    "Your units. Your way.\n\nBar or psi. °C or °F. km/h or mph. Set it once in Kart Connect.\n\nkart-connect.com\n\n#karting #kartracing #motorsport"
+  ]
+}

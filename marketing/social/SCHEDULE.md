@@ -48,7 +48,7 @@ Simple. Every session of a race weekend kept together, in order, from practice t
 
 ## 8. Units, your way (3 slides)
 Simple. Change units to suit you: pressure (bar or psi), temperature (°C or °F), speed (km/h or mph),
-altitude (metres or feet), and more. If `assets/shots/units.png` exists, use it as the real screenshot.
+altitude (metres or feet), and more. Already written and approved: build `posts/post-s1-08-units.json` as it is.
 
 ## 9. In your language (3 slides)
 Short and simple. The app is available in eight languages: English, Spanish, French, Italian, Arabic,
