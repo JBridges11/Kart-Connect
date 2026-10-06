@@ -26,6 +26,11 @@ Each scheduled run handles exactly one post from `SCHEDULE.md`. The run's prompt
 9. **Send the slides to the owner's phone:** call `SendUserFile` with every `slide-NN.png` in order, then `<slug>.pdf`,
    `status: "proactive"`, `display: "attach"`, caption "<title>. Slides in order, ready to save and post, plus a PDF of all slides."
    The owner saves these straight from the Claude app, so this step is required, not optional.
+   Then, in the chat reply for this run, give the title, the date it's for ("Ready to post today, <day date>"),
+   and caption options A, B and C in full, so the owner can copy them here without opening the email.
+   Finally call `PushNotification` (`status: "proactive"`) with:
+   "Kart Connect: <title> is ready to post today. Slides, PDF and 3 captions are in the chat and your email."
+   Every run sends this notification; the owner asked for it.
 10. **Record it:** commit `marketing/social/posts/<slug>.json` if you wrote it and push to `claude/cart-connect-social-posts-ektax0`
    (`git push -u origin claude/cart-connect-social-posts-ektax0`, retry up to 4 times on network errors).
    Don't change any other files.
