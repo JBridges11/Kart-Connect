@@ -1,0 +1,22 @@
+{
+  "slug": "post-s2-01-teaser",
+  "title": "Something is coming",
+  "slides": [
+    {
+      "label": "",
+      "html": "<div class=\"spacer\"></div><div class=\"label\" style=\"margin-bottom:12px;\">Data</div><h1 style=\"font-size:34px;\">Something is coming.</h1>"
+    },
+    {
+      "label": "A clue",
+      "html": "<h1 style=\"font-size:27px;\">Your logger. Your teammate's logger.</h1><h1 style=\"font-size:27px;margin-top:8px;color:var(--purple);\">Different brands.</h1><p style=\"margin-top:18px;font-size:14px;\">Until now, that meant two sets of data that never meet.</p>"
+    },
+    {
+      "label": "Kart Connect",
+      "html": "<div class=\"spacer\"></div><h1>Every logger brand. One screen.</h1><div class=\"label\" style=\"margin-top:18px;\">Coming soon</div><div class=\"spacer\"></div>"
+    }
+  ],
+  "captions": [
+    "Something is coming.\n\nYour logger and your teammate's logger don't have to be the same brand to be on the same screen.\n\nComing soon to Kart Connect.\n\n#karting #kartracing #datalogging",
+    "Different loggers. Same screen. Soon.\n\nWe've been building something for everyone who has ever tried to compare data across two brands. More to show you shortly.\n\nkart-connect.com\n\n#karting #kartsetup #motorsport"
+  ]
+}

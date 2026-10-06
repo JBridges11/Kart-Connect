@@ -1,0 +1,26 @@
+{
+  "slug": "post-s2-02-the-problem",
+  "title": "One brand, one app",
+  "slides": [
+    {
+      "label": "",
+      "html": "<div class=\"spacer\"></div><h1 style=\"font-size:32px;\">Different logger. Different software. No comparison.</h1>"
+    },
+    {
+      "label": "The problem",
+      "html": "<h1 style=\"font-size:26px;\">Every brand has its own desktop software.</h1><ul class=\"dash\" style=\"margin-top:16px;\"><li>AiM reads AiM files.</li><li>Unipro reads Unipro files.</li><li>Alfano reads Alfano files.</li><li>Starlane reads Starlane files.</li></ul>"
+    },
+    {
+      "label": "The problem",
+      "html": "<h1>Teammate on a different brand?</h1><p style=\"margin-top:18px;font-size:14px;\">Your laps and theirs can't sit side by side. Switching logger brand means starting your analysis again in a new app.</p>"
+    },
+    {
+      "label": "Kart Connect",
+      "html": "<div class=\"spacer\"></div><h1>That is about to change.</h1><p style=\"margin-top:16px;font-size:14px;\">One screen for every major logger brand.</p><div class=\"label\" style=\"margin-top:18px;\">Coming soon</div><div class=\"spacer\"></div>"
+    }
+  ],
+  "captions": [
+    "Different logger. Different software. No comparison.\n\nAiM, Unipro, Alfano and Starlane each come with their own desktop software, and each one only reads its own files. If your teammate runs a different brand, your data never meets.\n\nThat is about to change. Coming soon to Kart Connect.\n\n#karting #datalogging #kartracing",
+    "Ever tried to compare your data with a teammate on a different logger?\n\nSomething one of a kind is coming to Kart Connect. Every major logger brand, one screen.\n\nkart-connect.com\n\n#karting #kartsetup #motorsport"
+  ]
+}

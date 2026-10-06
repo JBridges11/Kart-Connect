@@ -1,0 +1,22 @@
+{
+  "slug": "post-s2-05-perfect-lap",
+  "title": "Your perfect lap",
+  "slides": [
+    {
+      "label": "",
+      "html": "<div class=\"spacer\"></div><h1 style=\"font-size:32px;\">What does your perfect lap look like?</h1>"
+    },
+    {
+      "label": "Theoretical best",
+      "html": "<h1 style=\"font-size:24px;\">Your three best sectors, from any lap.</h1><div style=\"margin-top:12px;\"><div class=\"step\"><span class=\"n\">1</span><div><h3>Fastest Sector 1</h3><p>From whichever lap you set it on.</p></div></div><div class=\"step\"><span class=\"n\">2</span><div><h3>Fastest Sector 2</h3><p>Even if it came in a different session.</p></div></div><div class=\"step\"><span class=\"n\">3</span><div><h3>Fastest Sector 3</h3><p>Combined into one theoretical best lap.</p></div></div></div><p style=\"margin-top:12px;\">See which sector costs you time, and which you already own.</p>"
+    },
+    {
+      "label": "Kart Connect",
+      "html": "<div class=\"spacer\"></div><h1 style=\"font-size:28px;\">See where your time is going.</h1><p style=\"margin-top:16px;font-size:14px;\">Export to GPX, KML or CSV when you want to take it further.</p><div class=\"label\" style=\"margin-top:18px;\">Coming soon</div><div class=\"spacer\"></div>"
+    }
+  ],
+  "captions": [
+    "What does your perfect lap look like?\n\nKart Connect takes your fastest Sector 1, Sector 2 and Sector 3, from any lap and even across sessions, and combines them into your theoretical best. Then sector analysis shows where the time is.\n\nComing soon.\n\n#karting #datalogging #kartracing",
+    "Your best lap is already in your data. It is just split across three laps.\n\nTheoretical best lap and sector analysis, coming soon to the Kart Connect Data Logger.\n\nkart-connect.com\n\n#karting #kartsetup #motorsport"
+  ]
+}
