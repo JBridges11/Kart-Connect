@@ -8,6 +8,7 @@ Writes to <outDir>:
     slide-NN.png       1080x1350 Instagram images, one per slide
     index.html         the review page that gets published as an Artifact
     preview.png        all slides side by side, for a quick visual check
+    <slug>.pdf         every slide in one PDF, one page per slide
 
 Spec format (see examples/*.json):
     {
@@ -153,6 +154,8 @@ def main():
     for i, im in enumerate(ims):
         sheet.paste(im, (i * 442, 0))
     sheet.save(os.path.join(out, 'preview.png'))
+    pages = [Image.open(os.path.join(out, f'slide-{i:02d}.png')).convert('RGB') for i in range(1, n + 1)]
+    pages[0].save(os.path.join(out, f'{spec["slug"]}.pdf'), save_all=True, append_images=pages[1:], resolution=216)
     print(f'built {spec["slug"]}: {n} slides in {out}')
 
 
