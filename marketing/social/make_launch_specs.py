@@ -59,7 +59,7 @@ posts.append({'slug': 'post-s2-02-the-problem', 'title': 'One brand, one app', '
 # 3. The reveal
 def chan(name, text):
     return (f'<div class="row" style="padding:7px 0;"><span style="color:var(--ink);font-weight:600;">{name}</span>'
-            f'<span style="font-size:11px;color:var(--ink-lt);text-align:right;max-width:58%;">{text}</span></div>')
+            f'<span style="font-size:11px;color:var(--ink-lt);text-align:right;max-width:58%;">{text[:1].upper() + text[1:]}</span></div>')
 
 posts.append({'slug': 'post-s2-03-reveal', 'title': 'Every logger, one screen', 'slides': [
     {'label': '', 'html': '<div class="spacer"></div><div class="label" style="margin-bottom:12px;">Data Logger</div>'
@@ -68,16 +68,6 @@ posts.append({'slug': 'post-s2-03-reveal', 'title': 'Every logger, one screen', 
      '<p style="margin-top:10px;">Mix brands and drivers in one go. The brand is detected automatically, with nothing to set up.</p>'
      '<div style="margin-top:20px;border-radius:8px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.10);border:1px solid var(--rule);">'
      '<img src="assets/shots/logger-drop.png" style="display:block;width:100%;"></div>'},
-    {'label': 'Overlaid', 'html': '<h1 style="font-size:24px;">Your data on top of theirs. Brand against brand.</h1>'
-     '<div class="card" style="margin-top:14px;padding:4px 16px;">'
-     + chan('Speed', 'every lap, against distance')
-     + chan('Braking', 'where each driver brakes')
-     + chan('Acceleration', 'who is back on power first')
-     + chan('Throttle', 'how hard, how long')
-     + chan('RPM', 'through every corner')
-     + chan('Racing line', 'GPS, slow to fast')
-     + chan('G-force', 'if your logger records it')
-     + '</div>'},
     {'label': 'Supported loggers', 'html': '<h1 style="font-size:24px;">Works with the logger you already run.</h1>'
      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;">'
      + logger('AiM MyChron 5 / 5S', 'GPS + G-force') + logger('AiM MyChron 6', 'GPS + G-force')
@@ -140,9 +130,9 @@ posts.append({'slug': 'post-s2-06-giveaway', 'title': 'Giveaway', 'slides': [
      '<p style="margin-top:16px;font-size:16px;font-weight:700;color:#1a1a1a;">12 months of Kart Connect Privateer.</p>'
      '<div style="margin-top:14px;"><span class="sticker">Worth £155.88</span></div>'},
     {'label': 'How to enter', 'theme': 'dark', 'html': '<h1 style="font-size:26px;">Enter in 10 seconds.</h1><div style="margin-top:14px;">'
-     '<div class="big-step"><span class="k">1</span><div><b>Like</b><span class="t">this post</span></div></div>'
-     '<div class="big-step"><span class="k">2</span><div><b>Share</b><span class="t">it to your story</span></div></div>'
-     '<div class="big-step"><span class="k">3</span><div><b>Tag</b><span class="t">your karting mates in the comments. Every tag is another entry.</span></div></div>'
+     '<div class="big-step"><span class="k">1</span><div><b>Like</b><span class="t">Hit like on this post.</span></div></div>'
+     '<div class="big-step"><span class="k">2</span><div><b>Share</b><span class="t">Share it to your Instagram story.</span></div></div>'
+     '<div class="big-step"><span class="k">3</span><div><b>Tag</b><span class="t">Tag your karting mates in the comments. Every tag is another entry.</span></div></div>'
      '</div>'},
     {'label': 'What you win', 'theme': 'dark', 'html': '<h1 style="font-size:26px;">A full year of your setups, sorted.</h1>'
      '<ul class="dash" style="margin-top:14px;">'

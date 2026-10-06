@@ -10,7 +10,7 @@
     {
       "label": "How to enter",
       "theme": "dark",
-      "html": "<h1 style=\"font-size:26px;\">Enter in 10 seconds.</h1><div style=\"margin-top:14px;\"><div class=\"big-step\"><span class=\"k\">1</span><div><b>Like</b><span class=\"t\">this post</span></div></div><div class=\"big-step\"><span class=\"k\">2</span><div><b>Share</b><span class=\"t\">it to your story</span></div></div><div class=\"big-step\"><span class=\"k\">3</span><div><b>Tag</b><span class=\"t\">your karting mates in the comments. Every tag is another entry.</span></div></div></div>"
+      "html": "<h1 style=\"font-size:26px;\">Enter in 10 seconds.</h1><div style=\"margin-top:14px;\"><div class=\"big-step\"><span class=\"k\">1</span><div><b>Like</b><span class=\"t\">Hit like on this post.</span></div></div><div class=\"big-step\"><span class=\"k\">2</span><div><b>Share</b><span class=\"t\">Share it to your Instagram story.</span></div></div><div class=\"big-step\"><span class=\"k\">3</span><div><b>Tag</b><span class=\"t\">Tag your karting mates in the comments. Every tag is another entry.</span></div></div></div>"
     },
     {
       "label": "What you win",
