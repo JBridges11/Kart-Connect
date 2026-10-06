@@ -8,7 +8,7 @@
     },
     {
       "label": "One tap",
-      "html": "<h1 style=\"font-size:26px;\">Tap Add weather. The conditions fill in for you.</h1>\n<div class=\"card\" style=\"margin-top:20px;\">\n  <div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;\"><span class=\"label\">Session conditions</span><span style=\"font-size:11px;font-weight:600;color:#fff;background:var(--purple);padding:6px 12px;border-radius:6px;\">Add weather</span></div>\n  <div class=\"row\"><span>Air temperature</span><b>Filled in</b></div>\n  <div class=\"row\"><span>Humidity</span><b>Filled in</b></div>\n  <div class=\"row\"><span>Wind speed</span><b>Filled in</b></div>\n  <div class=\"row\"><span>Conditions</span><b>Filled in</b></div>\n</div>\n<p style=\"margin-top:16px;\">Live weather data for where you're running, saved with the session.</p>"
+      "html": "<h1 style=\"font-size:26px;\">Tap Add weather. The conditions fill in for you.</h1>\n<div style=\"margin-top:22px;border-radius:8px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.10);\"><img src=\"assets/shots/live-weather.png\" alt=\"Live weather in the Kart Connect app\" style=\"display:block;width:100%;\"></div>\n<p style=\"margin-top:18px;\">Temperature, conditions, wind, humidity and rainfall from live weather data, saved with the session.</p>"
     },
     {
       "label": "Done",
