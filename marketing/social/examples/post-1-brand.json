@@ -1,0 +1,21 @@
+{
+  "slug": "post-1-brand",
+  "slides": [
+    {
+      "label": "",
+      "html": " <div class=\"spacer\"></div>\n  <h1 style=\"font-size:32px;\">Every kart on the grid has a setup.</h1>\n  <h1 style=\"font-size:32px;margin-top:12px;color:var(--purple);\">Very few have a record of it.</h1>"
+    },
+    {
+      "label": "Who it's for",
+      "html": "<h1 style=\"font-size:26px;\">Built for everyone in the awning</h1>\n  <div style=\"margin-top:14px;\">\n   <div class=\"step\"><span class=\"n\">D</span><div><h3>Drivers</h3><p>Log every session and carry proven baselines from track to track.</p></div></div>\n   <div class=\"step\"><span class=\"n\">M</span><div><h3>Mechanics</h3><p>See what changed, when, and the reasoning behind it.</p></div></div>\n   <div class=\"step\"><span class=\"n\">T</span><div><h3>Team managers</h3><p>Every driver's setup on one screen.</p></div></div>\n  </div>"
+    },
+    {
+      "label": "How it works",
+      "html": "<h1 style=\"font-size:26px;\">Log it. Compare it. Carry it forward.</h1>\n  <div style=\"margin-top:14px;\">\n   <div class=\"step\"><span class=\"n\">1</span><div><h3>Log</h3><p>Record the setup for every session, with a note on why. Weather is recorded with it.</p></div></div>\n   <div class=\"step\"><span class=\"n\">2</span><div><h3>Compare</h3><p>Put two sessions side by side and see exactly what changed.</p></div></div>\n   <div class=\"step\"><span class=\"n\">3</span><div><h3>Carry forward</h3><p>Save what worked as a baseline and start the next event from it.</p></div></div>\n  </div>"
+    },
+    {
+      "label": "Get started",
+      "html": " <div class=\"spacer\"></div>\n  <h1>Setup management for drivers and teams.</h1>\n  <p style=\"margin-top:16px;font-size:14px;\">iOS, Android and web. Works offline in the paddock and syncs when you're back on signal.</p>\n  <div class=\"spacer\"></div>"
+    }
+  ]
+}

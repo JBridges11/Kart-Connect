@@ -1,0 +1,21 @@
+{
+  "slug": "post-2-race-weekend",
+  "slides": [
+    {
+      "label": "",
+      "html": " <div class=\"spacer\"></div>\n  <div class=\"label\" style=\"margin-bottom:12px;\">Race weekend</div>\n  <h1 style=\"font-size:29px;\">Axle. <span style=\"white-space:nowrap\">Seat position.</span> Carb. <span style=\"white-space:nowrap\">Tyre pressures.</span> Gearing.</h1>"
+    },
+    {
+      "label": "The problem",
+      "html": "<h1>Dozens of decisions. Most of them lost.</h1>\n  <ul class=\"dash\" style=\"margin-top:20px;\">\n   <li>Written on a clipboard between heats.</li>\n   <li>Photographed once, then buried in a camera roll.</li>\n   <li>Simply remembered, until it isn't.</li>\n  </ul>\n  <p style=\"margin-top:12px;\">By the next round the reasoning is gone.</p>"
+    },
+    {
+      "label": "Kart Connect",
+      "html": "<h1 style=\"font-size:24px;\">Log every session in one place.</h1><div style=\"margin-top:16px;\"><div class=\"card\">\n      <div style=\"display:flex;justify-content:space-between;align-items:center;\"><span class=\"label\">Session log</span><span class=\"chip green\">Saved</span></div>\n      <h2 style=\"margin-top:6px;\">Round 4 — Heat 2</h2>\n      <div style=\"margin-top:8px;\">\n        <div class=\"row\"><span>Axle</span><b>Logged</b></div>\n        <div class=\"row\"><span>Tyre pressures</span><b>Logged</b></div>\n        <div class=\"row\"><span>Gearing</span><b>Logged</b></div>\n        <div class=\"row\"><span>Conditions</span><b>Recorded</b></div>\n      </div></div></div>"
+    },
+    {
+      "label": "Next round",
+      "html": " <div class=\"spacer\"></div>\n  <h1>Start the next round where the last one ended.</h1>\n  <p style=\"margin-top:16px;font-size:14px;\">Every change, with a note on why, ready for the next time you're back.</p>\n  <div class=\"spacer\"></div>"
+    }
+  ]
+}

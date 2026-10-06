@@ -1,0 +1,21 @@
+{
+  "slug": "post-5-baselines",
+  "slides": [
+    {
+      "label": "",
+      "html": " <div class=\"spacer\"></div>\n  <h1 style=\"font-size:32px;\">Carry proven baselines from track to track.</h1>"
+    },
+    {
+      "label": "The problem",
+      "html": "<h1>Every event, back to square one?</h1>\n  <p style=\"margin-top:18px;font-size:14px;\">Without a record, practice goes on finding a setup you've already found before.</p>\n  <ul class=\"dash\" style=\"margin-top:12px;\">\n   <li>What did we run here last time?</li>\n   <li>What did we change for the cold?</li>\n  </ul>"
+    },
+    {
+      "label": "Log it",
+      "html": "<h1 style=\"font-size:24px;\">Every session, saved with the reasoning.</h1>\n  <p style=\"margin-top:10px;\">Axle, bumpers, brakes and engine. Tap through each part of the kart and save the setup you ran.</p>\n  <div style=\"margin:18px -28px 0 0;overflow:hidden;border-radius:8px 0 0 8px;box-shadow:0 2px 16px rgba(0,0,0,.10);border:1px solid var(--rule);border-right:0;\">\n    <img src=\"assets/shots/app-setup.png\" style=\"display:block;width:480px;max-width:none;\">\n  </div>"
+    },
+    {
+      "label": "Take it with you",
+      "html": "<h1 style=\"font-size:24px;\">Every session becomes a report.</h1>\n  <div style=\"display:flex;gap:16px;margin-top:16px;align-items:flex-start;\">\n    <img src=\"assets/shots/report.png\" style=\"display:block;width:178px;border-radius:4px;box-shadow:0 2px 16px rgba(0,0,0,.12);border:1px solid var(--rule);\">\n    <div style=\"flex:1;\">\n      <p style=\"font-size:12px;\">Setup, conditions, pressures and lap times on one page.</p>\n      <p style=\"font-size:12px;margin-top:10px;\">Export it as a PDF and start the next event from a setup you trust.</p>\n    </div>\n  </div>"
+    }
+  ]
+}

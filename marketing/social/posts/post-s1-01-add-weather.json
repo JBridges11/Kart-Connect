@@ -1,0 +1,22 @@
+{
+  "slug": "post-s1-01-add-weather",
+  "title": "Add weather",
+  "slides": [
+    {
+      "label": "",
+      "html": "<div class=\"spacer\"></div>\n<div class=\"label\" style=\"margin-bottom:12px;\">Weather</div>\n<h1 style=\"font-size:32px;\">Stop looking up the weather after the session.</h1>"
+    },
+    {
+      "label": "One tap",
+      "html": "<h1 style=\"font-size:26px;\">Tap Add weather. The conditions fill in for you.</h1>\n<div class=\"card\" style=\"margin-top:20px;\">\n  <div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;\"><span class=\"label\">Session conditions</span><span style=\"font-size:11px;font-weight:600;color:#fff;background:var(--purple);padding:6px 12px;border-radius:6px;\">Add weather</span></div>\n  <div class=\"row\"><span>Air temperature</span><b>Filled in</b></div>\n  <div class=\"row\"><span>Humidity</span><b>Filled in</b></div>\n  <div class=\"row\"><span>Wind speed</span><b>Filled in</b></div>\n  <div class=\"row\"><span>Conditions</span><b>Filled in</b></div>\n</div>\n<p style=\"margin-top:16px;\">Live weather data for where you're running, saved with the session.</p>"
+    },
+    {
+      "label": "Done",
+      "html": "<div class=\"spacer\"></div>\n<h1>Conditions on every session. Nothing to look up later.</h1>\n<p style=\"margin-top:16px;font-size:14px;\">One less job in the paddock. More time on the kart.</p>\n<div class=\"spacer\"></div>"
+    }
+  ],
+  "captions": [
+    "Stop looking up the weather after the session.\n\nTap Add weather in Kart Connect and the conditions are filled in for you: air temperature, humidity, wind and conditions, from live weather data. Saved with the session, ready for the next time you look back.\n\nkart-connect.com\n\n#karting #kartsetup #raceweekend",
+    "One tap. Conditions recorded.\n\nAdd weather pulls in live conditions for your session, so there's no searching for temperatures or humidity once you're home. One less job in the paddock.\n\nkart-connect.com\n\n#karting #kartracing #motorsport"
+  ]
+}
