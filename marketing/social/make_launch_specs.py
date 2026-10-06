@@ -150,6 +150,16 @@ posts.append({'slug': 'post-s2-06-giveaway', 'title': 'Giveaway', 'slides': [
     'We are giving away a year of Kart Connect.\n\nLike, share to your story, and tag your karting mates. The more you tag, the more chances you have to win 12 months of Privateer, worth £155.88.\n\nCloses [CLOSING DATE] at 23:59 UK time. Winner picked at random and contacted by DM from this account. 18+, UK only. Not sponsored, endorsed or administered by Instagram.\n\n#karting #giveaway #motorsport',
 ]})
 
+THIRD = {
+ "post-s2-01-teaser": "Your data. Their data. Different loggers.\n\nUntil now, that meant two sets of numbers that never meet. Watch this space.\n\nComing soon to Kart Connect. kart-connect.com\n\n#karting #datalogging #kartracing",
+ "post-s2-02-the-problem": "AiM. Unipro. Alfano. Starlane. Four brands, four apps, no way to compare.\n\nIf you and your teammate run different loggers, your data has never been on the same screen. We are changing that.\n\nComing soon to Kart Connect.\n\n#karting #datalogging #motorsport",
+ "post-s2-03-reveal": "Drop in a CSV from any major logger brand and Kart Connect does the rest.\n\nLap times ranked, speed traces overlaid, racing lines drawn from GPS and colour-coded slow to fast, and every lap split into sectors so you can see exactly where the time goes.\n\nComing soon. kart-connect.com\n\n#karting #kartracing #datalogging",
+ "post-s2-04-video": "Two onboards. One timeline.\n\nWatch any two drivers side by side with a live delta, and see who brakes later and who is back on the power first, frame by frame. Works with GoPro Hero 7 to 12 and DJI Osmo Action 3, 4 and 5.\n\nComing soon to Kart Connect.\n\n#karting #onboard #motorsport",
+ "post-s2-05-perfect-lap": "Fastest Sector 1. Fastest Sector 2. Fastest Sector 3. Put them together and that is your theoretical best.\n\nKart Connect builds it for you, even across sessions, and shows which sector is costing you.\n\nComing soon. kart-connect.com\n\n#karting #datalogging #kartsetup",
+ "post-s2-06-giveaway": "Tag the mate who needs to sort their setups out.\n\nWe are giving away 12 months of Kart Connect Privateer, worth £155.88. Like this post, share it to your story and tag your karting mates below. Every tag is another entry.\n\nCloses [CLOSING DATE] at 23:59 UK time. One winner picked at random and contacted by DM from this account. 18+, UK only. No cash alternative. Not sponsored, endorsed or administered by Instagram.\n\n#karting #giveaway #kartracing"
+}
 for p in posts:
+    if len(p['captions']) < 3:
+        p['captions'].append(THIRD[p['slug']])
     json.dump(p, open(os.path.join(OUT, p['slug'] + '.json'), 'w'), indent=2, ensure_ascii=False)
     print(p['slug'], len(p['slides']))

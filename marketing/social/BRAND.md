@@ -13,7 +13,7 @@ Follow these on every post. Where the owner's rules and the guidelines differ, t
 - **Weather**: say "live weather data" or "filled in automatically". Do not say "Met Office".
 - **Real app screenshots beat mock-ups.** Use files in `assets/shots/` where they fit; never invent UI that looks like a screenshot.
 - 3 to 4 slides per post unless the series plan says otherwise. Short topics get 3.
-- Every post gets two caption options (A and B).
+- Every post gets three caption options (A, B and C), each a different angle: a direct one, a question or hook, and a short punchy one.
 
 ## Design (already built into slides.css and build.py)
 

@@ -54,3 +54,19 @@ altitude (metres or feet), and more. If `assets/shots/units.png` exists, use it 
 Short and simple. The app is available in eight languages: English, Spanish, French, Italian, Arabic,
 German, Portuguese and Japanese. Show the language names in their own script (English, Español, Français,
 Italiano, العربية, Deutsch, Português, 日本語). No flags or emoji.
+
+# Series 2: data comparison launch and giveaway, continuing the 3-day cycle
+
+These posts are already written and approved: build them from `posts/<slug>.json` without changing them.
+They all say "Coming soon"; the feature launches around 1 December 2026 (date not fixed).
+
+| # | Send date (8am UK) | Slug | Slides |
+|---|---|---|---|
+| 1 | Mon 3 Nov 2026 | post-s2-01-teaser | 3 |
+| 2 | Thu 6 Nov 2026 | post-s2-02-the-problem | 4 |
+| 3 | Sun 9 Nov 2026 | post-s2-03-reveal | 4 |
+| 4 | Wed 12 Nov 2026 | post-s2-04-video | 4 |
+| 5 | Sat 15 Nov 2026 | post-s2-05-perfect-lap | 3 |
+| 6 | Tue 18 Nov 2026 | post-s2-06-giveaway | 4 |
+
+The giveaway deliberately uses dark and gradient slides (`theme` in the spec); the owner asked for it to stand out.
