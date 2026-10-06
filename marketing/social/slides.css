@@ -62,3 +62,26 @@
   .ico { flex:none; width:26px; height:26px; border-radius:6px; background:var(--purple-tint); display:flex; align-items:center; justify-content:center; }
   .pill { display:inline-block; font-size:10px; font-weight:600; padding:4px 9px; border-radius:20px; border:1px solid var(--rule); color:var(--ink-mid); margin:0 4px 6px 0; }
   .pill.on { background:var(--purple); border-color:var(--purple); color:#fff; }
+
+/* Punchy themes, used only where the owner asked to go beyond the guidelines (giveaways). */
+.s.dark { background: #1a1a1a; }
+.s.dark h1, .s.dark h2, .s.dark h3 { color: #fff; }
+.s.dark p { color: #d6d6d6; }
+.s.dark .label { color: #F5C842; }
+.s.dark .count, .s.dark .swipe { color: #9a9a9a; }
+.s.dark .url { color: #fff; }
+.s.grad { background: linear-gradient(135deg, #F5C842 0%, #5CC85A 52%, #7B5EA7 100%); }
+.s.grad::before, .s.grad::after { background: #1a1a1a; }
+.s.grad h1, .s.grad .label, .s.grad .count, .s.grad .swipe, .s.grad .url { color: #1a1a1a; }
+.s .logo-panel { background: #fff; padding: 7px; display: inline-block; border-radius: 4px; }
+.mega { font-size: 64px; font-weight: 900; letter-spacing: -0.05em; line-height: .9; }
+.sticker { display: inline-block; background: #1a1a1a; color: #F5C842; font-weight: 800; font-size: 13px; letter-spacing: .04em;
+           text-transform: uppercase; padding: 8px 12px; border-radius: 6px; transform: rotate(-3deg); }
+.big-step { display: flex; align-items: baseline; gap: 14px; padding: 12px 0; border-bottom: 1px solid #333; }
+.big-step:last-child { border-bottom: 0; }
+.big-step .k { font-size: 40px; font-weight: 900; color: #F5C842; width: 34px; font-variant-numeric: tabular-nums; }
+.big-step b { font-size: 30px; font-weight: 900; letter-spacing: -0.03em; color: #fff; text-transform: uppercase; }
+.big-step span.t { display: block; font-size: 12px; color: #bdbdbd; margin-top: 2px; }
+.s.dark ul.dash li { color: #e5e5e5; border-color: #333; }
+.big-step .k { flex: none; }
+.big-step > div { flex: 1; min-width: 0; }

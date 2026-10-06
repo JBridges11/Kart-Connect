@@ -57,6 +57,10 @@ posts.append({'slug': 'post-s2-02-the-problem', 'title': 'One brand, one app', '
 ]})
 
 # 3. The reveal
+def chan(name, text):
+    return (f'<div class="row" style="padding:7px 0;"><span style="color:var(--ink);font-weight:600;">{name}</span>'
+            f'<span style="font-size:11px;color:var(--ink-lt);text-align:right;max-width:58%;">{text}</span></div>')
+
 posts.append({'slug': 'post-s2-03-reveal', 'title': 'Every logger, one screen', 'slides': [
     {'label': '', 'html': '<div class="spacer"></div><div class="label" style="margin-bottom:12px;">Data Logger</div>'
      '<h1 style="font-size:32px;">Every major logger brand. One screen.</h1>'},
@@ -64,6 +68,16 @@ posts.append({'slug': 'post-s2-03-reveal', 'title': 'Every logger, one screen', 
      '<p style="margin-top:10px;">Mix brands and drivers in one go. The brand is detected automatically, with nothing to set up.</p>'
      '<div style="margin-top:20px;border-radius:8px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.10);border:1px solid var(--rule);">'
      '<img src="assets/shots/logger-drop.png" style="display:block;width:100%;"></div>'},
+    {'label': 'Overlaid', 'html': '<h1 style="font-size:24px;">Your data on top of theirs. Brand against brand.</h1>'
+     '<div class="card" style="margin-top:14px;padding:4px 16px;">'
+     + chan('Speed', 'every lap, against distance')
+     + chan('Braking', 'where each driver brakes')
+     + chan('Acceleration', 'who is back on power first')
+     + chan('Throttle', 'how hard, how long')
+     + chan('RPM', 'through every corner')
+     + chan('Racing line', 'GPS, slow to fast')
+     + chan('G-force', 'if your logger records it')
+     + '</div>'},
     {'label': 'Supported loggers', 'html': '<h1 style="font-size:24px;">Works with the logger you already run.</h1>'
      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;">'
      + logger('AiM MyChron 5 / 5S', 'GPS + G-force') + logger('AiM MyChron 6', 'GPS + G-force')
@@ -71,13 +85,13 @@ posts.append({'slug': 'post-s2-03-reveal', 'title': 'Every logger, one screen', 
      + logger('Starlane Stealth GPS', 'GPS') + logger('Starlane Davinci', 'GPS + G-force') + '</div>'},
     {'label': 'What you see', 'html': '<h1 style="font-size:24px;">Every lap, every trace, every sector.</h1>' + grid(
         card('Lap time comparison', 'All laps in one ranked table, best lap highlighted, delta to fastest.'),
-        card('Speed trace overlay', 'Speed against distance for every lap on one chart.'),
-        card('GPS track map', 'Your racing line, colour-coded slow to fast. Overlay drivers.'),
-        card('Sector analysis', 'Split into three sectors, with the fastest in each highlighted.'),
+        card('Speed trace overlay', 'See exactly where you gain or lose speed against another driver.'),
+        card('GPS track map', 'Your racing line, colour-coded slow to fast. Overlay drivers corner by corner.'),
+        card('Sector analysis', 'Three sectors, the fastest in each highlighted. Find the sector that costs you.'),
     ) + SOON},
 ], 'captions': [
-    'Every major logger brand. One screen.\n\nExport a CSV from AiM, Unipro, Alfano or Starlane and drop it into Kart Connect. The brand is detected automatically. Mix brands, mix drivers, and see every lap, speed trace and sector side by side.\n\nComing soon.\n\n#karting #datalogging #kartracing',
-    'Your teammate runs a different logger. It no longer matters.\n\nThe Kart Connect Data Logger reads AiM MyChron, Alfano, Unipro and Starlane files on one screen: lap tables, speed traces, GPS racing lines and sector analysis.\n\nComing soon. kart-connect.com\n\n#karting #kartsetup #motorsport',
+    'Every major logger brand. One screen.\n\nDrop in CSVs from AiM, Unipro, Alfano or Starlane and overlay them: speed, braking, acceleration, throttle, RPM and GPS racing lines, brand against brand. See exactly where a teammate brakes later, gets on the power sooner, or carries more speed through a corner.\n\nComing soon to Kart Connect.\n\n#karting #datalogging #kartracing',
+    'Your teammate runs a different logger. It no longer matters.\n\nSpeed traces, braking points, throttle, RPM and racing lines from every major logger brand, overlaid on one screen. Lap tables and sector analysis included.\n\nComing soon. kart-connect.com\n\n#karting #kartsetup #motorsport',
 ]})
 
 # 4. Video in sync
@@ -85,16 +99,22 @@ posts.append({'slug': 'post-s2-04-video', 'title': 'Video, in sync', 'slides': [
     {'label': '', 'html': '<div class="spacer"></div><h1 style="font-size:32px;">Watch the lap.</h1>'
      '<h1 style="font-size:32px;margin-top:8px;color:var(--purple);">See the delta.</h1>'},
     {'label': 'Video comparison', 'html': '<h1 style="font-size:26px;">Two drivers. Two clips. Perfect sync.</h1>'
-     '<p style="margin-top:16px;font-size:14px;">Load footage for two drivers and watch both side by side. A live delta counter shows who is ahead and by how much, updated as the video plays.</p>'
-     '<div style="margin-top:14px;"><span class="pill">Live delta</span><span class="pill">GPS sync</span><span class="pill">Frame-accurate</span></div>'},
+     '<p style="margin-top:12px;">Load footage for two drivers and watch both side by side, frame-accurate, with the data playing along.</p>'
+     '<div class="card" style="margin-top:14px;padding:4px 16px;">'
+     + chan('Live delta', 'who is ahead, by how much')
+     + chan('Braking', 'when each driver brakes')
+     + chan('Acceleration', 'who is back on power first')
+     + chan('Speed', 'as the video plays')
+     + '</div>'},
     {'label': 'Your camera', 'html': '<h1 style="font-size:24px;">No manual trimming.</h1><div style="margin-top:12px;">'
      + step('G', 'GoPro Hero 7 to 12', 'Uses the GoPro\'s built-in GPS timestamp to line your footage up with your logger data automatically. GPS must be on.')
      + step('D', 'DJI Osmo Action 3 / 4 / 5', 'Drop in the .srt file your Osmo Action records with the video. GPS and timestamps are synced to your logger data.')
      + '</div>'},
-    {'label': 'Kart Connect', 'html': '<div class="spacer"></div><h1>Data and video, on the same timeline.</h1>' + SOON + '<div class="spacer"></div>'},
+    {'label': 'Kart Connect', 'html': '<div class="spacer"></div><h1>See the gap. Then see why.</h1>'
+     '<p style="margin-top:16px;font-size:14px;">Data and video on the same timeline, for any two drivers on any logger.</p>' + SOON + '<div class="spacer"></div>'},
 ], 'captions': [
-    'Watch the lap. See the delta.\n\nLoad footage for two drivers and watch them side by side, with a live delta counter showing who is ahead and by how much. GoPro Hero 7 to 12 footage lines up automatically from its GPS timestamp, and DJI Osmo Action 3, 4 and 5 sync through the .srt file.\n\nComing soon to Kart Connect.\n\n#karting #datalogging #gopro',
-    'No more trimming footage by hand.\n\nKart Connect lines your onboard video up with your logger data and plays two drivers side by side, frame-accurate, with a live delta.\n\nComing soon. kart-connect.com\n\n#karting #kartracing #motorsport',
+    'Watch the lap. See the delta.\n\nLoad onboard footage for two drivers and watch them side by side, frame-accurate. A live delta shows who is ahead and by how much, while you see exactly where each driver brakes and gets back on the power. GoPro Hero 7 to 12 lines up automatically from GPS; DJI Osmo Action 3, 4 and 5 sync through the .srt file.\n\nComing soon to Kart Connect.\n\n#karting #datalogging #gopro',
+    'See the gap. Then see why.\n\nSide-by-side onboard video with a live delta, braking and acceleration playing along with the footage. No manual trimming.\n\nComing soon. kart-connect.com\n\n#karting #kartracing #motorsport',
 ]})
 
 # 5. Perfect lap
@@ -112,21 +132,32 @@ posts.append({'slug': 'post-s2-05-perfect-lap', 'title': 'Your perfect lap', 'sl
     'Your best lap is already in your data. It is just split across three laps.\n\nTheoretical best lap and sector analysis, coming soon to the Kart Connect Data Logger.\n\nkart-connect.com\n\n#karting #kartsetup #motorsport',
 ]})
 
-# Giveaway
+# Giveaway: deliberately punchy, beyond the usual guidelines (owner asked for it to stand out)
 posts.append({'slug': 'post-s2-06-giveaway', 'title': 'Giveaway', 'slides': [
-    {'label': '', 'html': '<div class="spacer"></div><div class="label" style="margin-bottom:12px;">Giveaway</div>'
-     '<h1 style="font-size:34px;">Win a year of Kart Connect.</h1>'},
-    {'label': 'How to enter', 'html': '<h1 style="font-size:26px;">Three steps to enter</h1><div style="margin-top:14px;">'
-     + step('1', 'Like this post', '')
-     + step('2', 'Share it to your story', '')
-     + step('3', 'Tag a karting friend in the comments', 'Each comment with a tag is one entry.')
-     + '</div>'},
-    {'label': 'The prize', 'html': '<div class="spacer"></div><h1>12 months of Privateer, free.</h1>'
-     '<p style="margin-top:16px;font-size:14px;">One winner, picked at random when the giveaway closes. Closing date and terms in the caption.</p>'
+    {'label': '', 'theme': 'grad', 'html': '<div class="spacer"></div>'
+     '<div class="label" style="margin-bottom:10px;font-size:13px;">Giveaway</div>'
+     '<div class="mega">WIN<br>A YEAR<br>FREE.</div>'
+     '<p style="margin-top:16px;font-size:16px;font-weight:700;color:#1a1a1a;">12 months of Kart Connect Privateer.</p>'
+     '<div style="margin-top:14px;"><span class="sticker">Worth £155.88</span></div>'},
+    {'label': 'How to enter', 'theme': 'dark', 'html': '<h1 style="font-size:26px;">Enter in 10 seconds.</h1><div style="margin-top:14px;">'
+     '<div class="big-step"><span class="k">1</span><div><b>Like</b><span class="t">this post</span></div></div>'
+     '<div class="big-step"><span class="k">2</span><div><b>Share</b><span class="t">it to your story</span></div></div>'
+     '<div class="big-step"><span class="k">3</span><div><b>Tag</b><span class="t">your karting mates in the comments. Every tag is another entry.</span></div></div>'
+     '</div>'},
+    {'label': 'What you win', 'theme': 'dark', 'html': '<h1 style="font-size:26px;">A full year of your setups, sorted.</h1>'
+     '<ul class="dash" style="margin-top:14px;">'
+     '<li>Log every session, part by part.</li>'
+     '<li>A fresh PDF report for every session.</li>'
+     '<li>Weather added in one tap.</li>'
+     '<li>Scan your dashboard instead of typing.</li>'
+     '<li>Works offline, syncs later.</li></ul>'},
+    {'label': 'Last call', 'theme': 'grad', 'html': '<div class="spacer"></div>'
+     '<div class="mega" style="font-size:56px;">TAG YOUR<br>MATES.</div>'
+     '<p style="margin-top:16px;font-size:16px;font-weight:700;color:#1a1a1a;">More tags, more chances. One winner picked at random.</p>'
      '<div class="spacer"></div>'},
 ], 'captions': [
-    'Giveaway: win 12 months of Kart Connect Privateer.\n\nTo enter:\n1. Like this post\n2. Share it to your story\n3. Tag a karting friend in the comments. Each comment with a tag is one entry.\n\nCloses [CLOSING DATE] at 23:59 UK time. One winner picked at random and contacted by DM from this account. 18+, UK only. No cash alternative. This promotion is not sponsored, endorsed or administered by Instagram.\n\n#karting #giveaway #kartracing',
-    'We\'re giving away a year of Kart Connect.\n\nLike, share to your story, and tag a karting friend in the comments to enter. One winner gets 12 months of Privateer, free.\n\nCloses [CLOSING DATE] at 23:59 UK time. Winner picked at random and contacted by DM from this account. 18+, UK only. Not sponsored, endorsed or administered by Instagram.\n\n#karting #giveaway #motorsport',
+    'GIVEAWAY: win a full year of Kart Connect, free.\n\n12 months of Privateer, worth £155.88.\n\nTo enter:\n1. Like this post\n2. Share it to your story\n3. Tag your karting mates in the comments. Every tag is another entry.\n\nCloses [CLOSING DATE] at 23:59 UK time. One winner picked at random and contacted by DM from this account. 18+, UK only. No cash alternative. This promotion is not sponsored, endorsed or administered by Instagram.\n\n#karting #giveaway #kartracing',
+    'We are giving away a year of Kart Connect.\n\nLike, share to your story, and tag your karting mates. The more you tag, the more chances you have to win 12 months of Privateer, worth £155.88.\n\nCloses [CLOSING DATE] at 23:59 UK time. Winner picked at random and contacted by DM from this account. 18+, UK only. Not sponsored, endorsed or administered by Instagram.\n\n#karting #giveaway #motorsport',
 ]})
 
 for p in posts:

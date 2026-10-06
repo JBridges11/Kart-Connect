@@ -4,19 +4,27 @@
   "slides": [
     {
       "label": "",
-      "html": "<div class=\"spacer\"></div><div class=\"label\" style=\"margin-bottom:12px;\">Giveaway</div><h1 style=\"font-size:34px;\">Win a year of Kart Connect.</h1>"
+      "theme": "grad",
+      "html": "<div class=\"spacer\"></div><div class=\"label\" style=\"margin-bottom:10px;font-size:13px;\">Giveaway</div><div class=\"mega\">WIN<br>A YEAR<br>FREE.</div><p style=\"margin-top:16px;font-size:16px;font-weight:700;color:#1a1a1a;\">12 months of Kart Connect Privateer.</p><div style=\"margin-top:14px;\"><span class=\"sticker\">Worth £155.88</span></div>"
     },
     {
       "label": "How to enter",
-      "html": "<h1 style=\"font-size:26px;\">Three steps to enter</h1><div style=\"margin-top:14px;\"><div class=\"step\"><span class=\"n\">1</span><div><h3>Like this post</h3><p></p></div></div><div class=\"step\"><span class=\"n\">2</span><div><h3>Share it to your story</h3><p></p></div></div><div class=\"step\"><span class=\"n\">3</span><div><h3>Tag a karting friend in the comments</h3><p>Each comment with a tag is one entry.</p></div></div></div>"
+      "theme": "dark",
+      "html": "<h1 style=\"font-size:26px;\">Enter in 10 seconds.</h1><div style=\"margin-top:14px;\"><div class=\"big-step\"><span class=\"k\">1</span><div><b>Like</b><span class=\"t\">this post</span></div></div><div class=\"big-step\"><span class=\"k\">2</span><div><b>Share</b><span class=\"t\">it to your story</span></div></div><div class=\"big-step\"><span class=\"k\">3</span><div><b>Tag</b><span class=\"t\">your karting mates in the comments. Every tag is another entry.</span></div></div></div>"
     },
     {
-      "label": "The prize",
-      "html": "<div class=\"spacer\"></div><h1>12 months of Privateer, free.</h1><p style=\"margin-top:16px;font-size:14px;\">One winner, picked at random when the giveaway closes. Closing date and terms in the caption.</p><div class=\"spacer\"></div>"
+      "label": "What you win",
+      "theme": "dark",
+      "html": "<h1 style=\"font-size:26px;\">A full year of your setups, sorted.</h1><ul class=\"dash\" style=\"margin-top:14px;\"><li>Log every session, part by part.</li><li>A fresh PDF report for every session.</li><li>Weather added in one tap.</li><li>Scan your dashboard instead of typing.</li><li>Works offline, syncs later.</li></ul>"
+    },
+    {
+      "label": "Last call",
+      "theme": "grad",
+      "html": "<div class=\"spacer\"></div><div class=\"mega\" style=\"font-size:56px;\">TAG YOUR<br>MATES.</div><p style=\"margin-top:16px;font-size:16px;font-weight:700;color:#1a1a1a;\">More tags, more chances. One winner picked at random.</p><div class=\"spacer\"></div>"
     }
   ],
   "captions": [
-    "Giveaway: win 12 months of Kart Connect Privateer.\n\nTo enter:\n1. Like this post\n2. Share it to your story\n3. Tag a karting friend in the comments. Each comment with a tag is one entry.\n\nCloses [CLOSING DATE] at 23:59 UK time. One winner picked at random and contacted by DM from this account. 18+, UK only. No cash alternative. This promotion is not sponsored, endorsed or administered by Instagram.\n\n#karting #giveaway #kartracing",
-    "We're giving away a year of Kart Connect.\n\nLike, share to your story, and tag a karting friend in the comments to enter. One winner gets 12 months of Privateer, free.\n\nCloses [CLOSING DATE] at 23:59 UK time. Winner picked at random and contacted by DM from this account. 18+, UK only. Not sponsored, endorsed or administered by Instagram.\n\n#karting #giveaway #motorsport"
+    "GIVEAWAY: win a full year of Kart Connect, free.\n\n12 months of Privateer, worth £155.88.\n\nTo enter:\n1. Like this post\n2. Share it to your story\n3. Tag your karting mates in the comments. Every tag is another entry.\n\nCloses [CLOSING DATE] at 23:59 UK time. One winner picked at random and contacted by DM from this account. 18+, UK only. No cash alternative. This promotion is not sponsored, endorsed or administered by Instagram.\n\n#karting #giveaway #kartracing",
+    "We are giving away a year of Kart Connect.\n\nLike, share to your story, and tag your karting mates. The more you tag, the more chances you have to win 12 months of Privateer, worth £155.88.\n\nCloses [CLOSING DATE] at 23:59 UK time. Winner picked at random and contacted by DM from this account. 18+, UK only. Not sponsored, endorsed or administered by Instagram.\n\n#karting #giveaway #motorsport"
   ]
 }

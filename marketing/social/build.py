@@ -39,14 +39,16 @@ def slides_html(spec):
     out = []
     for i, s in enumerate(spec['slides'], 1):
         first, last = i == 1, i == total
-        top_left = LOGO if first else f'<span class="label">{s.get("label", "")}</span>'
+        theme = s.get('theme', '')            # '', 'dark' or 'grad' (giveaway / punchy posts only)
+        logo = f'<span class="logo-panel">{LOGO}</span>' if theme else LOGO
+        top_left = logo if first else f'<span class="label">{s.get("label", "")}</span>'
         if last:
-            foot = f'<span class="url" style="font-size:13px;">kart-connect.com</span>{LOGO}'
+            foot = f'<span class="url" style="font-size:13px;">kart-connect.com</span>{logo}'
         elif first:
             foot = '<span class="url">kart-connect.com</span><span class="swipe">Swipe →</span>'
         else:
             foot = '<span></span><span class="swipe">Swipe →</span>'
-        out.append(f'''<section class="s">
+        out.append(f'''<section class="s {theme}">
   <div class="top">{top_left}<span class="count">{i:02d} / {total:02d}</span></div>
   <div class="body">{s["html"]}</div>
   <div class="foot">{foot}</div>

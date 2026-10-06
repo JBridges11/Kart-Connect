@@ -8,7 +8,7 @@
     },
     {
       "label": "Video comparison",
-      "html": "<h1 style=\"font-size:26px;\">Two drivers. Two clips. Perfect sync.</h1><p style=\"margin-top:16px;font-size:14px;\">Load footage for two drivers and watch both side by side. A live delta counter shows who is ahead and by how much, updated as the video plays.</p><div style=\"margin-top:14px;\"><span class=\"pill\">Live delta</span><span class=\"pill\">GPS sync</span><span class=\"pill\">Frame-accurate</span></div>"
+      "html": "<h1 style=\"font-size:26px;\">Two drivers. Two clips. Perfect sync.</h1><p style=\"margin-top:12px;\">Load footage for two drivers and watch both side by side, frame-accurate, with the data playing along.</p><div class=\"card\" style=\"margin-top:14px;padding:4px 16px;\"><div class=\"row\" style=\"padding:7px 0;\"><span style=\"color:var(--ink);font-weight:600;\">Live delta</span><span style=\"font-size:11px;color:var(--ink-lt);text-align:right;max-width:58%;\">who is ahead, by how much</span></div><div class=\"row\" style=\"padding:7px 0;\"><span style=\"color:var(--ink);font-weight:600;\">Braking</span><span style=\"font-size:11px;color:var(--ink-lt);text-align:right;max-width:58%;\">when each driver brakes</span></div><div class=\"row\" style=\"padding:7px 0;\"><span style=\"color:var(--ink);font-weight:600;\">Acceleration</span><span style=\"font-size:11px;color:var(--ink-lt);text-align:right;max-width:58%;\">who is back on power first</span></div><div class=\"row\" style=\"padding:7px 0;\"><span style=\"color:var(--ink);font-weight:600;\">Speed</span><span style=\"font-size:11px;color:var(--ink-lt);text-align:right;max-width:58%;\">as the video plays</span></div></div>"
     },
     {
       "label": "Your camera",
@@ -16,11 +16,11 @@
     },
     {
       "label": "Kart Connect",
-      "html": "<div class=\"spacer\"></div><h1>Data and video, on the same timeline.</h1><div class=\"label\" style=\"margin-top:18px;\">Coming soon</div><div class=\"spacer\"></div>"
+      "html": "<div class=\"spacer\"></div><h1>See the gap. Then see why.</h1><p style=\"margin-top:16px;font-size:14px;\">Data and video on the same timeline, for any two drivers on any logger.</p><div class=\"label\" style=\"margin-top:18px;\">Coming soon</div><div class=\"spacer\"></div>"
     }
   ],
   "captions": [
-    "Watch the lap. See the delta.\n\nLoad footage for two drivers and watch them side by side, with a live delta counter showing who is ahead and by how much. GoPro Hero 7 to 12 footage lines up automatically from its GPS timestamp, and DJI Osmo Action 3, 4 and 5 sync through the .srt file.\n\nComing soon to Kart Connect.\n\n#karting #datalogging #gopro",
-    "No more trimming footage by hand.\n\nKart Connect lines your onboard video up with your logger data and plays two drivers side by side, frame-accurate, with a live delta.\n\nComing soon. kart-connect.com\n\n#karting #kartracing #motorsport"
+    "Watch the lap. See the delta.\n\nLoad onboard footage for two drivers and watch them side by side, frame-accurate. A live delta shows who is ahead and by how much, while you see exactly where each driver brakes and gets back on the power. GoPro Hero 7 to 12 lines up automatically from GPS; DJI Osmo Action 3, 4 and 5 sync through the .srt file.\n\nComing soon to Kart Connect.\n\n#karting #datalogging #gopro",
+    "See the gap. Then see why.\n\nSide-by-side onboard video with a live delta, braking and acceleration playing along with the footage. No manual trimming.\n\nComing soon. kart-connect.com\n\n#karting #kartracing #motorsport"
   ]
 }
