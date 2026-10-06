@@ -19,10 +19,13 @@ Each scheduled run handles exactly one post from `SCHEDULE.md`. The run's prompt
    - Subject: `Kart Connect post N of 9: <title>`
    - Body: same layout as post 1 (gradient bar, "Social post N of 9", title, one line on what the post covers,
      a purple "Open the slides and captions" button linking to the Artifact URL, the save-and-post tip,
-     "The link opens when you're signed in to Claude.", caption option A, caption option B,
+     "The link opens when you're signed in to Claude. The slide images are also in your Kart Connect chat in the Claude app, ready to save.", caption option A, caption option B,
      and a last line naming the next post and its date from `SCHEDULE.md`, or "That's the last post in this series." for post 9).
    - Also pass a plain-text `body` with the link and both captions.
-9. **Record it:** commit `marketing/social/posts/<slug>.json` and push to `claude/cart-connect-social-posts-ektax0`
+9. **Send the slides to the owner's phone:** call `SendUserFile` with every `slide-NN.png` in order,
+   `status: "proactive"`, `display: "attach"`, caption "Post N of 9: <title>. Slides in order, ready to save and post."
+   The owner saves these straight from the Claude app, so this step is required, not optional.
+10. **Record it:** commit `marketing/social/posts/<slug>.json` and push to `claude/cart-connect-social-posts-ektax0`
    (`git push -u origin claude/cart-connect-social-posts-ektax0`, retry up to 4 times on network errors).
    Don't change any other files.
 
