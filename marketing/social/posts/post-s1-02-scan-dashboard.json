@@ -1,0 +1,27 @@
+{
+  "slug": "post-s1-02-scan-dashboard",
+  "title": "Scan your dashboard",
+  "slides": [
+    {
+      "label": "",
+      "html": "<div class=\"spacer\"></div><div class=\"label\" style=\"margin-bottom:12px;\">Scan dashboard</div><h1 style=\"font-size:34px;\">Take a photo.</h1><h1 style=\"font-size:34px;margin-top:6px;color:var(--purple);\">Skip the typing.</h1>"
+    },
+    {
+      "label": "Why scan",
+      "html": "<h1 style=\"font-size:26px;\">Why scan it instead of typing it?</h1><ul class=\"dash\" style=\"margin-top:16px;\"><li>Quicker. One photo, every number in.</li><li>No mistyped figures.</li><li>Done straight after the session, before you forget.</li><li>No copying numbers off a small logger screen.</li></ul>"
+    },
+    {
+      "label": "What it reads",
+      "html": "<h1 style=\"font-size:24px;\">Every number off the dash, in one go.</h1><div class=\"card\" style=\"margin-top:14px;padding:4px 16px;\"><div class=\"row\" style=\"padding:8px 0;\"><span style=\"color:var(--ink);font-weight:600;\">Best lap</span><span style=\"font-size:11px;color:var(--ink-lt);\">Your quickest time</span></div><div class=\"row\" style=\"padding:8px 0;\"><span style=\"color:var(--ink);font-weight:600;\">RPM</span><span style=\"font-size:11px;color:var(--ink-lt);\">Max and min</span></div><div class=\"row\" style=\"padding:8px 0;\"><span style=\"color:var(--ink);font-weight:600;\">Engine temperature</span><span style=\"font-size:11px;color:var(--ink-lt);\">Max and min</span></div><div class=\"row\" style=\"padding:8px 0;\"><span style=\"color:var(--ink);font-weight:600;\">Exhaust temperature</span><span style=\"font-size:11px;color:var(--ink-lt);\">Max and min</span></div><div class=\"row\" style=\"padding:8px 0;\"><span style=\"color:var(--ink);font-weight:600;\">Speed</span><span style=\"font-size:11px;color:var(--ink-lt);\">Top and lowest</span></div></div><p style=\"margin-top:14px;\">Check the numbers on the review screen, then save them to the session.</p>"
+    },
+    {
+      "label": "Kart Connect",
+      "html": "<div class=\"spacer\"></div><h1>Finish the session. Snap the dash. Done.</h1><p style=\"margin-top:16px;font-size:14px;\">Straight into your session, while it is still fresh.</p><div class=\"spacer\"></div>"
+    }
+  ],
+  "captions": [
+    "Take a photo. Skip the typing.\n\nAfter the session, scan your logger dashboard in Kart Connect. It reads your best lap, max and min RPM, engine and exhaust temperatures and top speed from one photo. Check them on the review screen, save, and they're in the session.\n\nkart-connect.com\n\n#karting #kartsetup #datalogging",
+    "Still copying numbers off your dash by hand after every session?\n\nScan it instead. One photo and Kart Connect fills in your best lap, RPM, temperatures and speed. Quicker, no mistyped figures, and done before you forget.\n\nkart-connect.com\n\n#karting #kartracing #motorsport",
+    "Snap the dash. Numbers in.\n\nBest lap, RPM, engine and exhaust temps, top speed. One photo in Kart Connect.\n\nkart-connect.com\n\n#karting #kartsetup #motorsport"
+  ]
+}
