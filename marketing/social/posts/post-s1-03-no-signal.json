@@ -1,0 +1,27 @@
+{
+  "slug": "post-s1-03-no-signal",
+  "title": "No signal? No problem",
+  "slides": [
+    {
+      "label": "",
+      "html": "<div class=\"spacer\"></div><div class=\"label\" style=\"margin-bottom:12px;\">Offline</div><h1 style=\"font-size:34px;\">No signal at <span style=\"white-space:nowrap\">the track?</span></h1><h1 style=\"font-size:34px;margin-top:6px;color:var(--purple);\">Keep logging.</h1>"
+    },
+    {
+      "label": "The problem",
+      "html": "<h1 style=\"font-size:26px;\">Losing signal stops the data going in.</h1><ul class=\"dash\" style=\"margin-top:16px;\"><li>The paddock has one bar, or none.</li><li>Sessions wait to be written up later.</li><li>By the evening, half the detail is gone.</li></ul>"
+    },
+    {
+      "label": "Offline",
+      "html": "<h1 style=\"font-size:24px;\">Open it the day before. Work offline all weekend.</h1><div style=\"margin-top:12px;\"><div class=\"step\"><span class=\"n\">1</span><div><h3>The night before</h3><p>Open Kart Connect while you have signal, so everything you need is downloaded.</p></div></div><div class=\"step\"><span class=\"n\">2</span><div><h3>At the track</h3><p>Log every session, signal or not.</p></div></div><div class=\"step\"><span class=\"n\">3</span><div><h3>Back on signal</h3><p>It all syncs, at the track or back at the hotel.</p></div></div></div>"
+    },
+    {
+      "label": "For teams",
+      "html": "<h1 style=\"font-size:24px;\">Mechanics scan in. The data comes back to you.</h1><div style=\"margin-top:12px;\"><div class=\"step\"><span class=\"n\">1</span><div><h3>Send a QR code</h3><p>The team manager sends each mechanic their own QR code.</p></div></div><div class=\"step\"><span class=\"n\">2</span><div><h3>Scan and submit</h3><p>The mechanic scans it and enters the setup.</p></div></div><div class=\"step\"><span class=\"n\">3</span><div><h3>Back to the manager</h3><p>It reaches the team manager, and syncs as soon as there is a connection.</p></div></div></div>"
+    }
+  ],
+  "captions": [
+    "No signal at the track? Keep logging.\n\nOpen Kart Connect the day before so everything is downloaded, then log every session offline. It syncs as soon as you're back on signal, at the track or back at the hotel. Running a team? Send each mechanic a QR code: they scan it, submit the setup, and it comes straight back to you when there's a connection.\n\nkart-connect.com\n\n#karting #kartsetup #raceweekend",
+    "How many sessions have you written up from memory because the paddock had no signal?\n\nWith Kart Connect you work offline all weekend and it syncs later. Mechanics can submit setups by QR code, and the team manager gets them the moment there's a connection.\n\nkart-connect.com\n\n#karting #kartracing #motorsport",
+    "One bar of signal. Zero problem.\n\nLog offline. Sync later. Mechanics submit by QR code.\n\nkart-connect.com\n\n#karting #kartsetup #motorsport"
+  ]
+}
