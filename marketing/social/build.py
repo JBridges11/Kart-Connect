@@ -39,9 +39,11 @@ def slides_html(spec):
     out = []
     for i, s in enumerate(spec['slides'], 1):
         first, last = i == 1, i == total
-        theme = s.get('theme', '')            # '', 'dark' or 'grad' (giveaway / punchy posts only)
+        # slide theme: '' (white), 'black' (whole post, owner's choice), 'dark' or 'grad' (giveaway only)
+        theme = s.get('theme', spec.get('theme', ''))
         # the logo is transparent with a black wordmark: straight onto white or gradient, panel only on dark
-        logo = f'<span class="logo-panel">{LOGO}</span>' if theme == 'dark' else LOGO
+        logo = (f'<span class="logo-panel">{LOGO}</span>' if theme == 'dark'
+                else LOGO.replace('logo.png', 'assets/logo-white.png') if theme == 'black' else LOGO)
         top_left = logo if first else f'<span class="label">{s.get("label", "")}</span>'
         if last:
             foot = f'<span class="url" style="font-size:13px;">kart-connect.com</span>{logo}'

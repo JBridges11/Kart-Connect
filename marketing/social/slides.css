@@ -85,3 +85,22 @@
 .s.dark ul.dash li { color: #e5e5e5; border-color: #333; }
 .big-step .k { flex: none; }
 .big-step > div { flex: 1; min-width: 0; }
+
+/* Black theme: a whole post on black, white type, brand colours lifted to read on dark.
+   Set "theme": "black" at the top of a spec. Uses assets/logo-white.png (white wordmark). */
+.s.black { background: #0f0f0f;
+  --ink: #ffffff; --ink-mid: #d4d4d4; --ink-lt: #9a9a9a; --rule: #2b2b2b;
+  --purple: #B79CE6; --yellow-dark: #F5C842; --green-dark: #5CC85A; }
+.s.black h1, .s.black h2, .s.black h3 { color: #fff; }
+.s.black p { color: var(--ink-mid); }
+.s.black .label { color: #F5C842; }
+.s.black .count, .s.black .swipe { color: #8a8a8a; }
+.s.black .url { color: #B79CE6; }
+.s.black .card { background: #1a1a1a; border: 1px solid #2b2b2b; box-shadow: none; }
+.s.black .row { border-color: #2b2b2b; color: var(--ink-mid); }
+.s.black .row b { color: #fff; }
+.s.black ul.dash li { color: #e2e2e2; border-color: #2b2b2b; }
+.s.black .step { border-color: #2b2b2b; }
+.s.black .step p { color: #bdbdbd; }
+.s.black .n { background: #7B5EA7; color: #fff; }
+.s.black .callout { background: #1f1b10; }
