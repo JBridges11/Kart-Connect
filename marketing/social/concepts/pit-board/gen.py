@@ -16,7 +16,7 @@ body { background: #bbb; padding: 20px; display: flex; flex-wrap: wrap; gap: 20p
 .s.dark  { color: #fff;  background: radial-gradient(130% 95% at 88% 8%, #2E1C52 0%, #190F30 52%, #0D0918 100%); }
 .s.light { color: var(--ink); background: linear-gradient(165deg, #FFFFFF 0%, #F1EDF8 100%); }
 /* faded logo mark + speed lines */
-.wm { position: absolute; width: 470px; right: -150px; top: 120px; transform: rotate(-6deg); opacity: .075; color: currentColor; }
+.wm { position: absolute; width: 330px; left: 50%; top: 52%; transform: translate(-50%, -50%); opacity: .08; color: currentColor; }
 .s.light .wm { color: #7B5EA7; opacity: .09; }
 .lines { position: absolute; inset: 0; pointer-events: none; opacity: .5;
   background: repeating-linear-gradient(-28deg, transparent 0 46px, rgba(255,255,255,.035) 46px 47px); }
