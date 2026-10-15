@@ -93,10 +93,10 @@ P.append(('Sat 25 Oct', 'dark', 'race-weekend', 'Practice to final',
   "Can you remember what you changed between Heat 2 and the final?\n\nKart Connect can. Every session of the weekend, kept together and in order.\n\nkart-connect.com\n\n#karting #kartracing #motorsport",
   "The whole weekend. In order.\n\nPractice, qualifying, heats, final. All in Kart Connect.\n\nkart-connect.com\n\n#karting #raceweekend #motorsport"]))
 
-P.append(('Tue 28 Oct', 'light', 'units', 'Bar or psi? Your call',
+P.append(('Tue 28 Oct', 'light', 'units', 'Your units. Your call',
   '<div class="kick">Settings</div>'
-  '<div class="d" style="font-size:62px;margin-top:8px;">Bar or psi?</div>'
-  '<div class="d o" style="font-size:62px;">Your call.</div>'
+  '<div class="d" style="font-size:68px;margin-top:8px;">Your units.</div>'
+  '<div class="d o" style="font-size:68px;">Your call.</div>'
   '<div class="dev" style="margin-top:16px;"><img src="units.png" alt=""></div>',
   'Units', json.load(open('/home/user/Kart-Connect/marketing/social/posts/post-s1-08-units.json'))['captions']))
 
