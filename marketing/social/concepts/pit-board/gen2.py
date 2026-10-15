@@ -29,15 +29,26 @@ EXTRA = r'''
 .lang div { font-family: 'Barlow Condensed', 'Inter', sans-serif; font-style: italic; font-weight: 800; font-size: 23px; line-height: 1.2; }
 '''
 
+EXTRA += r'''
+.blist { list-style: none; display: flex; flex-direction: column; gap: 0; }
+.blist li { display: flex; align-items: center; gap: 12px; font-size: 12.5px; font-weight: 700; padding: 4.5px 0;
+            border-bottom: 1px solid rgba(123,94,167,.18); }
+.blist li:last-child { border-bottom: 0; }
+.blist li::before { content: ""; flex: none; width: 5px; height: 14px; border-radius: 999px; transform: rotate(33deg);
+            background: linear-gradient(180deg, #F5C842, #5CC85A); }
+.blist li em { font-style: normal; font-weight: 600; font-size: 10.5px; opacity: .6; margin-left: auto; }
+.s.dark .blist li { border-bottom-color: rgba(255,255,255,.12); }
+'''
+
 P = []  # (date, theme, slug, title, html, foot_l, captions)
 
 P.append(('Thu 16 Oct', 'light', 'profile-once', 'Set it up once',
   '<div class="kick">Your profile</div>'
-  '<div class="d o" style="font-size:80px;margin-top:10px;">Set it</div>'
-  '<div class="d" style="font-size:80px;"><span class="hl">up once.</span></div>'
-  '<p class="sub" style="margin-top:16px;">Add your kit to your profile. Every new session fills it in for you.</p>'
-  '<div class="chips" style="margin-top:14px;"><span class="chip2">Karts</span><span class="chip2">Chassis numbers</span>'
-  '<span class="chip2">Engine numbers</span><span class="chip2">Carbs</span><span class="chip2">Exhausts</span></div>',
+  '<div class="d o" style="font-size:74px;margin-top:10px;">Set it</div>'
+  '<div class="d" style="font-size:74px;"><span class="hl">up once.</span></div>'
+  '<p class="sub" style="margin-top:12px;">Add your kit to your profile. Every new session fills it in for you.</p>'
+  '<ul class="blist" style="margin-top:8px;"><li>Karts</li><li>Chassis numbers</li><li>Engine numbers</li>'
+  '<li>Carbs <em>nicknamed &amp; ranked 1&ndash;5</em></li><li>Exhausts <em>nicknamed &amp; ranked 1&ndash;5</em></li></ul>',
   'Your profile', [
   "Set it up once.\n\nAdd your karts, chassis numbers, engine numbers, carbs and exhausts to your Kart Connect profile. Start a session and it all fills in automatically. No typing the same numbers every weekend.\n\nkart-connect.com\n\n#karting #kartsetup #kartracing",
   "How many times have you typed the same engine number this season?\n\nAdd it once to your Kart Connect profile and every new session fills it in for you, along with your karts, chassis, carbs and exhausts.\n\nkart-connect.com\n\n#karting #kartsetup #motorsport",
