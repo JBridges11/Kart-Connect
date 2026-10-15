@@ -47,7 +47,7 @@ P.append(('Thu 16 Oct', 'light', 'profile-once', 'Set it up once',
   '<div class="d o" style="font-size:74px;margin-top:10px;">Set it</div>'
   '<div class="d" style="font-size:74px;"><span class="hl">up once.</span></div>'
   '<p class="sub" style="margin-top:12px;">Add your kit to your profile. Every new session fills it in for you.</p>'
-  '<ul class="blist" style="margin-top:8px;"><li>Karts</li><li>Chassis numbers</li><li>Engine numbers</li>'
+  '<ul class="blist" style="margin-top:8px;"><li>Karts</li><li>Chassis numbers</li><li>Engines <em>nicknamed &amp; ranked 1&ndash;5</em></li>'
   '<li>Carbs <em>nicknamed &amp; ranked 1&ndash;5</em></li><li>Exhausts <em>nicknamed &amp; ranked 1&ndash;5</em></li></ul>',
   'Your profile', [
   "Set it up once.\n\nAdd your karts, chassis numbers, engine numbers, carbs and exhausts to your Kart Connect profile. Start a session and it all fills in automatically. No typing the same numbers every weekend.\n\nkart-connect.com\n\n#karting #kartsetup #kartracing",
