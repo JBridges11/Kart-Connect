@@ -156,7 +156,7 @@ P.append(('Tue 18 Nov', 'dark', 'launch-giveaway', 'Win a year free',
   '<div class="d" style="font-size:100px;margin-top:6px;"><span class="hl">Win</span></div>'
   '<div class="d o" style="font-size:46px;margin-top:4px;">a year of</div>'
   '<div class="d" style="font-size:46px;">Kart Connect.</div>'
-  '<div class="d" style="font-size:30px;margin-top:6px;"><span class="hl">+ Welcome pack</span></div>'
+  '<div class="d" style="font-size:30px;margin-top:6px;"><span style="color:#F5C842;">+ Welcome pack</span></div>'
   '<div style="margin-top:10px;"><span class="sticker">Worth over £200</span></div>'
   '<ol class="enter" style="margin-top:auto;"><li><b>1</b>Like this post</li><li><b>2</b>Share it to your story</li><li><b>3</b>Tag two friends</li></ol>',
   'Giveaway', caps('post-s2-06-giveaway')))
