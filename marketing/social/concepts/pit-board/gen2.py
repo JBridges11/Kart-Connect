@@ -40,6 +40,12 @@ EXTRA += r'''
 .s.dark .blist li { border-bottom-color: rgba(255,255,255,.12); }
 '''
 
+EXTRA += r'''
+.enter { list-style: none; display: flex; flex-direction: column; gap: 5px; margin-bottom: 6px; }
+.enter li { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; }
+.enter b { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%;
+           background: #F5C842; color: #1A1033; font-size: 11px; font-weight: 800; }
+'''
 P = []  # (date, theme, slug, title, html, foot_l, captions)
 
 P.append(('Thu 16 Oct', 'light', 'profile-once', 'Set it up once',
@@ -147,11 +153,12 @@ P.append(('Sat 15 Nov', 'light', 'launch-perfect-lap', 'Your perfect lap',
 
 P.append(('Tue 18 Nov', 'dark', 'launch-giveaway', 'Win a year free',
   '<div class="flag"></div><div class="kick">Giveaway</div>'
-  '<div class="d" style="font-size:118px;margin-top:6px;"><span class="hl">Win</span></div>'
-  '<div class="d o" style="font-size:52px;margin-top:4px;">a year of</div>'
-  '<div class="d" style="font-size:52px;">Kart Connect.</div>'
-  '<div style="margin-top:14px;"><span class="sticker">Worth £155.88</span></div>'
-  '<p class="sub" style="margin-top:auto;">Like, share and tag your karting mates.</p>',
+  '<div class="d" style="font-size:100px;margin-top:6px;"><span class="hl">Win</span></div>'
+  '<div class="d o" style="font-size:46px;margin-top:4px;">a year of</div>'
+  '<div class="d" style="font-size:46px;">Kart Connect.</div>'
+  '<div class="d" style="font-size:30px;margin-top:6px;"><span class="hl">+ Welcome pack</span></div>'
+  '<div style="margin-top:10px;"><span class="sticker">Worth over £200</span></div>'
+  '<ol class="enter" style="margin-top:auto;"><li><b>1</b>Like this post</li><li><b>2</b>Share it to your story</li><li><b>3</b>Tag two friends</li></ol>',
   'Giveaway', caps('post-s2-06-giveaway')))
 
 html = (f'<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><title>Queue</title><style>{CSS}{EXTRA}</style></head><body>'
