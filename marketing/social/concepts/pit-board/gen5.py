@@ -103,6 +103,10 @@ CSS5 += r'''
 .prow .stg.ok { background: #E9E2F6; color: #7B5EA7; }
 .dn { font-family: 'Anton'; font-size: 16px; color: #7B5EA7; line-height: 1; margin: 2px 0 2px 28%; }
 '''
+CSS5 += r'''
+.chl { flex: 1; } .chl > div { display: flex; align-items: baseline; justify-content: space-between; }
+.chl > div + div { border-top: 1px solid #EEE9F6; margin-top: 4px; padding-top: 4px; }
+'''
 P = []  # (theme, slug, title, inner_html, foot, [captions A, B, C], note)
 
 bingo = ['Forgot the tyre pressures', 'Clipboard got soaked', 'Rain with 2 mins to go', 'No signal in the paddock',
@@ -141,13 +145,14 @@ P.append(('light', 'what-changed', 'What changed? Now you know.',
   '<div class="d o" style="font-size:56px;">Now you know.</div>'
   '<div class="lapc" style="margin-top:14px;"><div class="card"><span>Session 3</span><b>0:58.92</b></div><div class="q">&rarr;</div>'
   '<div class="card"><span>Session 4</span><b>0:58.61</b></div></div>'
-  '<div class="chg" style="margin-top:10px;"><span class="delta">&minus;0.31s</span><div><i>Changed</i><b>Rear width</b><em>1395 &rarr; 1385 mm</em></div></div>'
+  '<div class="chg" style="margin-top:10px;"><span class="delta">&minus;0.31s</span><div class="chl"><i>2 changes</i>'
+  '<div><b>Rear width</b><em>1395 &rarr; 1390 mm</em></div><div><b>Rear sprocket</b><em>80 &rarr; 81</em></div></div></div>'
   '<p class="sub" style="margin-top:auto;">Every lap time saved with the setup behind it, so you know exactly why you went quicker. Example data.</p>',
   'Every lap. Every setup.', [
-  "What changed? Now you KNOW. 🏁\n\nYou found 0.31s between sessions. Was it the rear width? The pressures? The gearing? Without the data, it's a guess.\n\nWith Kart Connect, every lap time is saved with the exact setup behind it. Open the two sessions and see exactly what changed, and exactly why you went quicker. ⏱️\n\nNo more guessing. Just faster.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup #KartData",
+  "What changed? Now you KNOW. 🏁\n\nYou found 0.31s between sessions. Was it the rear width? The sprocket? Both? Without the data, it's a guess.\n\nWith Kart Connect, every lap time is saved with the exact setup behind it. Open the two sessions and see exactly what changed (5mm off the rear width and one tooth up on the sprocket) and exactly why you went quicker. ⏱️\n\nNo more guessing. Just faster.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup #KartData",
   "0.31s quicker. And you know exactly why. ⏱️\n\nEvery lap. Every setup. Kart Connect.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup",
   "Ever gone quicker and had NO idea why? 🤷\n\nThat speed is useless if you can't find it again. Kart Connect saves the setup behind every lap time, so when it clicks you know exactly what changed and you can go straight back to it.\n\nFind it. Keep it. Build on it. 🏎️\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartData"],
-  'The lap times and the rear width change are example data.'))
+  'The lap times and both setup changes are example data.'))
 
 P.append(('light', 'old-vs-new', 'The old way vs the new way',
   '<div class="d" style="font-size:46px;">Old way. <span class="o">New way.</span></div>'
@@ -237,10 +242,10 @@ P.append(('light', 'hot-cold', 'Cold. Hot. Sorted.',
   '<div class="kick">Tyre pressures</div>'
   '<div class="d" style="font-size:54px;margin-top:8px;">Cold. Hot.</div>'
   '<div class="d o" style="font-size:54px;">Sorted.</div>'
-  '<div class="pflow" style="margin-top:12px;"><div class="prow cold"><h5>Cold (run 1)</h5><div class="pc"><div><span>FL</span><b>9.0</b></div><div><span>FR</span><b>9.0</b></div><div><span>RL</span><b>9.0</b></div><div><span>RR</span><b>9.0</b></div></div><em class="stg ok">0.0 psi stagger</em></div><div class="dn">&darr;</div><div class="prow hot"><h5>Hot (after run 1)</h5><div class="pc"><div><span>FL</span><b>12.6</b></div><div><span>FR</span><b>13.4</b></div><div><span>RL</span><b>12.2</b></div><div><span>RR</span><b>13.0</b></div></div></div><div class="dn">&darr;</div><div class="prow cold"><h5>Next cold (recommended)</h5><div class="pc"><div><span>FL</span><b>9.2</b></div><div><span>FR</span><b>8.4</b></div><div><span>RL</span><b>9.6</b></div><div><span>RR</span><b>8.8</b></div></div><em class="stg">1.2 psi stagger</em></div></div>'
+  '<div class="pflow" style="margin-top:12px;"><div class="prow cold"><h5>Cold (run 1)</h5><div class="pc"><div><span>FL</span><b>9.00</b></div><div><span>FR</span><b>9.00</b></div><div><span>RL</span><b>9.00</b></div><div><span>RR</span><b>9.00</b></div></div><em class="stg ok">0.00 psi stagger</em></div><div class="dn">&darr;</div><div class="prow hot"><h5>Hot (after run 1)</h5><div class="pc"><div><span>FL</span><b>12.62</b></div><div><span>FR</span><b>13.40</b></div><div><span>RL</span><b>12.18</b></div><div><span>RR</span><b>13.04</b></div></div></div><div class="dn">&darr;</div><div class="prow cold"><h5>Next cold (recommended)</h5><div class="pc"><div><span>FL</span><b>9.19</b></div><div><span>FR</span><b>8.41</b></div><div><span>RL</span><b>9.63</b></div><div><span>RR</span><b>8.77</b></div></div><em class="stg">1.22 psi stagger</em></div></div>'
   '<p class="sub" style="margin-top:auto;font-size:11px;">Record your hot pressures and get your next cold pressures, stagger and all. Example data.</p>',
   'Tyre pressures', [
-  "Cold. Hot. Sorted. 🔥❄️\n\nStart square at 9.0 psi all round. Come in, record your hot pressures, and Kart Connect works out your cold pressures for the next run, stagger included. 🏁\n\nRun 1: 0.0 psi stagger.\nNext run: 1.2 psi stagger, set up to even out the hots.\n\nNo calculator. No guesswork. Just the right pressures, every run.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup #TyrePressures",
+  "Cold. Hot. Sorted. 🔥❄️\n\nStart square at 9.00 psi all round. Come in, record your hot pressures, and Kart Connect works out your cold pressures for the next run, stagger included. 🏁\n\nRun 1: 0.00 psi stagger.\nNext run: 1.22 psi stagger, set up to even out the hots.\n\nNo calculator. No guesswork. Just the right pressures, every run.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup #TyrePressures",
   "Hot pressures in. Next cold pressures out. Stagger sorted. 🔥➡️❄️\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartSetup #TyrePressures",
   "Still doing tyre pressure maths on the back of a glove? 🧮\n\nPut your hot pressures into Kart Connect after the session and it recommends your cold pressures for the next run, showing you exactly how much stagger you need across the four corners.\n\nLess maths. More grip. 🏎️\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #TyrePressures"],
   'Example psi figures. Check the recommendation in the current app matches how this post describes it.'))
