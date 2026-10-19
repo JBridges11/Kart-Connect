@@ -285,7 +285,7 @@ for i, (t, slug, title, _, _, caps, note) in enumerate(P, 1):
     arts.append(f'<article class="post" id="p{i}"><div class="meta"><span class="n">{i:02d}</span><span class="title">{H.escape(title)}</span></div>'
                 f'<div class="row"><figure><img src="{i:02d}-{slug}.png" alt="{H.escape(title)}" width="1080" height="1350" loading="lazy"></figure>'
                 f'<div class="caps">{noteh}{capsh}</div></div></article>')
-main = ('<main><header><h1>Batch <span>three</span></h1><p class="lede">12 new single-image posts for review, alternating light and dark. '
+main = (f'<main><header><h1>Batch <span>three</span></h1><p class="lede">{len(P)} single-image posts for review, alternating light and dark. '
         'Press and hold an image to save it, then copy a caption. A few have a note to check before they go out.</p></header>'
         + ''.join(arts))
 os.makedirs(os.path.join(HERE, 'pack2'), exist_ok=True)
