@@ -107,6 +107,10 @@ CSS5 += r'''
 .chl { flex: 1; } .chl > div { display: flex; align-items: baseline; justify-content: space-between; }
 .chl > div + div { border-top: 1px solid #EEE9F6; margin-top: 4px; padding-top: 4px; }
 '''
+CSS5 += r'''
+.prow .pc i.df { display: block; font-style: normal; font-size: 8.5px; font-weight: 800; color: #3FAF3D; margin-top: 1px; }
+.prow.cold .pc div:has(i.df) { padding-bottom: 4px; }
+'''
 P = []  # (theme, slug, title, inner_html, foot, [captions A, B, C], note)
 
 bingo = ['Forgot the tyre pressures', 'Clipboard got soaked', 'Rain with 2 mins to go', 'No signal in the paddock',
@@ -240,12 +244,12 @@ P.append(('dark', 'build-next', 'What should we build next?',
 
 P.append(('light', 'hot-cold', 'Cold. Hot. Sorted.',
   '<div class="kick">Tyre pressures</div>'
-  '<div class="d" style="font-size:54px;margin-top:8px;">Cold. Hot.</div>'
-  '<div class="d o" style="font-size:54px;">Sorted.</div>'
-  '<div class="pflow" style="margin-top:12px;"><div class="prow cold"><h5>Cold (run 1)</h5><div class="pc"><div><span>FL</span><b>9.00</b></div><div><span>FR</span><b>9.00</b></div><div><span>RL</span><b>9.00</b></div><div><span>RR</span><b>9.00</b></div></div><em class="stg ok">0.00 psi stagger</em></div><div class="dn">&darr;</div><div class="prow hot"><h5>Hot (after run 1)</h5><div class="pc"><div><span>FL</span><b>12.62</b></div><div><span>FR</span><b>13.40</b></div><div><span>RL</span><b>12.18</b></div><div><span>RR</span><b>13.04</b></div></div></div><div class="dn">&darr;</div><div class="prow cold"><h5>Next cold (recommended)</h5><div class="pc"><div><span>FL</span><b>9.19</b></div><div><span>FR</span><b>8.41</b></div><div><span>RL</span><b>9.63</b></div><div><span>RR</span><b>8.77</b></div></div><em class="stg">1.22 psi stagger</em></div></div>'
+  '<div class="d" style="font-size:46px;margin-top:8px;">Cold. Hot.</div>'
+  '<div class="d o" style="font-size:46px;">Sorted.</div>'
+  '<div class="pflow" style="margin-top:12px;"><div class="prow cold"><h5>Cold (run 1)</h5><div class="pc"><div><span>FL</span><b>9.00</b></div><div><span>FR</span><b>9.00</b></div><div><span>RL</span><b>9.00</b></div><div><span>RR</span><b>9.00</b></div></div><em class="stg ok">0.00 psi stagger</em></div><div class="dn">&darr;</div><div class="prow hot"><h5>Hot (after run 1)</h5><div class="pc"><div><span>FL</span><b>12.62</b></div><div><span>FR</span><b>13.40</b></div><div><span>RL</span><b>12.18</b></div><div><span>RR</span><b>13.04</b></div></div></div><div class="dn">&darr;</div><div class="prow cold"><h5>Next cold (recommended)</h5><div class="pc"><div><span>FL</span><b>9.19</b><i class="df">+0.19</i></div><div><span>FR</span><b>8.41</b><i class="df">&minus;0.59</i></div><div><span>RL</span><b>9.63</b><i class="df">+0.63</i></div><div><span>RR</span><b>8.77</b><i class="df">&minus;0.23</i></div></div><em class="stg">1.22 psi stagger</em></div></div>'
   '<p class="sub" style="margin-top:auto;font-size:11px;">Record your hot pressures and get your next cold pressures, stagger and all. Example data.</p>',
   'Tyre pressures', [
-  "Cold. Hot. Sorted. 🔥❄️\n\nStart square at 9.00 psi all round. Come in, record your hot pressures, and Kart Connect works out your cold pressures for the next run, stagger included. 🏁\n\nRun 1: 0.00 psi stagger.\nNext run: 1.22 psi stagger, set up to even out the hots.\n\nNo calculator. No guesswork. Just the right pressures, every run.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup #TyrePressures",
+  "Cold. Hot. Sorted. 🔥❄️\n\nStart square at 9.00 psi all round. Come in, record your hot pressures, and Kart Connect works out your cold pressures for the next run, stagger included. 🏁\n\nRun 1: 0.00 psi stagger.\nNext run: FL +0.19, FR −0.59, RL +0.63, RR −0.23. That's 1.22 psi of stagger, set up to even out the hots.\n\nNo calculator. No guesswork. Just the right pressures, every run.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup #TyrePressures",
   "Hot pressures in. Next cold pressures out. Stagger sorted. 🔥➡️❄️\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartSetup #TyrePressures",
   "Still doing tyre pressure maths on the back of a glove? 🧮\n\nPut your hot pressures into Kart Connect after the session and it recommends your cold pressures for the next run, showing you exactly how much stagger you need across the four corners.\n\nLess maths. More grip. 🏎️\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #TyrePressures"],
   'Example psi figures. Check the recommendation in the current app matches how this post describes it.'))
