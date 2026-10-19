@@ -294,11 +294,11 @@ for i, (t, slug, title, _, _, caps, note) in enumerate(P, 1):
     arts.append(f'<article class="post" id="p{i}"><div class="meta"><span class="n">{i:02d}</span><span class="title">{H.escape(title)}</span></div>'
                 f'<div class="row"><figure><img src="{i:02d}-{slug}.png" alt="{H.escape(title)}" width="1080" height="1350" loading="lazy"></figure>'
                 f'<div class="caps">{noteh}{capsh}</div></div></article>')
-main = (f'<main><header><h1>Batch <span>three</span></h1><p class="lede">{len(P)} single-image posts for review, alternating light and dark. '
-        'Press and hold an image to save it, then copy a caption. A few have a note to check before they go out.</p></header>'
+main = (f'<main><header><h1>Approved <span>posts</span></h1><p class="lede">All {len(P)} approved posts in posting order, alternating light and dark. '
+        'Pick a caption for each, then press and hold an image to save it. A few have a note to check before they go out.</p></header>'
         + ''.join(arts))
 os.makedirs(os.path.join(HERE, 'pack2'), exist_ok=True)
-open(os.path.join(HERE, 'pack2', 'index.html'), 'w').write(head.replace('Kart Connect Post Queue', 'Kart Connect Batch 3') + main + tail)
+open(os.path.join(HERE, 'pack2', 'index.html'), 'w').write(head.replace('Kart Connect Post Queue', 'Kart Connect Approved Posts') + main + tail)
 json.dump([{'n': i, 'slug': s, 'title': ti, 'captions': c, 'note': no} for i, (_, s, ti, _, _, c, no) in enumerate(P, 1)],
           open(os.path.join(HERE, 'pack2', 'queue.json'), 'w'), indent=2, ensure_ascii=False)
 print(len(P), 'posts')
