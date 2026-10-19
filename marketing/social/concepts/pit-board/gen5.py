@@ -86,6 +86,23 @@ CSS5 = g4.CSS4 + r'''
         background: linear-gradient(95deg, #F5C842 0%, #5CC85A 55%, #A07FE0 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 '''
 
+CSS5 += r'''
+.chg { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 10px; padding: 10px 12px; box-shadow: 0 4px 16px rgba(26,16,51,.08); color: #1A1033; }
+.chg i { display: block; font-style: normal; font-size: 8px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: #7A7388; }
+.chg b { font-family: 'Anton'; font-weight: 400; font-size: 20px; text-transform: uppercase; margin-right: 8px; }
+.chg em { font-style: normal; font-size: 12px; font-weight: 700; color: #3FAF3D; }
+.pflow { display: flex; flex-direction: column; }
+.prow h5 { font-size: 8px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; margin-bottom: 3px; color: #7A7388; }
+.prow { position: relative; }
+.prow .pc { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 68%; }
+.prow .pc div { background: #fff; border-radius: 6px; padding: 3px 2px; text-align: center; box-shadow: 0 2px 8px rgba(26,16,51,.07); color: #1A1033; }
+.prow .pc span { display: block; font-size: 6.5px; font-weight: 800; letter-spacing: .12em; color: #7A7388; }
+.prow .pc b { font-family: 'Anton'; font-weight: 400; font-size: 16px; line-height: 1.1; }
+.prow.hot b { color: #E0662F; } .prow.cold b { color: #3B7DD8; }
+.prow .stg { position: absolute; right: 0; bottom: 6px; font-style: normal; font-size: 10px; font-weight: 800; padding: 6px 8px; border-radius: 6px; background: #F5C842; color: #1A1033; }
+.prow .stg.ok { background: #E9E2F6; color: #7B5EA7; }
+.dn { font-family: 'Anton'; font-size: 16px; color: #7B5EA7; line-height: 1; margin: 2px 0 2px 28%; }
+'''
 P = []  # (theme, slug, title, inner_html, foot, [captions A, B, C], note)
 
 bingo = ['Forgot the tyre pressures', 'Clipboard got soaked', 'Rain with 2 mins to go', 'No signal in the paddock',
@@ -111,42 +128,26 @@ P.append(('dark', 'where-written', "Where's your setup written?",
   '<div class="d" style="font-size:41px;margin-top:8px;">Where&rsquo;s your setup</div>'
   '<div class="d" style="font-size:41px;"><span class="hl">written right now?</span></div>'
   '<ul class="scr" style="margin-top:26px;"><li>Back of your hand</li><li>Tape on the seat</li><li>Back of a receipt</li>'
-  '<li>Your mate&rsquo;s memory</li><li class="ok">Kart Connect</li></ul>'
-  '<p class="sub" style="margin-top:auto;font-weight:700;">Comment yours below.</p>',
+  '<li>Your mate&rsquo;s memory</li><li class="ok">Kart Connect</li></ul>',
   'Be honest', [
-  "Be honest. Where's your setup written right now? 👀\n\nBack of your hand? Tape on the seat? A receipt from the café? Or locked away in your mate's memory, never to be seen again? 😅\n\nComment yours below 👇 The best (worst) answer gets a shoutout on our story.\n\nOr skip the scribbles. Kart Connect keeps every setup, every change and every session saved and ready, all season long. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartLife #KartSetup",
-  "Hand. Tape. Receipt. Memory. ❌\nKart Connect. ✅\n\nWhere's yours written? Comment below 👇\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing",
-  "We've seen setups written on hands, seat tape, fag packets and once on a pizza box. 🍕\n\nWhat's the strangest place you've ever written yours? Comment below 👇\n\nWhen you're ready for something that won't wash off, Kart Connect saves every setup with the session it belongs to.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartLife"],
+  "Be honest. Where's your setup written right now? 👀\n\nBack of your hand? Tape on the seat? A receipt from the café? Or locked away in your mate's memory, never to be seen again? 😅\n\nTime to skip the scribbles. Kart Connect keeps every setup, every change and every session saved and ready, all season long. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartLife #KartSetup",
+  "Hand. Tape. Receipt. Memory. ❌\nKart Connect. ✅\n\nYour setup deserves better.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing",
+  "We've seen setups written on hands, seat tape, fag packets and once on a pizza box. 🍕\n\nWherever yours is written right now, it's time for an upgrade. When you're ready for something that won't wash off, Kart Connect saves every setup with the session it belongs to.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartLife"],
   ''))
 
-P.append(('light', 'guess-change', 'Guess the change',
-  '<div class="kick">Quiz</div>'
-  '<div class="d" style="font-size:62px;margin-top:8px;">Guess the <span class="o">change.</span></div>'
-  '<div class="lapc" style="margin-top:10px;"><div class="card"><span>Session 3</span><b>0:58.92</b></div><div class="q">&rarr;</div>'
+P.append(('light', 'what-changed', 'What changed? Now you know.',
+  '<div class="kick">Every lap. Every setup.</div>'
+  '<div class="d" style="font-size:56px;margin-top:8px;">What changed?</div>'
+  '<div class="d o" style="font-size:56px;">Now you know.</div>'
+  '<div class="lapc" style="margin-top:14px;"><div class="card"><span>Session 3</span><b>0:58.92</b></div><div class="q">&rarr;</div>'
   '<div class="card"><span>Session 4</span><b>0:58.61</b></div></div>'
-  '<div style="margin-top:8px;display:flex;align-items:center;gap:8px;"><span class="delta">&minus;0.31s</span>'
-  '<span class="sub" style="font-size:11px;">Same driver. Same day. One setup change.</span></div>'
-  '<div class="opts" style="margin-top:12px;"><div><b>A</b>Rear width</div><div><b>B</b>Tyre pressures</div>'
-  '<div><b>C</b>Axle</div><div><b>D</b>Gearing</div></div>'
-  '<p class="sub" style="margin-top:auto;font-weight:700;">A, B, C or D? Answer in the comments. Example data.</p>',
-  'Quiz', [
-  "GUESS THE CHANGE 🤔\n\nSame driver. Same day. Session 3 to Session 4. ONE setup change and 0.31s found.\n\nWhat was it?\nA) Rear width\nB) Tyre pressures\nC) Axle\nD) Gearing\n\nDrop your answer in the comments 👇 We'll reveal it on our story tomorrow.\n\nWith Kart Connect, every lap time has its setup saved right next to it, so you never have to guess what changed. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup #KartQuiz",
-  "One change. 0.31s quicker. ⏱️\n\nA, B, C or D? Comment below 👇 Answer on our story tomorrow.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartQuiz",
-  "Think you can read a setup sheet? Let's find out. 🧠\n\nSession 3: 0:58.92\nSession 4: 0:58.61\nOne change in between.\n\nRear width, tyre pressures, axle or gearing? Comment your answer 👇\n\nIn Kart Connect, you'd just open both sessions and see it straight away. 😉\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup"],
-  'Pick the real answer before posting and reveal it on your story the next day. The lap times are example data.'))
-
-P.append(('dark', 'tag-mechanic', 'Tag your mechanic',
-  '<div class="kick">Tag them</div>'
-  '<div class="d" style="font-size:38px;margin-top:8px;">Every driver has that</div>'
-  '<div class="d" style="font-size:38px;">one mechanic who</div>'
-  '<div class="d" style="font-size:38px;">remembers <span class="hl">everything.</span></div>'
-  '<div class="d o" style="font-size:86px;margin-top:10px;">Tag them.</div>'
-  '<p class="sub" style="margin-top:auto;">And for everything they don&rsquo;t, there&rsquo;s Kart Connect.</p>',
-  'Tag your mechanic', [
-  "Every driver has that ONE mechanic. 🔧\n\nThe one who remembers the gearing from three rounds ago. The one who knows the pressures before you ask. The one who's quietly saved your weekend more times than you can count.\n\nTag them below 👇 and show them some love. ❤️\n\nAnd for the days even they can't remember? That's what Kart Connect is for. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartMechanic #KartLife",
-  "Tag the mechanic who remembers EVERYTHING. 👇🔧\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartMechanic",
-  "Mechanics: the real MVPs of the paddock. 🏆\n\nTag yours below and tell them they're appreciated 👇\n\nThen give them a break. Kart Connect saves every setup and every change, so nothing relies on one person's memory. 😉\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartMechanic #KartTeam"],
-  ''))
+  '<div class="chg" style="margin-top:10px;"><span class="delta">&minus;0.31s</span><div><i>Changed</i><b>Rear width</b><em>1395 &rarr; 1385 mm</em></div></div>'
+  '<p class="sub" style="margin-top:auto;">Every lap time saved with the setup behind it, so you know exactly why you went quicker. Example data.</p>',
+  'Every lap. Every setup.', [
+  "What changed? Now you KNOW. 🏁\n\nYou found 0.31s between sessions. Was it the rear width? The pressures? The gearing? Without the data, it's a guess.\n\nWith Kart Connect, every lap time is saved with the exact setup behind it. Open the two sessions and see exactly what changed, and exactly why you went quicker. ⏱️\n\nNo more guessing. Just faster.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup #KartData",
+  "0.31s quicker. And you know exactly why. ⏱️\n\nEvery lap. Every setup. Kart Connect.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup",
+  "Ever gone quicker and had NO idea why? 🤷\n\nThat speed is useless if you can't find it again. Kart Connect saves the setup behind every lap time, so when it clicks you know exactly what changed and you can go straight back to it.\n\nFind it. Keep it. Build on it. 🏎️\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartData"],
+  'The lap times and the rear width change are example data.'))
 
 P.append(('light', 'old-vs-new', 'The old way vs the new way',
   '<div class="d" style="font-size:46px;">Old way. <span class="o">New way.</span></div>'
@@ -230,24 +231,19 @@ P.append(('dark', 'build-next', 'What should we build next?',
   "YOU decide what we build next. 🛠️\n\nKart Connect is built for the paddock, so we want the paddock to choose.\n\nA) Engine hours tracker\nB) Tyre wear log\nC) Gearing calculator\nD) Something else? Tell us!\n\nVote in the comments 👇 The most popular idea goes to the top of our list.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartLife",
   "What should we build next? 🤔\n\nA, B, C or D? Vote below 👇\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing",
   "If you could add ONE feature to Kart Connect, what would it be? 💭\n\nWe've given you a few ideas, but we'd love to hear yours. Every comment gets read by the team. 👇\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartTech"],
-  'Swap the four options for the features you are really considering, and drop any that already exist in the app.'))
+  'Waiting on your four options. The ones shown are placeholders.'))
 
-P.append(('light', 'hot-cold', 'Hot in. Cold out.',
+P.append(('light', 'hot-cold', 'Cold. Hot. Sorted.',
   '<div class="kick">Tyre pressures</div>'
-  '<div class="d" style="font-size:66px;margin-top:8px;">Hot in.</div>'
-  '<div class="d o" style="font-size:66px;">Cold out.</div>'
-  '<div class="tyres" style="margin-top:16px;">'
-  '<div class="g hot"><h5>Hot (after)</h5><div><span>FL</span><b>0.84</b></div><div><span>FR</span><b>0.86</b></div>'
-  '<div><span>RL</span><b>0.80</b></div><div><span>RR</span><b>0.83</b></div></div><div class="ar">&rarr;</div>'
-  '<div class="g cold"><h5>Cold (next run)</h5><div><span>FL</span><b>0.58</b></div><div><span>FR</span><b>0.56</b></div>'
-  '<div><span>RL</span><b>0.62</b></div><div><span>RR</span><b>0.59</b></div></div></div>'
-  '<div style="margin-top:12px;"><span class="warn">Staggered: 0.06 bar range</span></div>'
-  '<p class="sub" style="margin-top:auto;">Record your hot pressures. Get your cold pressures for the next run. Example data.</p>',
+  '<div class="d" style="font-size:54px;margin-top:8px;">Cold. Hot.</div>'
+  '<div class="d o" style="font-size:54px;">Sorted.</div>'
+  '<div class="pflow" style="margin-top:12px;"><div class="prow cold"><h5>Cold (run 1)</h5><div class="pc"><div><span>FL</span><b>9.0</b></div><div><span>FR</span><b>9.0</b></div><div><span>RL</span><b>9.0</b></div><div><span>RR</span><b>9.0</b></div></div><em class="stg ok">0.0 psi stagger</em></div><div class="dn">&darr;</div><div class="prow hot"><h5>Hot (after run 1)</h5><div class="pc"><div><span>FL</span><b>12.6</b></div><div><span>FR</span><b>13.4</b></div><div><span>RL</span><b>12.2</b></div><div><span>RR</span><b>13.0</b></div></div></div><div class="dn">&darr;</div><div class="prow cold"><h5>Next cold (recommended)</h5><div class="pc"><div><span>FL</span><b>9.2</b></div><div><span>FR</span><b>8.4</b></div><div><span>RL</span><b>9.6</b></div><div><span>RR</span><b>8.8</b></div></div><em class="stg">1.2 psi stagger</em></div></div>'
+  '<p class="sub" style="margin-top:auto;font-size:11px;">Record your hot pressures and get your next cold pressures, stagger and all. Example data.</p>',
   'Tyre pressures', [
-  "Hot in. Cold out. 🔥➡️❄️\n\nCome off track, record your hot pressures and Kart Connect recommends your cold pressures for the next run.\n\nIt even flags when your pressures are staggered across the four corners, so you can sort it before the next session, not after. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup #TyrePressures",
-  "Record your hot pressures. Get your cold pressures. 🔥❄️\n\nThat's it.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartSetup",
-  "Still doing tyre pressure maths on the back of a glove? 🧮\n\nPut your hot pressures into Kart Connect after the session and it recommends your cold pressures for the next run, and warns you when they're staggered.\n\nLess maths. More grip. 🏎️\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #TyrePressures"],
-  'Based on the hot pressures and cold recommendation feature in the app code (2 Oct). Check it works this way in the current app. The numbers are example data.'))
+  "Cold. Hot. Sorted. 🔥❄️\n\nStart square at 9.0 psi all round. Come in, record your hot pressures, and Kart Connect works out your cold pressures for the next run, stagger included. 🏁\n\nRun 1: 0.0 psi stagger.\nNext run: 1.2 psi stagger, set up to even out the hots.\n\nNo calculator. No guesswork. Just the right pressures, every run.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup #TyrePressures",
+  "Hot pressures in. Next cold pressures out. Stagger sorted. 🔥➡️❄️\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartSetup #TyrePressures",
+  "Still doing tyre pressure maths on the back of a glove? 🧮\n\nPut your hot pressures into Kart Connect after the session and it recommends your cold pressures for the next run, showing you exactly how much stagger you need across the four corners.\n\nLess maths. More grip. 🏎️\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #TyrePressures"],
+  'Example psi figures. Check the recommendation in the current app matches how this post describes it.'))
 
 P.append(('dark', 'free-trial', 'Try it free for 30 days',
   '<div class="kick">Free trial</div>'
@@ -261,6 +257,11 @@ P.append(('dark', 'free-trial', 'Try it free for 30 days',
   "30 days. Free. Cancel any time. 🏁\n\nStart your Kart Connect trial today.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing",
   "Not sure if Kart Connect is for you? Try it for a month. 👀\n\n30 days free on Privateer. Log a couple of race weekends and see the difference for yourself.\n\nTag a mate who should try it too 👇\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #FreeTrial"],
   'The 30-day Privateer trial comes from the app code (2 Oct). Check it is still on offer before posting.'))
+
+ORDER = ['paddock-bingo', 'where-written', 'what-changed', 'whole-team', 'old-vs-new', 'any-device', 'which-plan',
+         'build-next', 'won-in-winter', 'free-trial', 'hot-cold']
+P.sort(key=lambda p: ORDER.index(p[1]))
+P = [(('light', 'dark')[i % 2],) + p[1:] for i, p in enumerate(P)]
 
 
 def shrink(h):
