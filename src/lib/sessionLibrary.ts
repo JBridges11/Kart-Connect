@@ -43,8 +43,8 @@ export async function uploadSession(
 
   // Derive metadata from parsed result
   const sess = result.session
-  const lapCount = sess.type === 'lap' ? sess.laps.length : null
-  const durationS = sess.type === 'gps' ? sess.durationS : null
+  const lapCount = 'laps' in sess ? sess.laps.length : null
+  const durationS = 'durationS' in sess ? sess.durationS : null
 
   const { data: row, error: insertErr } = await supabase
     .from('sessions')
