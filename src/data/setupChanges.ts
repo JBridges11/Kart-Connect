@@ -215,6 +215,15 @@ export const SETUP_CHANGES: SetupItem[] = [
     ],
   },
   {
+    id: 'bodywork',
+    name: 'Bodywork',
+    section: 'chassis',
+    directions: [
+      { label: 'Loose', effect: 'More chassis flex — tyres run cooler, softer feel overall' },
+      { label: 'Tight', effect: 'Stiffer chassis — helps generate heat into tyres, key fix when tyres won\'t come up to temperature' },
+    ],
+  },
+  {
     id: 'seat-stays',
     name: 'Seat Stays',
     section: 'chassis',

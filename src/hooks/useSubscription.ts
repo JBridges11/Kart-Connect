@@ -34,8 +34,11 @@ export function useSubscription() {
 
   useEffect(() => { void fetch() }, [fetch])
 
-  const isActive = !!subscription?.stripe_subscription_id &&
-    (subscription.status === 'active' || subscription.status === 'trialing')
+  const isActive =
+    subscription?.status === 'active' ||
+    (subscription?.status === 'trialing' &&
+      subscription?.trial_end != null &&
+      new Date(subscription.trial_end) > new Date())
 
   const trialDaysLeft = subscription?.status === 'trialing'
     ? Math.max(0, Math.ceil(

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { Button, Input } from '@/components/ui'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { isNative } from '@/lib/native'
 
 type Mode = 'signin' | 'register' | 'forgot'
 
@@ -16,7 +17,8 @@ export function LoginPage({ defaultMode = 'signin' }: Props) {
   const { language } = useLanguage()
 
   const [mode, setMode] = useState<Mode>(
-    searchParams.get('mode') === 'register' ? 'register' : defaultMode
+    // Never allow register mode on native — accounts are created via the website
+    !isNative && searchParams.get('mode') === 'register' ? 'register' : defaultMode
   )
 
   const [email, setEmail]       = useState('')
@@ -82,8 +84,11 @@ export function LoginPage({ defaultMode = 'signin' }: Props) {
     e.preventDefault()
     setError(null)
     setForgotLoading(true)
+    const redirectTo = isNative
+      ? 'com.kartconnect.app://reset-password'
+      : `${window.location.origin}/reset-password`
     const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo,
     })
     if (err) setError(err.message)
     else setForgotSent(true)
@@ -255,24 +260,26 @@ export function LoginPage({ defaultMode = 'signin' }: Props) {
       </div>
 
       <div className="bg-bg-card border border-border-color rounded-card overflow-hidden">
-        {/* Tab toggle */}
-        <div className="grid grid-cols-2 border-b border-border-color">
-          {(['signin', 'register'] as Mode[]).map(m => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => switchMode(m)}
-              className={[
-                'py-3 font-heading font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer',
-                mode === m
-                  ? 'bg-accent-primary text-bg-primary'
-                  : 'text-text-muted hover:text-text-primary bg-bg-elevated',
-              ].join(' ')}
-            >
-              {m === 'signin' ? L.signin : L.register}
-            </button>
-          ))}
-        </div>
+        {/* Tab toggle — hidden on native (no sign-up in the app) */}
+        {!isNative && (
+          <div className="grid grid-cols-2 border-b border-border-color">
+            {(['signin', 'register'] as Mode[]).map(m => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => switchMode(m)}
+                className={[
+                  'py-3 font-heading font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer',
+                  mode === m
+                    ? 'bg-accent-primary text-bg-primary'
+                    : 'text-text-muted hover:text-text-primary bg-bg-elevated',
+                ].join(' ')}
+              >
+                {m === 'signin' ? L.signin : L.register}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Form */}
         <div className="p-6">

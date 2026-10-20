@@ -62,4 +62,5 @@ export const setupDefaults: Partial<SetupFormData> = {
   seat_bolts_back: null,
   seat_stay_left: null,
   seat_stay_right: null,
+  bodywork: null,
 }

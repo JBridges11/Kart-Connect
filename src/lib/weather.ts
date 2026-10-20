@@ -6,7 +6,14 @@ export interface CurrentWeather {
   code:      number
 }
 
-export function weatherLabel(code: number): string {
+export function weatherLabel(code: number, precip_mm?: number): string {
+  // Override WMO code with actual precipitation intensity when available
+  if (precip_mm !== undefined && precip_mm > 0.1) {
+    if (precip_mm > 7.5) return 'Heavy Rain'
+    if (precip_mm > 2.5) return 'Rain'
+    if (precip_mm > 0.5) return 'Light Rain'
+    return 'Drizzle'
+  }
   if (code === 0)  return 'Clear Sky'
   if (code === 1)  return 'Mainly Clear'
   if (code === 2)  return 'Partly Cloudy'
@@ -88,6 +95,61 @@ export function precipToConditions(mm: number): string {
   if (mm > 2)   return 'wet'
   if (mm > 0.1) return 'damp'
   return 'dry'
+}
+
+export interface RainForecast {
+  minutesUntilRain: number | null  // null = no rain in next 2h
+  currentlyRaining: boolean
+  peakMmPer15: number
+}
+
+export async function fetchRainForecast(lat: number, lng: number): Promise<RainForecast | null> {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&minutely_15=precipitation&forecast_minutely_15=8&timezone=auto`
+    const res  = await fetch(url)
+    const data = await res.json() as { minutely_15?: { time: string[]; precipitation: number[] } }
+    const times  = data.minutely_15?.time         ?? []
+    const precip = data.minutely_15?.precipitation ?? []
+    const THRESHOLD = 0.1
+    const now = Date.now()
+    let minutesUntilRain: number | null = null
+    let currentlyRaining = false
+    let peakMmPer15 = 0
+    for (let i = 0; i < times.length; i++) {
+      if (precip[i] > peakMmPer15) peakMmPer15 = precip[i]
+      if (precip[i] > THRESHOLD) {
+        const slotMs = new Date(times[i]).getTime()
+        const diffMin = Math.round((slotMs - now) / 60000)
+        if (diffMin <= 0) {
+          currentlyRaining = true
+          minutesUntilRain = 0
+        } else if (minutesUntilRain === null) {
+          minutesUntilRain = diffMin
+        }
+      }
+    }
+    return { minutesUntilRain, currentlyRaining, peakMmPer15 }
+  } catch {
+    return null
+  }
+}
+
+export interface PrecipSlot {
+  time: string
+  mm: number
+}
+
+export async function fetchPrecipTimeline(lat: number, lng: number): Promise<PrecipSlot[]> {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&minutely_15=precipitation&forecast_minutely_15=12&timezone=auto`
+    const res  = await fetch(url)
+    const data = await res.json() as { minutely_15?: { time: string[]; precipitation: number[] } }
+    const times  = data.minutely_15?.time ?? []
+    const precip = data.minutely_15?.precipitation ?? []
+    return times.map((t, i) => ({ time: t, mm: precip[i] ?? 0 }))
+  } catch {
+    return []
+  }
 }
 
 export async function fetchWeatherForTrack(

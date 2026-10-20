@@ -12,6 +12,7 @@ import {
   weatherLabel, weatherEmoji, conditionColour,
   type CurrentWeather,
 } from '@/lib/weather'
+import { RainRadar } from '@/components/ui/RainRadar'
 
 export function TrackDetailPage() {
   const { id }       = useParams<{ id: string }>()
@@ -20,6 +21,7 @@ export function TrackDetailPage() {
   const { data: allSessions }    = useSessions()
 
   const [weather, setWeather]               = useState<CurrentWeather | null>(null)
+  const [fetchedAt, setFetchedAt]           = useState<Date | null>(null)
   const [weatherLoading, setWeatherLoading] = useState(false)
   const [weatherError, setWeatherError]     = useState(false)
 
@@ -28,10 +30,11 @@ export function TrackDetailPage() {
   useEffect(() => {
     if (!track) return
     setWeather(null)
+    setFetchedAt(null)
     setWeatherError(false)
     setWeatherLoading(true)
     void fetchWeatherForTrack(track.lat, track.lng, track.location ?? track.name)
-      .then(w => { if (w) setWeather(w); else setWeatherError(true) })
+      .then(w => { if (w) { setWeather(w); setFetchedAt(new Date()) } else setWeatherError(true) })
       .finally(() => setWeatherLoading(false))
   }, [track?.id])
 
@@ -42,6 +45,32 @@ export function TrackDetailPage() {
 
   function displayTemp(c: number) {
     return tempUnit === 'f' ? `${Math.round(c * 9 / 5 + 32)}°F` : `${Math.round(c)}°C`
+  }
+
+  function trackTimezone(country: string | null | undefined): string {
+    const map: Record<string, string> = {
+      'Italy': 'Europe/Rome', 'France': 'Europe/Paris', 'Germany': 'Europe/Berlin',
+      'Spain': 'Europe/Madrid', 'Belgium': 'Europe/Brussels', 'Netherlands': 'Europe/Amsterdam',
+      'Austria': 'Europe/Vienna', 'Portugal': 'Europe/Lisbon', 'Switzerland': 'Europe/Zurich',
+      'Sweden': 'Europe/Stockholm', 'Denmark': 'Europe/Copenhagen', 'Norway': 'Europe/Oslo',
+      'Finland': 'Europe/Helsinki', 'Poland': 'Europe/Warsaw', 'Czech Republic': 'Europe/Prague',
+      'Hungary': 'Europe/Budapest', 'Croatia': 'Europe/Zagreb', 'Romania': 'Europe/Bucharest',
+      'Greece': 'Europe/Athens', 'United Kingdom': 'Europe/London', 'Ireland': 'Europe/Dublin',
+      'Japan': 'Asia/Tokyo', 'UAE': 'Asia/Dubai', 'United Arab Emirates': 'Asia/Dubai',
+      'Australia': 'Australia/Sydney', 'USA': 'America/New_York', 'United States': 'America/New_York',
+      'Canada': 'America/Toronto', 'Brazil': 'America/Sao_Paulo', 'South Africa': 'Africa/Johannesburg',
+    }
+    return map[country ?? ''] ?? 'UTC'
+  }
+
+  function weatherTimestamp(date: Date, country: string | null | undefined): string {
+    const tz = trackTimezone(country)
+    return date.toLocaleString('en-GB', {
+      timeZone: tz,
+      day: 'numeric', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+      timeZoneName: 'short',
+    })
   }
 
   if (loading) return (
@@ -80,14 +109,21 @@ export function TrackDetailPage() {
           )}
           {weather && (
             <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <span className="text-5xl">{weatherEmoji(weather.code)}</span>
-                <div>
-                  <p className={`text-3xl font-bold font-heading ${conditionColour(weather.code)}`}>
-                    {displayTemp(weather.temp_c)}
-                  </p>
-                  <p className="text-sm text-text-muted mt-0.5">{weatherLabel(weather.code)}</p>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <span className="text-5xl">{weatherEmoji(weather.code)}</span>
+                  <div>
+                    <p className={`text-3xl font-bold font-heading ${conditionColour(weather.code)}`}>
+                      {displayTemp(weather.temp_c)}
+                    </p>
+                    <p className="text-sm text-text-muted mt-0.5">{weatherLabel(weather.code)}</p>
+                  </div>
                 </div>
+                {fetchedAt && (
+                  <p className="text-xs font-semibold text-text-primary flex-shrink-0 text-right">
+                    {weatherTimestamp(fetchedAt, track.country)}
+                  </p>
+                )}
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="bg-bg-elevated rounded-card p-3 flex flex-col items-center gap-1">
@@ -106,6 +142,7 @@ export function TrackDetailPage() {
                   <p className="text-xs text-text-muted">Precip</p>
                 </div>
               </div>
+              <RainRadar lat={track.lat} lng={track.lng} />
             </div>
           )}
         </Card>

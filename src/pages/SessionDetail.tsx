@@ -23,9 +23,6 @@ import {
   displayWind,
 } from '@/lib/units'
 
-const conditionVariant: Record<string, 'info' | 'positive' | 'neutral'> = {
-  dry: 'positive', wet: 'info', damp: 'neutral',
-}
 
 // Fields owned exclusively by their own modals — the form auto-save must never touch these.
 // Supabase UPDATE is a PATCH, so omitting them leaves DB values untouched.
@@ -96,18 +93,37 @@ export function SessionDetailPage() {
   const [lapInputError, setLapInputError] = useState(false)
   const [savingLap, setSavingLap] = useState(false)
   const [scanning, setScanning] = useState(false)
-  const [advisorOpen, setAdvisorOpen] = useState(false)
-  const [advisorFeedback, setAdvisorFeedback] = useState('')
-  const [advisorCategory, setAdvisorCategory] = useState<'Handling' | 'Engine' | 'Both'>('Handling')
+  // Advisor persistence — restore from sessionStorage on mount
+  const advisorKey = id ? `advisor_${id}` : null
+  function readAdvisorCache() {
+    if (!advisorKey) return null
+    try { return JSON.parse(sessionStorage.getItem(advisorKey) ?? 'null') } catch { return null }
+  }
+  function saveAdvisorCache(patch: Record<string, unknown>) {
+    if (!advisorKey) return
+    try {
+      const prev = readAdvisorCache() ?? {}
+      sessionStorage.setItem(advisorKey, JSON.stringify({ ...prev, ...patch }))
+    } catch {}
+  }
+  function clearAdvisorCache() {
+    if (advisorKey) try { sessionStorage.removeItem(advisorKey) } catch {}
+  }
+  const _cache = readAdvisorCache()
+  const [advisorOpen, setAdvisorOpen] = useState<boolean>(_cache?.open ?? false)
+  const [advisorFeedback, setAdvisorFeedback] = useState<string>(_cache?.feedback ?? '')
   const [advisorLoading, setAdvisorLoading] = useState(false)
-  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([])
+  const [advisorLoadingMsgIdx, setAdvisorLoadingMsgIdx] = useState(0)
+  const [advisorProgress, setAdvisorProgress] = useState(0)
+  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>(_cache?.symptoms ?? [])
   const [advisorResult, setAdvisorResult] = useState<Array<{
     priority: number
     change: string
     from: string
     to: string
     explanation: string
-  }> | null>(null)
+    confirmed?: boolean
+  }> | null>(_cache?.result ?? null)
   const [scanResult, setScanResult] = useState<{
     best_lap_time: string | null
     max_engine_temp_c: number | null
@@ -273,15 +289,59 @@ export function SessionDetailPage() {
     setEngineMonOpen(false)  // close engine monitoring modal → stats card shows on page
   }
 
+  const ADVISOR_LOADING_MESSAGES = [
+    'Reading your session data…',
+    'Analysing your current setup…',
+    'Cross-referencing symptoms…',
+    'Calculating the best changes for you…',
+  ]
+  const ADVISOR_MIN_MS = 8000
+
+  useEffect(() => {
+    if (!advisorLoading) return
+    // Advance one message every 2s, stop at the last one
+    const msgInterval = setInterval(() => {
+      setAdvisorLoadingMsgIdx(i => Math.min(i + 1, ADVISOR_LOADING_MESSAGES.length - 1))
+    }, 2000)
+    return () => clearInterval(msgInterval)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [advisorLoading])
+
+  useEffect(() => {
+    if (!advisorLoading) { setAdvisorProgress(0); return }
+    const start = Date.now()
+    const tick = setInterval(() => {
+      const elapsed = Date.now() - start
+      // Linear 0→99% over ADVISOR_MIN_MS, hold at 99 until API responds
+      setAdvisorProgress(Math.min((elapsed / ADVISOR_MIN_MS) * 100, 99))
+    }, 80)
+    return () => clearInterval(tick)
+  }, [advisorLoading])
+
+  // Persist advisor state to sessionStorage so refresh restores it
+  useEffect(() => {
+    saveAdvisorCache({ open: advisorOpen, feedback: advisorFeedback, symptoms: selectedSymptoms, result: advisorResult })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [advisorOpen, advisorFeedback, selectedSymptoms, advisorResult])
+
   async function runAdvisor() {
     if (!advisorFeedback.trim() || !setup) return
     setAdvisorLoading(true)
+    setAdvisorLoadingMsgIdx(0)
+    setAdvisorProgress(0)
     setAdvisorResult(null)
+    const start = Date.now()
     try {
       const { data, error } = await supabase.functions.invoke('setup-advisor', {
-        body: { setup, feedback: advisorFeedback, category: advisorCategory, session },
+        body: { setup, feedback: advisorFeedback, category: 'General', session },
       })
       if (error) throw error
+      // Wait for the minimum duration so the experience feels considered
+      const remaining = ADVISOR_MIN_MS - (Date.now() - start)
+      if (remaining > 0) await new Promise(r => setTimeout(r, remaining))
+      // Snap bar to 100% then briefly pause before showing results
+      setAdvisorProgress(100)
+      await new Promise(r => setTimeout(r, 250))
       setAdvisorResult(data.recommendations ?? [])
     } catch (err) {
       alert(`Advisor error: ${String(err)}`)
@@ -625,7 +685,7 @@ export function SessionDetailPage() {
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
             <ArrowLeft size={14} /> Back
           </Button>
-          <Button variant="secondary" size="sm" onClick={() => { setAdvisorResult(null); setAdvisorFeedback(''); setAdvisorOpen(true) }}>
+          <Button variant="secondary" size="sm" onClick={() => setAdvisorOpen(true)}>
             <Sparkles size={14} /> Setup Advisor
           </Button>
           <Button variant="secondary" size="sm" onClick={() => setEngineMonOpen(true)} loading={scanning}>
@@ -657,7 +717,7 @@ export function SessionDetailPage() {
             </p>
             <div className="flex flex-wrap gap-2 mt-2">
               <Badge label={session.session_type} variant="neutral" />
-              {session.conditions && <Badge label={session.conditions} variant={conditionVariant[session.conditions] ?? 'neutral'} />}
+              {session.conditions && <Badge label={session.conditions} variant="neutral" />}
               {session.best_lap_time_ms && (
                 <Badge label={lapMsToString(session.best_lap_time_ms)} variant="warning" />
               )}
@@ -1178,31 +1238,33 @@ export function SessionDetailPage() {
 
       {/* Setup Advisor Modal */}
       <Modal isOpen={advisorOpen} onClose={() => setAdvisorOpen(false)} title="Setup Advisor" maxWidth="max-w-2xl">
-        {!advisorResult ? (
+        {advisorLoading ? (
+          <div className="py-8 space-y-6">
+            <div className="bg-bg-elevated rounded-card p-3 border border-border-color">
+              <p className="text-xs font-heading font-bold text-text-muted uppercase mb-1">Analysing</p>
+              <p className="text-sm text-text-primary">{advisorFeedback}</p>
+            </div>
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-10 h-10 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-text-muted text-center transition-all duration-500">
+                {ADVISOR_LOADING_MESSAGES[advisorLoadingMsgIdx]}
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <div className="h-1.5 bg-bg-elevated rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-accent-primary rounded-full transition-all duration-150 ease-out"
+                  style={{ width: `${advisorProgress}%` }}
+                />
+              </div>
+              <p className="text-right text-xs font-mono text-text-muted">{Math.round(advisorProgress)}%</p>
+            </div>
+          </div>
+        ) : !advisorResult ? (
           <div className="space-y-4">
             <p className="text-sm text-text-muted">
-              Select what the kart is doing. Tap a section to expand it, then pick one or more scenarios.
+              Select a section, then tap the issue that matches what you're feeling.
             </p>
-            <div>
-              <p className="text-xs font-heading font-bold text-text-muted uppercase mb-2">Category</p>
-              <div className="flex gap-2">
-                {(['Handling', 'Engine', 'Both'] as const).map(c => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setAdvisorCategory(c)}
-                    className={[
-                      'px-4 py-1.5 rounded-card text-sm font-semibold border transition-colors cursor-pointer',
-                      advisorCategory === c
-                        ? 'bg-accent-primary text-bg-primary border-accent-primary'
-                        : 'bg-bg-elevated text-text-muted border-border-color hover:text-text-primary',
-                    ].join(' ')}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
-            </div>
             <SymptomPicker
               selected={selectedSymptoms}
               onChange={syms => {
@@ -1215,7 +1277,6 @@ export function SessionDetailPage() {
               <Button
                 size="sm"
                 onClick={() => void runAdvisor()}
-                loading={advisorLoading}
                 disabled={selectedSymptoms.length === 0}
               >
                 <Sparkles size={13} /> Get Recommendations
@@ -1226,32 +1287,56 @@ export function SessionDetailPage() {
           <div className="space-y-4">
             <div className="sticky top-0 z-10 bg-bg-card pb-2 -mx-5 px-5 pt-0">
               <div className="bg-bg-elevated rounded-card p-3 border border-border-color">
-                <p className="text-xs font-heading font-bold text-text-muted uppercase mb-1">Your Feedback · {advisorCategory}</p>
+                <p className="text-xs font-heading font-bold text-text-muted uppercase mb-1">Your Feedback</p>
                 <p className="text-sm text-text-primary leading-relaxed">{advisorFeedback}</p>
               </div>
             </div>
             <p className="text-xs text-text-muted">Recommended changes in priority order:</p>
-            {advisorResult.map(rec => (
-              <div key={rec.priority} className="bg-bg-elevated rounded-card p-4 border border-border-color">
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-full bg-accent-primary text-bg-primary flex items-center justify-center font-heading font-bold text-sm flex-shrink-0">
-                    {rec.priority}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-heading font-bold text-text-primary text-sm">{rec.change}</p>
-                    <div className="flex items-center gap-2 mt-1 mb-2 flex-wrap">
-                      <span className="font-mono text-xs bg-bg-primary px-2 py-0.5 rounded text-text-muted">{rec.from}</span>
-                      <span className="text-text-muted text-xs">→</span>
-                      <span className="font-mono text-xs bg-accent-primary/10 text-accent-primary px-2 py-0.5 rounded font-semibold">{rec.to}</span>
+            {advisorResult.map(rec => {
+              const isConfirmed = rec.confirmed === true
+              return (
+                <div
+                  key={rec.priority}
+                  className={[
+                    'rounded-card p-4 border',
+                    isConfirmed
+                      ? 'bg-green-500/5 border-green-500/30'
+                      : 'bg-bg-elevated border-border-color',
+                  ].join(' ')}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={[
+                      'w-7 h-7 rounded-full flex items-center justify-center font-heading font-bold text-sm flex-shrink-0',
+                      isConfirmed
+                        ? 'bg-green-500 text-white'
+                        : 'bg-accent-primary text-bg-primary',
+                    ].join(' ')}>
+                      {isConfirmed ? '✓' : rec.priority}
                     </div>
-                    <p className="text-xs text-text-muted leading-relaxed">{rec.explanation}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className={[
+                        'font-heading font-bold text-sm',
+                        isConfirmed ? 'text-green-400' : 'text-text-primary',
+                      ].join(' ')}>{rec.change}</p>
+                      <div className="flex items-center gap-2 mt-1 mb-2 flex-wrap">
+                        <span className="font-mono text-xs bg-bg-primary px-2 py-0.5 rounded text-text-muted">{rec.from}</span>
+                        <span className="text-text-muted text-xs">→</span>
+                        <span className={[
+                          'font-mono text-xs px-2 py-0.5 rounded font-semibold',
+                          isConfirmed
+                            ? 'bg-green-500/10 text-green-400'
+                            : 'bg-accent-primary/10 text-accent-primary',
+                        ].join(' ')}>{rec.to}</span>
+                      </div>
+                      <p className="text-xs text-text-muted leading-relaxed">{rec.explanation}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
             <div className="flex gap-2 justify-end pt-2">
               <Button variant="ghost" size="sm" onClick={() => { setAdvisorResult(null); setSelectedSymptoms([]); setAdvisorFeedback('') }}>Ask Again</Button>
-              <Button size="sm" onClick={() => setAdvisorOpen(false)}>Done</Button>
+              <Button size="sm" onClick={() => { clearAdvisorCache(); setAdvisorOpen(false); setAdvisorResult(null); setSelectedSymptoms([]); setAdvisorFeedback('') }}>Exit</Button>
             </div>
           </div>
         )}

@@ -159,6 +159,7 @@ export interface Setup {
   seat_bolts_back: 'Loose' | 'Tight' | null
   seat_stay_left: 'None' | '1' | '2' | null
   seat_stay_right: 'None' | '1' | '2' | null
+  bodywork: 'Tight' | 'Loose' | null
 }
 
 export interface SetupChange {

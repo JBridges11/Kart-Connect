@@ -99,6 +99,36 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Find the last submitted setup for this kart from any previous race weekend
+    let previous_setup: Record<string, unknown> | null = null
+    if (driver.kart_id) {
+      const { data: prevDrivers } = await supabase
+        .from('race_weekend_drivers')
+        .select('setup_data, session_ids, created_at')
+        .eq('kart_id', driver.kart_id)
+        .neq('id', driver.id)
+        .not('setup_data', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+      if (prevDrivers?.length) {
+        for (const prev of prevDrivers) {
+          const prevSetupData = (prev.setup_data ?? {}) as Record<string, Record<string, unknown>>
+          const prevSessionIds = (prev.session_ids ?? {}) as Record<string, string>
+
+          // Prefer the last *submitted* slot; fall back to any slot with data
+          const submittedSlots = Object.keys(prevSessionIds).map(Number).filter(n => !isNaN(n)).sort((a, b) => b - a)
+          const allSlots = Object.keys(prevSetupData).map(Number).filter(n => !isNaN(n)).sort((a, b) => b - a)
+          const lastSlot = String(submittedSlots[0] ?? allSlots[0] ?? '')
+
+          if (lastSlot && prevSetupData[lastSlot]) {
+            previous_setup = prevSetupData[lastSlot]
+            break
+          }
+        }
+      }
+    }
+
     return new Response(JSON.stringify({
       driver_name: driver.driver_name,
       driver_class: driver.driver_class,
@@ -111,8 +141,10 @@ Deno.serve(async (req) => {
       session_name: weekend.session_name,
       session_date: weekend.session_date,
       session_type: weekend.session_type,
+      weekend_format: weekend.weekend_format ?? null,
       expires_at: weekend.expires_at,
       slots,
+      previous_setup,
       pressure_unit: weekend.pressure_unit ?? 'bar',
       alt_unit:      weekend.alt_unit      ?? 'm',
       temp_unit:     weekend.temp_unit     ?? 'c',

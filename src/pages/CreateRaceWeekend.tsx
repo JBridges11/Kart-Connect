@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { UtcClock } from '@/components/ui/UtcClock'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Flag, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -6,15 +7,13 @@ import { useKarts } from '@/hooks/useKarts'
 import { useTracks } from '@/hooks/useTracks'
 import { useAuth } from '@/contexts/AuthContext'
 import { PageWrapper } from '@/components/layout/PageWrapper'
-import { Card, Button, Input, Select, SegmentedControl } from '@/components/ui'
+import { Card, Button, Input, Select } from '@/components/ui'
 import type { Kart } from '@/types'
 
-const SESSION_TYPE_OPTIONS = [
-  { label: 'Practice',   value: 'practice' },
-  { label: 'Qualifying', value: 'qualifying' },
-  { label: 'Race',       value: 'race' },
-  { label: 'Test Day',   value: 'testing' },
-]
+const COUNT_OPTIONS = Array.from({ length: 11 }, (_, i) => ({
+  label: String(i),
+  value: String(i),
+}))
 
 export function CreateRaceWeekendPage() {
   const navigate = useNavigate()
@@ -30,7 +29,7 @@ export function CreateRaceWeekendPage() {
   const [trackId, setTrackId] = useState('')
   const [sessionName, setSessionName] = useState('')
   const [sessionDate, setSessionDate] = useState(new Date().toISOString().slice(0, 10))
-  const [sessionType, setSessionType] = useState('race_weekend')
+  const [format, setFormat] = useState({ practice: 0, qualifying: 0, heats: 0, finals: 0 })
 
   // Step 2 — selected kart IDs
   const [selectedKartIds, setSelectedKartIds] = useState<Set<string>>(new Set())
@@ -69,7 +68,8 @@ export function CreateRaceWeekendPage() {
         track_id: trackId,
         session_name: sessionName.trim(),
         session_date: sessionDate,
-        session_type: sessionType,
+        session_type: 'race_weekend',
+        weekend_format: format,
         pressure_unit: localStorage.getItem('kc_pressure_unit') ?? 'bar',
         alt_unit:      localStorage.getItem('kc_alt_unit')      ?? 'm',
         temp_unit:     localStorage.getItem('kc_temp_unit')     ?? 'c',
@@ -116,6 +116,11 @@ export function CreateRaceWeekendPage() {
   return (
     <PageWrapper title="New Race Weekend">
       <div className="max-w-2xl mx-auto">
+        {/* UTC clock */}
+        <div className="flex justify-end mb-4">
+          <UtcClock size="lg" />
+        </div>
+
         {/* Step indicator */}
         <div className="flex items-center gap-3 mb-6">
           {[1, 2].map(n => (
@@ -165,12 +170,26 @@ export function CreateRaceWeekendPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-text-muted mb-2">Session Type</label>
-                <SegmentedControl
-                  options={SESSION_TYPE_OPTIONS}
-                  value={sessionType}
-                  onChange={setSessionType}
-                />
+                <label className="block text-xs text-text-muted mb-3">Weekend Format</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {([
+                    { key: 'practice',   label: 'Practice sessions' },
+                    { key: 'qualifying', label: 'Qualifying sessions' },
+                    { key: 'heats',      label: 'Heats' },
+                    { key: 'finals',     label: 'Finals' },
+                  ] as const).map(({ key, label }) => (
+                    <Select
+                      key={key}
+                      label={label}
+                      value={String(format[key])}
+                      onChange={e => setFormat(f => ({ ...f, [key]: Number(e.target.value) }))}
+                      options={COUNT_OPTIONS}
+                    />
+                  ))}
+                </div>
+                {Object.values(format).every(v => v === 0) && (
+                  <p className="text-xs text-text-muted mt-2">Set at least one session type to define your weekend schedule.</p>
+                )}
               </div>
             </div>
             {error && <p className="mt-3 text-sm text-red-400">{error}</p>}

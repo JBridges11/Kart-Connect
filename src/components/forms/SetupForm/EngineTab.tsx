@@ -93,14 +93,20 @@ export function EngineTab() {
             readOnly={readOnly}
             historyKey="air_screw"
           />
-          <Input
-            label="Needle Position"
-            value={setup.needle_position ?? ''}
-            onChange={e => onChange('needle_position', e.target.value || null)}
-            placeholder="e.g. Clip 3 from top"
-            readOnly={readOnly}
-            historyKey="needle_position"
-          />
+          <div className="flex flex-col gap-1">
+            <span className="font-heading text-xs uppercase tracking-wider text-text-muted">Needle Position</span>
+            <SegmentedControl
+              options={[
+                { label: '1', value: '1' },
+                { label: '2', value: '2' },
+                { label: '3', value: '3' },
+                { label: '4', value: '4' },
+                { label: '5', value: '5' },
+              ]}
+              value={setup.needle_position ?? null}
+              onChange={v => onChange('needle_position', v as string)}
+            />
+          </div>
           <Input
             label="Float Height"
             value={setup.float_height ?? ''}

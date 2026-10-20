@@ -55,6 +55,18 @@ export function ChassisTab() {
         />
       </div>
 
+      {/* Bodywork */}
+      <div className="border-t border-border-color pt-5">
+        <h3 className="font-heading text-sm uppercase tracking-wider text-text-muted mb-4">Bodywork</h3>
+        <Toggle
+          label="Bodywork"
+          optionA="Loose"
+          optionB="Tight"
+          value={setup.bodywork ?? null}
+          onChange={v => onChange('bodywork', v as 'Loose' | 'Tight')}
+        />
+      </div>
+
       {/* Seat Stays */}
       <div className="border-t border-border-color pt-5">
         <h3 className="font-heading text-sm uppercase tracking-wider text-text-muted mb-4">Seat Stays</h3>

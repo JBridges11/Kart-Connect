@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Plus, ArrowRight, Activity, Layers, CalendarDays, MapPin, Search, X, Check, Trash2, Flag, Radio } from 'lucide-react'
-import { PageWrapper } from '@/components/layout/PageWrapper'
-import { Card, Button, Badge } from '@/components/ui'
-import { useSessions } from '@/hooks/useSessions'
-import { useRaceWeekends } from '@/hooks/useRaceWeekends'
+import { Plus, ArrowRight, MapPin, Search, X, Check, Trash2, Flag, Radio, ArrowLeftRight } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTeamBranding } from '@/hooks/useTeamBranding'
+import { PageWrapper } from '@/components/layout/PageWrapper'
+import { Card, Button } from '@/components/ui'
+import { useSessions } from '@/hooks/useSessions'
+import { useRaceWeekends } from '@/hooks/useRaceWeekends'
 import { useSubscription } from '@/hooks/useSubscription'
 import { supabase } from '@/lib/supabase'
 import { lapMsToString, formatDate } from '@/lib/formatters'
@@ -18,39 +18,18 @@ function getGreeting(): string {
   return 'Good evening'
 }
 
-function StatCard({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
-  return (
-    <Card>
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          <p className="text-text-muted text-xs font-heading">{label}</p>
-          <p className="font-mono text-2xl text-accent-primary mt-1">{value}</p>
-        </div>
-        <Icon size={20} className="text-text-muted flex-shrink-0" />
-      </div>
-    </Card>
-  )
-}
-
-const conditionVariant: Record<string, 'info' | 'positive' | 'neutral'> = {
-  dry: 'positive',
-  wet: 'info',
-  damp: 'neutral',
-}
-
 export function DashboardPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { user } = useAuth()
   const { branding } = useTeamBranding()
   const { subscription } = useSubscription()
-  const { data: sessions, loading, refetch } = useSessions()
-  const { data: raceWeekends, loading: rwLoading, refetch: refetchRW } = useRaceWeekends()
-
   const displayName = branding.team_name?.trim()
     || (user?.user_metadata?.full_name as string | undefined)?.trim()
     || user?.email?.split('@')[0]
     || 'there'
+  const { data: sessions, loading, refetch } = useSessions()
+  const { data: raceWeekends, loading: rwLoading, refetch: refetchRW } = useRaceWeekends()
   const [query, setQuery] = useState('')
   const [selectedSessions, setSelectedSessions] = useState<string[]>([])
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -59,6 +38,50 @@ export function DashboardPage() {
   const [selectedRW, setSelectedRW] = useState<string[]>([])
   const [confirmDeleteRW, setConfirmDeleteRW] = useState(false)
   const [deletingRW, setDeletingRW] = useState(false)
+
+  const trackCount = new Set(sessions.map(s => (s as typeof s & { track_id?: string }).track_id).filter(Boolean)).size
+
+  // Rain forecast banner
+  const [rainAlert, setRainAlert] = useState<string | null>(null)
+  useEffect(() => {
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.latitude}&longitude=${coords.longitude}&hourly=precipitation_probability&current=precipitation,weather_code&forecast_days=1&timezone=auto`
+        const res = await fetch(url)
+        const data = await res.json()
+        // Check if it's currently raining using actual precipitation + weather code
+        const currentPrecip: number = data.current?.precipitation ?? 0
+        const currentCode: number = data.current?.weather_code ?? 0
+        if (currentPrecip > 0.1 || currentCode >= 51) {
+          setRainAlert('Raining now')
+          return
+        }
+        const times: string[] = data.hourly?.time ?? []
+        const probs: number[] = data.hourly?.precipitation_probability ?? []
+        const now = new Date()
+        // Include current hour (up to 60 min in the past) + next 6 hours
+        let found = false
+        for (let i = 0; i < times.length; i++) {
+          const t = new Date(times[i])
+          const diffMs = t.getTime() - now.getTime()
+          if (diffMs < -60 * 60 * 1000 || diffMs > 6 * 60 * 60 * 1000) continue
+          if (probs[i] >= 40) {
+            const diffMins = Math.max(0, Math.round(diffMs / 60000))
+            if (diffMins < 60) {
+              setRainAlert(diffMins <= 5 ? 'Rain expected very soon' : `Rain expected in ${diffMins} minutes`)
+            } else {
+              const timeStr = t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              setRainAlert(`Rain expected at ${timeStr}`)
+            }
+            found = true
+            break
+          }
+        }
+        if (!found) setRainAlert('No rain expected in the next 6 hours')
+      } catch {}
+    }, () => {}, { timeout: 8000 })
+  }, [])
 
   // Post-checkout welcome banner
   const [showBanner, setShowBanner] = useState(() => searchParams.get('subscription') === 'success')
@@ -125,14 +148,21 @@ export function DashboardPage() {
     return Array.from(map.values())
   })()
 
-  const currentMonthSessions = sessions.filter(s => {
-    const d = new Date(s.session_date)
-    const now = new Date()
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
-  })
+
+  const isRainingNow = rainAlert === 'Raining now'
+  const isClear = rainAlert?.startsWith('No rain') ?? true
+  const dotColour = isRainingNow ? 'bg-red-400' : isClear ? 'bg-green-400' : 'bg-blue-400'
+  const textColour = isRainingNow ? 'text-red-400' : isClear ? 'text-green-400' : 'text-blue-400'
+  const rainBadge = rainAlert ? (
+    <div className="flex items-center gap-2">
+      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColour}`} />
+      <span className={`text-xs font-semibold ${textColour}`}>{rainAlert}</span>
+    </div>
+  ) : undefined
 
   return (
-    <PageWrapper title="">
+    <PageWrapper title="" leftContent={rainBadge}>
+
       {/* Post-checkout welcome banner */}
       {showBanner && (
         <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-green-500/25 bg-green-500/10 px-5 py-4 animate-fade-in">
@@ -153,46 +183,32 @@ export function DashboardPage() {
         </div>
       )}
 
-      {/* Greeting + actions */}
+      {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <p className="font-heading text-sm uppercase tracking-wider text-text-muted mb-0.5">{getGreeting()}</p>
-          <h1 className="font-heading text-2xl font-bold text-accent-primary leading-tight">{displayName}</h1>
+          <p className="text-text-muted text-sm mb-0.5">{getGreeting()}</p>
+          <h1 className="font-heading text-2xl font-bold text-text-primary leading-tight">{displayName}</h1>
+          {!loading && (
+            <p className="text-text-muted text-xs font-mono mt-1.5">
+              {sessions.length} session{sessions.length !== 1 ? 's' : ''} · {trackCount} track{trackCount !== 1 ? 's' : ''}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2 flex-shrink-0 pt-1">
           <Button variant="secondary" size="sm" onClick={() => navigate('/race-weekend/new')}>
-            <Flag size={14} className="inline mr-1" /> Race Weekend
+            <Flag size={14} /> Race Weekend
           </Button>
           <Button onClick={() => navigate('/sessions/new')} size="sm">
-            <Plus size={14} />
-            New Session
+            <Plus size={14} /> New Session
           </Button>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <StatCard
-          icon={Layers}
-          label="Total Sessions"
-          value={loading ? '—' : String(sessions.length)}
-        />
-        <StatCard
-          icon={Activity}
-          label="Setups Logged"
-          value={loading ? '—' : String(sessions.length)}
-        />
-        <StatCard
-          icon={CalendarDays}
-          label="This Month"
-          value={loading ? '—' : String(currentMonthSessions.length)}
-        />
       </div>
 
       {/* Race Weekends */}
       {(rwLoading || raceWeekends.length > 0) && (
         <Card className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-heading text-base font-semibold uppercase tracking-wider text-text-primary flex items-center gap-2">
+            <h2 className="font-heading text-base font-semibold text-text-primary flex items-center gap-2">
               <Flag size={14} className="text-accent-primary" /> Race Weekends
             </h2>
             <div className="flex items-center gap-2">
@@ -245,24 +261,26 @@ export function DashboardPage() {
                       }
                     }}
                     className={[
-                      'flex items-center gap-3 px-3 py-3 rounded-card border cursor-pointer transition-colors group',
-                      isSelected ? 'border-accent-secondary/60 bg-accent-secondary/10' : 'border-border-color hover:border-accent-primary/40 hover:bg-bg-elevated',
+                      'flex items-center gap-3 pl-0 pr-3 py-2.5 rounded-card border cursor-pointer transition-colors group overflow-hidden',
+                      isSelected ? 'border-accent-secondary/60 bg-accent-secondary/10' : 'border-border-color hover:border-accent-primary/30 hover:bg-bg-elevated',
                     ].join(' ')}
                   >
-                    {rwSelecting ? (
+                    {/* Left accent bar */}
+                    <div className={[
+                      'w-1 self-stretch flex-shrink-0 rounded-l-card',
+                      isLive ? 'bg-green-400' : isEnded ? 'bg-border-color' : 'bg-accent-primary',
+                    ].join(' ')} />
+
+                    {rwSelecting && (
                       <div className={[
                         'w-4 h-4 rounded border flex items-center justify-center flex-shrink-0',
                         isSelected ? 'bg-accent-secondary border-accent-secondary' : 'border-border-color',
                       ].join(' ')}>
                         {isSelected && <Check size={10} className="text-white" />}
                       </div>
-                    ) : (
-                      <div className={[
-                        'w-2 h-2 rounded-full flex-shrink-0',
-                        isLive ? 'bg-green-400 animate-pulse' : isEnded ? 'bg-text-muted' : 'bg-accent-primary',
-                      ].join(' ')} />
                     )}
-                    <div className="flex-1 min-w-0">
+
+                    <div className="flex-1 min-w-0 pl-2">
                       <p className="font-heading font-semibold text-sm text-text-primary leading-snug truncate">
                         {rw.session_name}
                       </p>
@@ -270,14 +288,11 @@ export function DashboardPage() {
                         {rw.track?.name ?? '—'} · {formatDate(rw.session_date)}
                       </p>
                     </div>
-                    {isLive ? (
-                      <span className="flex items-center gap-1 text-xs font-semibold text-green-400 bg-green-400/10 border border-green-400/20 rounded px-2 py-0.5 flex-shrink-0">
-                        <Radio size={10} /> LIVE
+
+                    {isLive && (
+                      <span className="flex items-center gap-1 text-xs font-semibold text-green-400 flex-shrink-0">
+                        <Radio size={10} className="animate-pulse" /> Live
                       </span>
-                    ) : isEnded ? (
-                      <span className="text-xs text-text-muted bg-bg-elevated border border-border-color rounded px-2 py-0.5 flex-shrink-0">Ended</span>
-                    ) : (
-                      <span className="text-xs font-semibold text-accent-primary bg-accent-primary/10 border border-accent-primary/20 rounded px-2 py-0.5 flex-shrink-0">Ready</span>
                     )}
                     {!rwSelecting && <ArrowRight size={12} className="text-text-muted opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />}
                   </div>
@@ -290,7 +305,7 @@ export function DashboardPage() {
 
       <Card className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-heading text-base font-semibold uppercase tracking-wider text-text-primary">
+          <h2 className="font-heading text-base font-semibold text-text-primary">
             Sessions
           </h2>
           <Button size="sm" onClick={() => navigate('/sessions/new')}>
@@ -321,49 +336,73 @@ export function DashboardPage() {
           </div>
         )}
 
-        {/* Delete action bar */}
-        {selectedSessions.length > 0 && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-card flex items-center gap-3">
-            <span className="text-sm text-text-primary flex-1">
-              <span className="font-semibold">{selectedSessions.length} selected</span>
-            </span>
-            {!confirmDelete ? (
+        {/* Selection action bar */}
+        {selectedSessions.length > 0 && (() => {
+          const selA = sessions.find(s => s.id === selectedSessions[0])
+          const selB = sessions.find(s => s.id === selectedSessions[1])
+          const canCompare = selectedSessions.length === 2 &&
+            !!selA && !!selB &&
+            selA.track_id === selB.track_id
+          return (
+            <div className={[
+              'mb-4 p-3 rounded-card border flex items-center gap-3 flex-wrap',
+              canCompare
+                ? 'bg-accent-primary/10 border-accent-primary/30'
+                : 'bg-red-500/10 border-red-500/20',
+            ].join(' ')}>
+              <span className="text-sm text-text-primary flex-1 min-w-0">
+                <span className="font-semibold">{selectedSessions.length} selected</span>
+                {canCompare && selA && (
+                  <span className="text-xs text-text-muted ml-2">{selA.track?.name}</span>
+                )}
+              </span>
+              {canCompare && (
+                <button
+                  type="button"
+                  onClick={() => navigate(`/compare?a=${selectedSessions[0]}&b=${selectedSessions[1]}`)}
+                  className="flex items-center gap-1.5 text-xs text-accent-primary hover:opacity-80 font-semibold cursor-pointer transition-opacity"
+                >
+                  <ArrowLeftRight size={12} /> Compare Setups
+                </button>
+              )}
+              {!confirmDelete ? (
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(true)}
+                  className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-400 cursor-pointer transition-colors"
+                >
+                  <Trash2 size={12} /> Delete
+                </button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-red-500 font-semibold">Are you sure?</span>
+                  <button
+                    type="button"
+                    onClick={deleteSelected}
+                    disabled={deleting}
+                    className="text-xs bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1 cursor-pointer transition-colors disabled:opacity-50"
+                  >
+                    {deleting ? 'Deleting…' : 'Yes, delete'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDelete(false)}
+                    className="text-xs text-text-muted hover:text-text-primary cursor-pointer transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
               <button
                 type="button"
-                onClick={() => setConfirmDelete(true)}
-                className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-400 cursor-pointer transition-colors"
+                onClick={() => { setSelectedSessions([]); setConfirmDelete(false) }}
+                className="text-xs text-text-muted hover:text-text-primary cursor-pointer transition-colors"
               >
-                <Trash2 size={12} /> Delete
+                Clear
               </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-red-500 font-semibold">Are you sure?</span>
-                <button
-                  type="button"
-                  onClick={deleteSelected}
-                  disabled={deleting}
-                  className="text-xs bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1 cursor-pointer transition-colors disabled:opacity-50"
-                >
-                  {deleting ? 'Deleting…' : 'Yes, delete'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirmDelete(false)}
-                  className="text-xs text-text-muted hover:text-text-primary cursor-pointer transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={() => { setSelectedSessions([]); setConfirmDelete(false) }}
-              className="text-xs text-text-muted hover:text-text-primary cursor-pointer transition-colors"
-            >
-              Clear
-            </button>
-          </div>
-        )}
+            </div>
+          )
+        })()}
 
         {loading ? (
           <div className="text-text-muted text-sm">Loading…</div>
@@ -423,24 +462,29 @@ export function DashboardPage() {
                         {isSelected && <Check size={9} className="text-white" strokeWidth={3} />}
                       </button>
                       <div className="flex-1 min-w-0">
-                        <span className="font-heading font-semibold text-xs text-text-primary leading-snug">
-                          {`Test ${si + 1}`}
-                        </span>
-                        <div className="flex items-center gap-2 flex-wrap mt-1">
-                          <Badge label={s.session_type} variant="neutral" />
-                          <span className="text-text-muted text-xs">{s.kart?.nickname ?? '—'}</span>
-                          <span className="font-mono text-xs text-accent-primary">
-                            {s.best_lap_time_ms ? lapMsToString(s.best_lap_time_ms) : '—'}
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="font-heading font-semibold text-sm text-text-primary leading-snug flex-shrink-0">
+                            {s.session_name ?? `Test ${si + 1}`}
                           </span>
-                          {s.conditions && (
-                            <Badge label={s.conditions} variant={conditionVariant[s.conditions] ?? 'neutral'} />
-                          )}
-                          {s.weather_description && (
-                            <span className="text-xs text-text-muted hidden sm:inline">{s.weather_description}</span>
+                          {s.kart?.driver_name && (
+                            <span className="text-sm text-text-muted truncate">— {s.kart.driver_name}</span>
                           )}
                         </div>
+                        <p className="text-xs text-text-muted mt-0.5">
+                          {[s.kart?.nickname, s.conditions ? s.conditions.charAt(0).toUpperCase() + s.conditions.slice(1) : null, s.weather_description].filter(Boolean).join(' · ')}
+                          {s.created_at && (
+                            <span className="ml-2 font-mono text-[10px] text-text-muted opacity-60">
+                              {new Date(s.created_at).toISOString().slice(11, 16)} UTC
+                            </span>
+                          )}
+                        </p>
                       </div>
-                      <ArrowRight size={12} className="text-text-muted opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1" />
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className="font-mono text-base font-bold text-accent-primary">
+                          {s.best_lap_time_ms ? lapMsToString(s.best_lap_time_ms) : '—'}
+                        </span>
+                        <ArrowRight size={12} className="text-text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
                     </div>
                   )
                 })}
@@ -450,21 +494,46 @@ export function DashboardPage() {
         )}
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          { label: 'New Session',     to: '/sessions/new', icon: Plus },
-          { label: 'Compare Setups',  to: '/compare',      icon: Activity },
-          { label: 'View Tracks',     to: '/tracks',       icon: ArrowRight },
-        ].map(({ label, to, icon: Icon }) => (
-          <Card key={to} onClick={() => navigate(to)} className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-accent-primary/10 flex items-center justify-center flex-shrink-0">
-              <Icon size={16} className="text-accent-primary" />
+      {/* Data Logger promo */}
+      <div
+        onClick={() => navigate('/data-comparison')}
+        className="cursor-pointer rounded-card border border-accent-primary/20 bg-gradient-to-br from-accent-primary/10 via-bg-card to-bg-elevated overflow-hidden mb-4 hover:border-accent-primary/50 transition-colors group"
+      >
+        <div className="px-5 py-4 flex flex-col md:flex-row md:items-center gap-4">
+          {/* Text side */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] font-heading font-bold uppercase tracking-widest text-accent-primary">Data Logger</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-primary/20 text-accent-primary uppercase tracking-wide">New</span>
             </div>
-            <span className="font-heading font-semibold text-text-primary">{label}</span>
-            <ArrowRight size={14} className="ml-auto text-text-muted" />
-          </Card>
-        ))}
+            <h3 className="font-heading font-bold text-text-primary text-base leading-snug mb-1">
+              Video comparison with live telemetry overlay
+            </h3>
+            <p className="text-xs text-text-muted leading-relaxed max-w-md">
+              Sync your GoPro or DJI footage to your logger data. Watch both drivers side-by-side with speed, RPM, and a live delta telling you exactly where the time's won and lost.
+            </p>
+            {/* Feature pills */}
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              {['GPS UTC sync', 'Live Δ delta', 'Speed & RPM overlay', 'GoPro Hero 7+', 'DJI Osmo Action'].map(f => (
+                <span key={f} className="text-[10px] font-heading font-semibold px-2 py-0.5 rounded-full border border-border-color text-text-muted bg-bg-elevated">
+                  {f}
+                </span>
+              ))}
+            </div>
+          </div>
+          {/* CTA side */}
+          <div className="flex-shrink-0 flex items-center gap-2 md:flex-col md:items-end">
+            <div className="flex items-center gap-1.5 px-4 py-2 rounded-card bg-accent-primary text-bg-base text-xs font-bold font-heading group-hover:opacity-90 transition-opacity">
+              Open Data Logger
+              <ArrowRight size={12} />
+            </div>
+          </div>
+        </div>
+        {/* Visual strip */}
+        <div className="h-1 w-full" style={{ background: 'linear-gradient(to right, #E8FF00, #22C55E, #A855F7)' }} />
       </div>
+
+
     </PageWrapper>
   )
 }

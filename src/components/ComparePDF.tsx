@@ -228,8 +228,8 @@ function ComparePDFDoc({ sessionA, sessionB, setupA, setupB, lapTimesA, lapTimes
           )
         })}
 
-        {/* Full comparison */}
-        {SETUP_FIELDS.map(({ key, label, section }) => {
+        {/* Full comparison — only shown when there are actual differences */}
+        {diffOnly.length > 0 && SETUP_FIELDS.map(({ key, label, section }) => {
           const vA = fmt((setupA as Record<string, unknown> | null)?.[key])
           const vB = fmt((setupB as Record<string, unknown> | null)?.[key])
           const differs = vA !== vB

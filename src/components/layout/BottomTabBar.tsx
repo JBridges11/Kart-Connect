@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, MapPin, Wrench, BarChart2, Settings, Radio } from 'lucide-react'
+import { LayoutDashboard, MapPin, Wrench, CloudRain, Settings, Radio } from 'lucide-react'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useTeamBranding } from '@/hooks/useTeamBranding'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -15,8 +15,7 @@ export function BottomTabBar() {
   const navigate = useNavigate()
   const { data: sessions } = useSessions()
   const accent = branding.primary_color ?? '#E8FF00'
-  const garageLabel    = tier === 'privateer' ? t('nav.my_kart') : tier === 'team' || tier === 'pro_team' ? t('nav.my_team') : t('nav.garage')
-  const analyticsLabel = tier === 'team' || tier === 'pro_team' ? t('nav.leaderboard') : t('nav.stats')
+  const garageLabel = tier === 'privateer' ? t('nav.my_kart') : tier === 'team' || tier === 'pro_team' ? t('nav.my_team') : t('nav.garage')
 
   const [endedSessions] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('kc_ended_sessions') ?? '[]') } catch { return [] }
@@ -36,7 +35,7 @@ export function BottomTabBar() {
     { to: '/',             icon: LayoutDashboard, label: t('nav.home'),        exact: true },
     { to: '/tracks',       icon: MapPin,          label: t('nav.tracks'),      exact: false },
     { to: '/garage',       icon: Wrench,          label: garageLabel,          exact: false },
-    { to: '/analytics',    icon: BarChart2,       label: analyticsLabel,       exact: false },
+    { to: '/weather',      icon: CloudRain,       label: 'Weather',            exact: false },
     { to: '/settings',     icon: Settings,        label: t('nav.settings'),    exact: false },
   ]
 
@@ -58,7 +57,7 @@ export function BottomTabBar() {
           <span className="text-[#F0F0F0] text-xs truncate ml-1">— {liveSession.track?.name ?? ''}</span>
         </button>
       )}
-      <nav className="bg-[#1C1C28] border-t border-[#2A2A3A] flex">
+      <nav className="bg-[#1C1C28] border-t border-[#2A2A3A] flex safe-area-bottom safe-area-left safe-area-right">
       {navItems.map(({ to, icon: Icon, label, exact }) => (
         <NavLink
           key={to}

@@ -1,13 +1,14 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 
 interface KartConnectDB extends DBSchema {
-  sessions:   { key: string; value: Record<string, unknown> }
-  karts:      { key: string; value: Record<string, unknown> }
-  tracks:     { key: string; value: Record<string, unknown> }
-  lap_times:  { key: string; value: Record<string, unknown>; indexes: { by_session: string } }
-  setups:     { key: string; value: Record<string, unknown>; indexes: { by_session: string } }
-  events:     { key: string; value: Record<string, unknown> }
-  sync_queue: { key: string; value: SyncOperation }
+  sessions:      { key: string; value: Record<string, unknown> }
+  karts:         { key: string; value: Record<string, unknown> }
+  tracks:        { key: string; value: Record<string, unknown> }
+  lap_times:     { key: string; value: Record<string, unknown>; indexes: { by_session: string } }
+  setups:        { key: string; value: Record<string, unknown>; indexes: { by_session: string } }
+  events:        { key: string; value: Record<string, unknown> }
+  race_weekends: { key: string; value: Record<string, unknown> }
+  sync_queue:    { key: string; value: SyncOperation }
 }
 
 export interface SyncOperation {
@@ -23,25 +24,30 @@ let dbPromise: Promise<IDBPDatabase<KartConnectDB>> | null = null
 
 export function getDB() {
   if (!dbPromise) {
-    dbPromise = openDB<KartConnectDB>('kart-connect', 1, {
+    dbPromise = openDB<KartConnectDB>('kart-connect', 2, {
       upgrade(db) {
-        if (!db.objectStoreNames.contains('sessions'))   db.createObjectStore('sessions',   { keyPath: 'id' })
-        if (!db.objectStoreNames.contains('karts'))      db.createObjectStore('karts',      { keyPath: 'id' })
-        if (!db.objectStoreNames.contains('tracks'))     db.createObjectStore('tracks',     { keyPath: 'id' })
-        if (!db.objectStoreNames.contains('events'))     db.createObjectStore('events',     { keyPath: 'id' })
-        if (!db.objectStoreNames.contains('sync_queue')) db.createObjectStore('sync_queue', { keyPath: 'id' })
+        if (!db.objectStoreNames.contains('sessions'))      db.createObjectStore('sessions',      { keyPath: 'id' })
+        if (!db.objectStoreNames.contains('karts'))         db.createObjectStore('karts',         { keyPath: 'id' })
+        if (!db.objectStoreNames.contains('tracks'))        db.createObjectStore('tracks',        { keyPath: 'id' })
+        if (!db.objectStoreNames.contains('events'))        db.createObjectStore('events',        { keyPath: 'id' })
+        if (!db.objectStoreNames.contains('race_weekends')) db.createObjectStore('race_weekends', { keyPath: 'id' })
+        if (!db.objectStoreNames.contains('sync_queue'))    db.createObjectStore('sync_queue',    { keyPath: 'id' })
 
-        const lapStore   = db.createObjectStore('lap_times', { keyPath: 'id' })
-        const setupStore = db.createObjectStore('setups',    { keyPath: 'id' })
-        lapStore.createIndex('by_session',   'session_id')
-        setupStore.createIndex('by_session', 'session_id')
+        if (!db.objectStoreNames.contains('lap_times')) {
+          const lapStore = db.createObjectStore('lap_times', { keyPath: 'id' })
+          lapStore.createIndex('by_session', 'session_id')
+        }
+        if (!db.objectStoreNames.contains('setups')) {
+          const setupStore = db.createObjectStore('setups', { keyPath: 'id' })
+          setupStore.createIndex('by_session', 'session_id')
+        }
       },
     })
   }
   return dbPromise
 }
 
-type StoreName = 'sessions' | 'karts' | 'tracks' | 'lap_times' | 'setups' | 'events'
+type StoreName = 'sessions' | 'karts' | 'tracks' | 'lap_times' | 'setups' | 'events' | 'race_weekends'
 
 export async function cacheAll(store: StoreName, rows: Record<string, unknown>[]) {
   const db = await getDB()

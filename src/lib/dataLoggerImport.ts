@@ -22,6 +22,7 @@ export interface ImportedGPSSession {
   lapGroups: GpsPoint[][]   // one sub-array per lap; empty when no Lap column
   totalDistanceM: number
   durationS: number
+  startUtcMs?: number       // Unix epoch ms of session start, when parseable from CSV header
 }
 
 // Discriminated union returned by parseCSVAny
@@ -162,6 +163,32 @@ function haversineM(lat1: number, lon1: number, lat2: number, lon2: number): num
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
+// ─── Session UTC extractor ────────────────────────────────────────────────────
+
+function extractStartUtc(preamble: string): number | undefined {
+  // ISO datetime anywhere in preamble: "2024-01-15T10:23:45" or "2024-01-15 10:23:45"
+  const isoMatch = preamble.match(/(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2}(?:\.\d+)?)/)
+  if (isoMatch) {
+    const ts = Date.parse(`${isoMatch[1]}T${isoMatch[2]}Z`)
+    if (!isNaN(ts)) return ts
+  }
+
+  // "Date: DD/MM/YYYY" + "Time: HH:MM:SS[.mmm]" (AiM Race Studio style)
+  const dateMatch = preamble.match(/[Dd]ate[:\s,]+(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})/)
+  const timeMatch = preamble.match(/[Tt]ime[:\s,]+(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?/)
+  if (dateMatch && timeMatch) {
+    const day   = dateMatch[1].padStart(2, '0')
+    const month = dateMatch[2].padStart(2, '0')
+    const year  = dateMatch[3]
+    const hh = timeMatch[1], mm = timeMatch[2], ss = timeMatch[3]
+    const msStr = timeMatch[4] ? timeMatch[4].slice(0, 3).padEnd(3, '0') : '000'
+    const ts = Date.parse(`${year}-${month}-${day}T${hh}:${mm}:${ss}.${msStr}Z`)
+    if (!isNaN(ts)) return ts
+  }
+
+  return undefined
+}
+
 // ─── GPS time-series parser ───────────────────────────────────────────────────
 
 function parseGPSCSV(filename: string, text: string): ParseResult {
@@ -171,7 +198,9 @@ function parseGPSCSV(filename: string, text: string): ParseResult {
     const rows = rawLines.map(l => splitLine(l, sep))
     const hi = findHeaderRow(rows)
     const headers = rows[hi]
-    const brand = detectBrand(headers, rawLines.slice(0, hi).join('\n'))
+    const preamble = rawLines.slice(0, hi).join('\n')
+    const brand = detectBrand(headers, preamble)
+    const startUtcMs = extractStartUtc(preamble)
 
     const cTime  = col(headers, 'time', 'sample time', 'elapsed', 't ')
     const cLat   = col(headers, 'latitude', 'gps lat', ' lat')
@@ -242,6 +271,7 @@ function parseGPSCSV(filename: string, text: string): ParseResult {
         lapGroups,
         totalDistanceM: cumDist,
         durationS: points[points.length - 1].timeS,
+        startUtcMs,
       },
     }
   } catch (e) {
@@ -269,6 +299,100 @@ export function parseCSVAny(filename: string, text: string): ParseResult {
 
 export function parseDataLoggerCSV(filename: string, text: string) {
   return parseDataLoggerCSVInternal(filename, text)
+}
+
+// ─── Unipro OCD binary parser ─────────────────────────────────────────────────
+// Format confirmed by binary analysis of sample-session.ocd:
+// - File header: alternating-byte ASCII encoding (even bytes = 0x20, odd bytes = char)
+// - Channel data: raw float64 big-endian values, stride 16 bytes per record
+// - Record layout: [8 bytes float64 value][4 bytes 0x20 padding][4 bytes timestamp]
+
+export function parseOCDBinary(filename: string, buffer: ArrayBuffer): ParseResult {
+  try {
+    const view = new DataView(buffer)
+    const bytes = new Uint8Array(buffer)
+
+    // Verify OCD signature via alternating-byte header encoding
+    const sig = 'OCDBinaryFile'
+    if (buffer.byteLength < sig.length * 2 + 2) {
+      return { type: 'error', error: `${filename}: File too small to be a valid OCD file` }
+    }
+    let decoded = ''
+    for (let i = 0; i < sig.length; i++) decoded += String.fromCharCode(bytes[i * 2 + 1])
+    if (decoded !== sig) {
+      return { type: 'error', error: `${filename}: Not a valid Unipro OCD file (signature mismatch)` }
+    }
+
+    // Confirmed channel byte offsets (first float64 in each block, stride 16)
+    // Determined by brute-force scan of sample-session.ocd against known CSV values
+    const GPS_LAT_START = 449289  // float64 BE: GPS latitude
+    const GPS_LON_START = 522426  // float64 BE: GPS longitude
+    const GPS_SPD_START = 244114  // float64 BE: GPS speed km/h
+    const GPS_LAT_COUNT = 646     // first continuous lap block (one lap ~64.6 s at 10 Hz)
+    const STRIDE = 16
+
+    const points: GpsPoint[] = []
+    let cumDist = 0
+    let prevLat: number | null = null
+    let prevLon: number | null = null
+
+    for (let i = 0; i < GPS_LAT_COUNT; i++) {
+      const latOff = GPS_LAT_START + i * STRIDE
+      const lonOff = GPS_LON_START + i * STRIDE
+      const spdOff = GPS_SPD_START + i * STRIDE
+
+      if (latOff + 8 > buffer.byteLength || lonOff + 8 > buffer.byteLength) break
+
+      const lat = view.getFloat64(latOff, false)  // big-endian
+      const lon = view.getFloat64(lonOff, false)
+
+      if (!isFinite(lat) || !isFinite(lon)) continue
+      if (lat < -90 || lat > 90 || lon < -180 || lon > 180) continue
+      if (Math.abs(lat) < 0.001 && Math.abs(lon) < 0.001) continue
+
+      let speedKmh: number | null = null
+      if (spdOff + 8 <= buffer.byteLength) {
+        const spd = view.getFloat64(spdOff, false)
+        if (isFinite(spd) && spd >= 0 && spd <= 350) speedKmh = spd
+      }
+
+      if (prevLat != null && prevLon != null) {
+        cumDist += haversineM(prevLat, prevLon, lat, lon)
+      }
+      prevLat = lat; prevLon = lon
+
+      points.push({
+        timeS:       i * 0.1,
+        lat,
+        lon,
+        speedKmh,
+        rpm:         null,
+        throttlePct: null,
+        lapNumber:   1,
+        distanceM:   cumDist,
+      })
+    }
+
+    if (points.length < 10) {
+      return { type: 'error', error: `${filename}: Could not extract GPS data — OCD offsets may not match this file version` }
+    }
+
+    return {
+      type: 'gps',
+      session: {
+        id: crypto.randomUUID(),
+        filename,
+        brand: 'unipro',
+        driverLabel: filename.replace(/\.[^.]+$/, ''),
+        points,
+        lapGroups: [points],
+        totalDistanceM: cumDist,
+        durationS: points[points.length - 1].timeS,
+      },
+    }
+  } catch (e) {
+    return { type: 'error', error: `${filename}: ${e instanceof Error ? e.message : 'OCD parse error'}` }
+  }
 }
 
 function parseDataLoggerCSVInternal(filename: string, text: string): { session: ImportedDataSession | null; error: string | null } {

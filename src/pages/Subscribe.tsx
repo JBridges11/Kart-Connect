@@ -4,6 +4,7 @@ import { CheckCircle, Check } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { useSubscription } from '@/hooks/useSubscription'
+import { isNative } from '@/lib/native'
 
 type Tier = 'privateer' | 'team' | 'pro_team'
 type Interval = 'month' | 'year'
@@ -72,6 +73,31 @@ export function SubscribePage() {
   const [searchParams] = useSearchParams()
   useAuth()
   const { subscription, trialDaysLeft } = useSubscription()
+
+  // On native: never show pricing or checkout — accounts and subscriptions
+  // are managed outside the app store.
+  if (isNative) {
+    return (
+      <div className="min-h-screen bg-bg-primary flex flex-col items-center justify-center gap-6 px-6">
+        <img src="/logo-pdf.png" alt="Kart Connect" className="w-36 object-contain opacity-70" />
+        <div className="text-center space-y-2">
+          <p className="font-heading text-base font-bold text-text-primary uppercase tracking-wider">
+            No Active Subscription
+          </p>
+          <p className="text-sm text-text-muted">
+            Your subscription is not active.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => void supabase.auth.signOut()}
+          className="px-6 py-2.5 bg-bg-elevated border border-border-color text-text-primary text-sm font-semibold rounded-card cursor-pointer hover:bg-bg-card transition-colors"
+        >
+          Sign Out
+        </button>
+      </div>
+    )
+  }
   // has_trialed is set by the webhook the moment a trial starts, and persists
   // even after the trial ends or the subscription is cancelled
   const hasTrialed = !!(subscription as any)?.has_trialed
