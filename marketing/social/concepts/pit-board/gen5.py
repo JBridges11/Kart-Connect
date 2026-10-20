@@ -167,8 +167,8 @@ P.append(('light', 'old-vs-new', 'The old way vs the new way',
   '<div class="dev" style="margin-top:8px;"><img src="app-setup.png" alt=""></div>',
   'Old way vs new way', [
   "The old way vs the Kart Connect way. 📋➡️📱\n\nScribbled notes, question marks and \"ask Dave\" when you can't read your own handwriting... we've all been there. 😅\n\nWith Kart Connect, every setup is saved properly: rear, engine, front end, wheels and tyres, chassis. Clear, searchable and ready for the next session.\n\nNo smudges. No guessing. No Dave required. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup #KartLife",
-  "Left: \"Gearing 10/80 or 81, ask Dave.\" 😬\nRight: Kart Connect. ✅\n\nWhich one's yours?\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup",
-  "Your setup notes deserve better than a soggy bit of paper. 🌧️📋\n\nKart Connect saves every part of the kart, every session, so when it's quick you know exactly why, and you can get straight back to it.\n\nComment \"📋\" if your notes still look like the left. No judgement. 👀\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup"],
+  "Top: \"Gearing 10/80 or 81, ask Dave.\" 😬\nBottom: Kart Connect. ✅\n\nWhich one's yours?\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup",
+  "Your setup notes deserve better than a soggy bit of paper. 🌧️📋\n\nKart Connect saves every part of the kart, every session, so when it's quick you know exactly why, and you can get straight back to it.\n\nComment \"📋\" if your notes still look like the top one. No judgement. 👀\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup"],
   ''))
 
 P.append(('dark', 'whole-team', 'One app. Whole team.',
@@ -180,7 +180,7 @@ P.append(('dark', 'whole-team', 'One app. Whole team.',
   '<div><b>Mechanic</b><span>Every setup and every change in one place. No more guessing.</span></div>'
   '<div><b>Team manager</b><span>Every driver and every kart in one team view.</span></div></div>',
   'Whole team', [
-  "One app. Whole team. 🏁\n\n🏎️ DRIVERS: log every session in seconds and know exactly what worked.\n🔧 MECHANICS: every setup and every change in one place. No more guessing.\n📋 TEAM MANAGERS: every driver and every kart in one team view.\n\nKart Connect is built for everyone in the awning, so the whole team works from the same information, every session.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartTeam #Motorsport",
+  "One app. Whole team. 🏁\n\n🏎️ DRIVERS give the feedback: what the kart's doing and what it needs.\n🔧 MECHANICS log the changes under instruction, so every adjustment is saved against the session.\n📋 TEAM MANAGERS see everyone's changes across every driver and every kart, and build on what works.\n\nFeedback, changes and results all in one place, so the whole team gets quicker together, session after session.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartTeam #Motorsport",
   "Driver. Mechanic. Team manager. 🤝\n\nOne app for all three.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartTeam",
   "Running a team? Here's the problem: the driver remembers one thing, the mechanic wrote down another and the team manager wasn't even there. 🤦\n\nKart Connect puts everyone on the same page, with every session, setup and change shared across the team.\n\nTag your team below 👇\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartTeam"],
   ''))
@@ -237,7 +237,7 @@ P.append(('dark', 'build-next', 'What should we build next?',
   '<div><b>C</b>Gearing calculator</div><div><b>D</b>Something else? Tell us.</div></div>'
   '<p class="sub" style="margin-top:auto;font-weight:700;">Vote in the comments.</p>',
   'You decide', [
-  "YOU decide what we build next. 🛠️\n\nKart Connect is built for the paddock, so we want the paddock to choose.\n\nA) Engine hours tracker\nB) Tyre wear log\nC) Gearing calculator\nD) Something else? Tell us!\n\nVote in the comments 👇 The most popular idea goes to the top of our list.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartLife",
+  "YOU decide what we build next. 🛠️\n\nKart Connect is built for the paddock, so we want the paddock to choose.\n\nA) [Option 1]\nB) [Option 2]\nC) [Option 3]\nD) Something else? Tell us!\n\nVote in the comments 👇 The most popular idea goes to the top of our list.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartLife",
   "What should we build next? 🤔\n\nA, B, C or D? Vote below 👇\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing",
   "If you could add ONE feature to Kart Connect, what would it be? 💭\n\nWe've given you a few ideas, but we'd love to hear yours. Every comment gets read by the team. 👇\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartTech"],
   'Waiting on your four options. The ones shown are placeholders.'))
