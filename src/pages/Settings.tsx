@@ -6,6 +6,7 @@ import {
   User, Palette, Bell, Globe, Tag, Shield, LogOut,
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
+import { Browser } from '@capacitor/browser'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { Card, Button, Input, SegmentedControl, ConfirmPasswordModal, ConfirmTotpModal } from '@/components/ui'
 import { useAuth } from '@/contexts/AuthContext'
@@ -14,6 +15,7 @@ import { LANGUAGES } from '@/i18n'
 import { supabase } from '@/lib/supabase'
 import { useSubscription } from '@/hooks/useSubscription'
 import { useTeamBranding } from '@/hooks/useTeamBranding'
+import { isNative } from '@/lib/native'
 import type { PressureUnit, TempUnit, SpeedUnit } from '@/types'
 
 // ─── Billing tiers ────────────────────────────────────────────────────────────
@@ -477,10 +479,11 @@ function saveTempUnit(u: TempUnit)         { setTempUnit(u);     localStorage.se
     setDeleteModalOpen(false)
     setDeletingAccount(true)
     try {
-      await supabase.from('race_weekends').delete().eq('manager_id', user.id)
-      await supabase.from('sessions').delete().eq('user_id', user.id)
-      await supabase.from('karts').delete().eq('user_id', user.id)
-      await supabase.from('team_branding').delete().eq('user_id', user.id)
+      // Calls the delete-account Edge Function which cancels Stripe,
+      // purges all user data across every table and storage bucket,
+      // then deletes the auth record.
+      const { error: fnErr } = await supabase.functions.invoke('delete-account', {})
+      if (fnErr) throw fnErr
       await supabase.auth.signOut()
       await new Promise(resolve => setTimeout(resolve, 3000))
       navigate('/login')
@@ -814,10 +817,13 @@ function saveTempUnit(u: TempUnit)         { setTempUnit(u);     localStorage.se
                   <p className="font-heading font-bold text-sm text-text-primary">
                     {BILLING_TIERS.find(t => t.id === tier)?.name ?? 'Free Trial'}
                   </p>
-                  <p className="font-mono text-lg text-accent-primary font-semibold leading-none mt-0.5">
-                    {BILLING_TIERS.find(t => t.id === tier)?.monthlyPrice ?? 'Free'}
-                    {tier && <span className="text-xs text-text-muted font-sans ml-1">/ month</span>}
-                  </p>
+                  {/* Hide price on native — no in-app pricing allowed */}
+                  {!isNative && (
+                    <p className="font-mono text-lg text-accent-primary font-semibold leading-none mt-0.5">
+                      {BILLING_TIERS.find(t => t.id === tier)?.monthlyPrice ?? 'Free'}
+                      {tier && <span className="text-xs text-text-muted font-sans ml-1">/ month</span>}
+                    </p>
+                  )}
                 </div>
                 <span className="text-xs font-semibold px-2 py-0.5 rounded bg-accent-primary/20 text-accent-primary border border-accent-primary/30 font-heading uppercase tracking-wide flex-shrink-0">
                   Current Plan
@@ -831,7 +837,7 @@ function saveTempUnit(u: TempUnit)         { setTempUnit(u);     localStorage.se
                 ) : (
                   <span className="text-red-400 font-semibold capitalize">{subscription?.status ?? 'No active plan'}</span>
                 )}
-                {subscription?.current_period_end && (
+                {!isNative && subscription?.current_period_end && (
                   <span className="text-text-muted">
                     · Renews {new Date(subscription.current_period_end).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </span>
@@ -839,15 +845,18 @@ function saveTempUnit(u: TempUnit)         { setTempUnit(u);     localStorage.se
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Button type="button" size="sm" onClick={() => void openBillingPortal()} loading={portalLoading} className="w-full">
-                Manage Subscription
-              </Button>
-              {portalError && <p className="text-xs text-red-400">{portalError}</p>}
-              <p className="text-xs text-text-muted">
-                Upgrade, downgrade, update payment method or cancel — managed securely through Stripe.
-              </p>
-            </div>
+            {/* Billing portal button — web only */}
+            {!isNative && (
+              <div className="space-y-2">
+                <Button type="button" size="sm" onClick={() => void openBillingPortal()} loading={portalLoading} className="w-full">
+                  Manage Subscription
+                </Button>
+                {portalError && <p className="text-xs text-red-400">{portalError}</p>}
+                <p className="text-xs text-text-muted">
+                  Upgrade, downgrade, update payment method or cancel — managed securely through Stripe.
+                </p>
+              </div>
+            )}
 
             <p className="text-xs text-text-muted pt-1">
               {t('settings.billing_contact')}{' '}
@@ -868,16 +877,33 @@ function saveTempUnit(u: TempUnit)         { setTempUnit(u);     localStorage.se
               </div>
             </div>
 
-            {/* Links */}
+            {/* Links — open in-app browser on native, new tab on web */}
             <div className="pt-2 border-t border-border-color flex gap-4">
-              <a href="/privacy" target="_blank" rel="noopener noreferrer"
-                className="text-xs text-accent-primary hover:underline">
-                Privacy Policy
-              </a>
-              <a href="/terms" target="_blank" rel="noopener noreferrer"
-                className="text-xs text-accent-primary hover:underline">
-                Terms &amp; Conditions
-              </a>
+              {isNative ? (
+                <>
+                  <button type="button"
+                    onClick={() => void Browser.open({ url: 'https://kart-connect.com/privacy' })}
+                    className="text-xs text-accent-primary hover:underline cursor-pointer">
+                    Privacy Policy
+                  </button>
+                  <button type="button"
+                    onClick={() => void Browser.open({ url: 'https://kart-connect.com/terms' })}
+                    className="text-xs text-accent-primary hover:underline cursor-pointer">
+                    Terms &amp; Conditions
+                  </button>
+                </>
+              ) : (
+                <>
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer"
+                    className="text-xs text-accent-primary hover:underline">
+                    Privacy Policy
+                  </a>
+                  <a href="/terms" target="_blank" rel="noopener noreferrer"
+                    className="text-xs text-accent-primary hover:underline">
+                    Terms &amp; Conditions
+                  </a>
+                </>
+              )}
             </div>
           </div>
         </AccSection>

@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'uk.co.prsuk.kartconnect',
+  appId: 'com.kartconnect.app',
   appName: 'Kart Connect',
   webDir: 'dist',
   plugins: {

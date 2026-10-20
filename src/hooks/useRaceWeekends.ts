@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { cacheAll, getCached } from '@/lib/localDB'
 
 export interface RaceWeekend {
   id: string
@@ -56,12 +57,23 @@ export function useRaceWeekends() {
 
   const fetch = useCallback(async () => {
     setLoading(true)
+    // Show cached data immediately while fetching
+    const cached = await getCached('race_weekends')
+    if (cached.length > 0) {
+      setData(cached as unknown as RaceWeekend[])
+      setLoading(false)
+    }
+
     const { data: rows, error: err } = await supabase
       .from('race_weekends')
       .select('*, track:tracks(name, country, lat, lng)')
       .order('session_date', { ascending: false })
-    if (err) setError(err.message)
-    else setData((rows ?? []) as RaceWeekend[])
+    if (err) {
+      setError(err.message)
+    } else {
+      setData((rows ?? []) as RaceWeekend[])
+      void cacheAll('race_weekends', (rows ?? []) as unknown as Record<string, unknown>[])
+    }
     setLoading(false)
   }, [])
 

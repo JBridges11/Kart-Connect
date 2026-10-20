@@ -2,7 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom'
 import { useSubscription } from '@/hooks/useSubscription'
 
 export function SubscriptionGate() {
-  const { subscription, loading } = useSubscription()
+  const { subscription, loading, isActive } = useSubscription()
 
   if (loading) {
     return (
@@ -12,11 +12,10 @@ export function SubscriptionGate() {
     )
   }
 
-  const hasAccess = !!subscription?.stripe_subscription_id &&
-    (subscription.status === 'active' || subscription.status === 'trialing')
-  console.log('[SubscriptionGate] hasAccess:', hasAccess, '| stripe_subscription_id:', subscription?.stripe_subscription_id ?? null, '| status:', subscription?.status ?? null, '| tier:', subscription?.tier ?? null)
-  if (!hasAccess) {
-    console.warn('[SubscriptionGate] → redirecting to /subscribe — subscription does not qualify:', JSON.stringify(subscription))
+  // isActive: status='active' OR (status='trialing' AND trial_end > now())
+  // On native the /subscribe page shows "No active subscription" + Sign out.
+  if (!isActive) {
+    console.warn('[SubscriptionGate] → redirecting to /subscribe | status:', subscription?.status ?? null)
     return <Navigate to="/subscribe" replace />
   }
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { UtcClock } from '@/components/ui/UtcClock'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Check, Plus, Sun, Cloud, CloudSun, CloudDrizzle, CloudRain, Umbrella, CloudSnow, Loader2, RefreshCw, MapPin } from 'lucide-react'
 import { PageWrapper } from '@/components/layout/PageWrapper'
@@ -64,7 +65,7 @@ function loadState(): WizardState {
     if (raw) {
       const parsed = JSON.parse(raw) as WizardState
       if (!parsed.slots) return makeDefaultWizard()
-      return { ...parsed, step: 1 }
+      return parsed
     }
   } catch { /* ignore */ }
   return makeDefaultWizard()
@@ -550,6 +551,9 @@ export function NewSessionPage() {
   return (
     <PageWrapper title="New Session">
       <div className="max-w-2xl mx-auto">
+        <div className="flex justify-end mb-4">
+          <UtcClock size="lg" />
+        </div>
         <StepIndicator step={state.step} total={TOTAL_STEPS} />
 
         <h2 className="font-heading text-lg font-bold uppercase tracking-wide text-text-primary mb-4">

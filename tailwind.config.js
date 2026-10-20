@@ -14,10 +14,10 @@ export default {
         'border-color':     'var(--border)',
       },
       fontFamily: {
-        heading: ['Plus Jakarta Sans', 'sans-serif'],
-        body:    ['Plus Jakarta Sans', 'sans-serif'],
-        mono:    ['Plus Jakarta Sans', 'sans-serif'],
-        display: ['Rajdhani', 'sans-serif'],
+        heading: ['Inter', 'sans-serif'],
+        body:    ['Inter', 'sans-serif'],
+        mono:    ['Inter', 'sans-serif'],
+        display: ['Inter', 'sans-serif'],
       },
       borderRadius: {
         card: '6px',

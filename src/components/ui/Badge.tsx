@@ -23,7 +23,7 @@ export function Badge({ label, variant = 'neutral', className = '' }: BadgeProps
         className,
       ].join(' ')}
     >
-      {label}
+      {label.charAt(0).toUpperCase() + label.slice(1)}
     </span>
   )
 }

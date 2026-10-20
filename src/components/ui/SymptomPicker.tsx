@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { X } from 'lucide-react'
 import { SYMPTOM_SECTIONS } from '@/data/setupSymptoms'
 
 interface Props {
@@ -14,14 +13,10 @@ export function SymptomPicker({ selected, onChange }: Props) {
 
   function toggleScenario(scenario: string) {
     if (selected.includes(scenario)) {
-      onChange(selected.filter(s => s !== scenario))
+      onChange([])
     } else {
-      onChange([...selected, scenario])
+      onChange([scenario])
     }
-  }
-
-  function removeScenario(scenario: string) {
-    onChange(selected.filter(s => s !== scenario))
   }
 
   return (
@@ -58,7 +53,7 @@ export function SymptomPicker({ selected, onChange }: Props) {
       </div>
 
       {/* Scenarios for active section */}
-      <div className="flex flex-wrap gap-2 min-h-[80px]">
+      <div className="flex flex-col gap-2">
         {current.scenarios.map(scenario => {
           const isSelected = selected.includes(scenario)
           return (
@@ -67,45 +62,29 @@ export function SymptomPicker({ selected, onChange }: Props) {
               type="button"
               onClick={() => toggleScenario(scenario)}
               className={[
-                'text-xs px-3 py-2 rounded-card border transition-all cursor-pointer text-left',
+                'w-full text-sm px-4 py-3 rounded-card border transition-all cursor-pointer text-left flex items-center justify-between gap-2',
                 isSelected
                   ? 'bg-accent-primary/10 text-accent-primary border-accent-primary/50 font-semibold'
                   : 'bg-bg-elevated text-text-muted border-border-color hover:text-text-primary hover:border-accent-primary/30',
               ].join(' ')}
             >
-              {scenario}
+              <span>{scenario}</span>
+              {current.tags?.[scenario] && (
+                <span className="flex-shrink-0 text-[10px] font-heading font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border border-current opacity-60">
+                  {current.tags[scenario]}
+                </span>
+              )}
             </button>
           )
         })}
       </div>
 
-      {/* Selected Issues Summary */}
       {selected.length > 0 && (
         <div className="border border-accent-primary/30 rounded-card p-3 bg-accent-primary/5">
-          <p className="text-xs font-heading font-bold text-accent-primary uppercase tracking-wider mb-2">
-            Selected Issues ({selected.length})
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {selected.map(scenario => (
-              <span
-                key={scenario}
-                className="flex items-center gap-1 text-xs bg-bg-card border border-accent-primary/30 text-text-primary rounded-card px-2 py-1"
-              >
-                {scenario}
-                <button
-                  type="button"
-                  onClick={() => removeScenario(scenario)}
-                  className="text-text-muted hover:text-accent-primary transition-colors cursor-pointer ml-0.5"
-                >
-                  <X size={10} />
-                </button>
-              </span>
-            ))}
-          </div>
+          <p className="text-xs font-heading font-bold text-accent-primary uppercase tracking-wider mb-1">Selected</p>
+          <p className="text-sm text-text-primary">{selected[0]}</p>
         </div>
       )}
-
-      {/* PLACEHOLDER: setup recommendations output slots in here beneath the selected issues summary */}
     </div>
   )
 }

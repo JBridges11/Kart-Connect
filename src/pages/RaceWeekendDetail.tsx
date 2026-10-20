@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
+import { UtcClock } from '@/components/ui/UtcClock'
 import {
   Radio, XCircle, Share2,
   Copy, ExternalLink, ChevronLeft, Play, Square, Timer, CloudSun, Pencil, UserPlus, Check,
@@ -13,6 +14,7 @@ import { PageWrapper } from '@/components/layout/PageWrapper'
 import { Card, Button, Badge, Modal, Input, Select, SegmentedControl } from '@/components/ui'
 import { getDriverLiveUrl, getWhatsAppShareUrl } from '@/lib/qrCode'
 import { fetchWeatherForTrack, wmoToFormDescription, precipToConditions } from '@/lib/weather'
+import { RainRadar } from '@/components/ui/RainRadar'
 import { formatDate } from '@/lib/formatters'
 import type { RaceWeekendDriver } from '@/hooks/useRaceWeekends'
 
@@ -250,7 +252,7 @@ export function RaceWeekendDetailPage() {
 
         {/* Session info card */}
         <Card>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 {isLive && (
@@ -269,7 +271,9 @@ export function RaceWeekendDetailPage() {
               <p className="text-text-muted text-sm">{formatDate(weekend.session_date)} · {weekend.session_type.replace('_', ' ')}</p>
               {isLive && weekend.expires_at && <div className="mt-1"><ExpiryCountdown expiresAt={weekend.expires_at} /></div>}
             </div>
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex flex-col items-end gap-3">
+              <UtcClock size="lg" />
+              <div className="flex items-center gap-2 flex-wrap justify-end">
               {isPrelive && (
                 <Button
                   variant="primary"
@@ -299,6 +303,7 @@ export function RaceWeekendDetailPage() {
                   </Button>
                 </>
               )}
+              </div>
             </div>
           </div>
           {actionError && <p className="mt-2 text-sm text-red-400">{actionError}</p>}
@@ -339,6 +344,7 @@ export function RaceWeekendDetailPage() {
           ) : (
             <p className="text-text-muted text-sm mt-2">No weather set — tap Edit to add conditions before going live.</p>
           )}
+          <RainRadar lat={weekend.track?.lat} lng={weekend.track?.lng} />
         </Card>
 
         {/* Drivers grid */}
@@ -446,7 +452,7 @@ export function RaceWeekendDetailPage() {
                               to={`/sessions/${sessionId}`}
                               className="flex items-center justify-center gap-2 w-full py-1.5 px-3 rounded border border-accent-primary/40 text-accent-primary hover:bg-accent-primary/10 text-xs transition-colors"
                             >
-                              <ExternalLink size={12} /> View Test {slot}
+                              <ExternalLink size={12} /> {driver.driver_name} · Test {slot}
                             </Link>
                           ))}
                       </div>

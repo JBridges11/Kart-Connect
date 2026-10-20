@@ -2,62 +2,28 @@ export type SymptomSection = {
   id: string
   label: string
   scenarios: string[]
+  tags?: Record<string, string>
 }
 
 export const SYMPTOM_SECTIONS: SymptomSection[] = [
   {
-    id: 'corner-entry',
-    label: 'Corner Entry',
+    id: 'handling',
+    label: 'Handling',
     scenarios: [
       'Front won\'t turn in',
       'Rear slides on entry',
       'Kart feels nervous on turn-in',
-      'Front washes wide immediately',
-      'Kart snaps on entry',
       'Inside rear won\'t lift',
       'Too much rotation on entry',
-      'Kart feels stiff and won\'t respond',
-      'Bouncing or skipping on entry',
-      'Rear steps out before apex',
-      'Delayed turn-in — kart won\'t rotate early enough',
-      'Can\'t get the kart turned in before the apex',
-    ],
-  },
-  {
-    id: 'mid-corner',
-    label: 'Mid Corner',
-    scenarios: [
-      'Rear steps out at apex',
-      'Pushes wide mid-corner',
+      'I have a lot of steering input at the apex and then rear steps out',
+      'Front pushes on then I go wide mid corner',
       'Kart feels flat and unresponsive',
       'Rear slides continuously through corner',
       'Front and rear both sliding',
       'Inside rear dragging through corner',
-      'Kart feels unstable mid-corner',
-      'Losing speed through the middle',
       'Kart bouncing mid-corner',
       'Too much rotation at apex',
-      'Not enough rotation at apex',
-      'Front grips then suddenly lets go',
-      'Kart won\'t go over kerbs — too stiff',
-      'Not enough rotation to use kerbs',
-      'Rear steps out when hitting kerbs',
-    ],
-  },
-  {
-    id: 'corner-exit',
-    label: 'Corner Exit',
-    scenarios: [
-      'No drive on exit',
-      'Rear steps out on exit',
-      'Kart won\'t straighten up',
-      'Rear slides on acceleration',
-      'Front pushes on exit',
-      'Inside rear not releasing on exit',
-      'Spinning wheels on exit',
-      'Kart feels loose and unpredictable on exit',
-      'Slow to accelerate out of corner',
-      'Rear grips then suddenly breaks away',
+      'Can\'t get heat into tyres',
     ],
   },
   {
@@ -65,13 +31,9 @@ export const SYMPTOM_SECTIONS: SymptomSection[] = [
     label: 'Straight',
     scenarios: [
       'No top-end speed',
-      'Losing speed to other karts on straight',
       'Engine hitting limiter too early',
       'Good exit but losing ground mid-straight',
       'Kart feels slow despite flat throttle',
-      'Pulling well but no final top end',
-      'Engine feels flat throughout straight',
-      'Losing ground specifically at end of straight',
       'Wheelspin out of slow corners',
       'No initial drive off the apex',
       'Good top end but poor initial acceleration',
@@ -83,15 +45,14 @@ export const SYMPTOM_SECTIONS: SymptomSection[] = [
     scenarios: [
       'Locking front under braking',
       'Locking rear under braking',
-      'Kart pulling to one side under braking',
-      'Rear stepping out under braking',
+      'Rear stepping out under braking dry',
       'Brakes feel unresponsive',
-      'Having to brake earlier than others',
-      'Brakes feel spongy or inconsistent',
-      'Rear feels light and unstable under braking',
-      'Losing too much speed in braking zone',
-      'Can\'t trail brake without the rear sliding',
+      'When I lock up the rear slides',
     ],
+    tags: {
+      'Locking front under braking': 'KZ only',
+      'Locking rear under braking': 'KZ only',
+    },
   },
   {
     id: 'wet',
@@ -99,12 +60,9 @@ export const SYMPTOM_SECTIONS: SymptomSection[] = [
     scenarios: [
       'No front grip in wet',
       'Rear stepping out on every corner in wet',
-      'Aquaplaning feeling through corners',
       'Can\'t get heat into tyres in wet',
       'Inside rear not lifting in wet',
-      'Not enough rotation in wet conditions',
-      'Rear stepping out on kerbs in wet',
-      'No confidence under acceleration in wet',
+      'Not enough rotation in the wet',
     ],
   },
 ]

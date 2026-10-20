@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom'
+import { App as CapApp } from '@capacitor/app'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import { useSubscription } from '@/hooks/useSubscription'
 import { LanguageProvider } from '@/contexts/LanguageContext'
@@ -8,6 +9,7 @@ import { OfflineBanner } from '@/components/OfflineBanner'
 import { SplashScreen } from '@/components/SplashScreen'
 import { LanguagePickerPage } from '@/pages/LanguagePicker'
 import { SubscriptionGate } from '@/components/SubscriptionGate'
+import { isNative } from '@/lib/native'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
 
@@ -29,7 +31,7 @@ import { CreateRaceWeekendPage }    from '@/pages/CreateRaceWeekend'
 import { RaceWeekendDetailPage }    from '@/pages/RaceWeekendDetail'
 import { LiveSetupPage }            from '@/pages/LiveSetup'
 import { DataComparisonPage }       from '@/pages/DataComparison'
-import { SetupReferencePage }       from '@/pages/SetupReference'
+import { WeatherPage }              from '@/pages/Weather'
 import { TermsPage }                from '@/pages/Terms'
 import { PrivacyPage }              from '@/pages/Privacy'
 
@@ -55,8 +57,11 @@ function ProtectedLayout() {
 
   if (!user) return <Navigate to="/login" replace />
 
-  const hasAccess = !!subscription?.stripe_subscription_id &&
-    (subscription.status === 'active' || subscription.status === 'trialing')
+  const hasAccess =
+    subscription?.status === 'active' ||
+    (subscription?.status === 'trialing' &&
+      subscription?.trial_end != null &&
+      new Date(subscription.trial_end) > new Date())
   if (!hasAccess) return <Navigate to="/subscribe" replace />
 
   return (
@@ -131,7 +136,7 @@ const router = createBrowserRouter([
           { path: 'race-weekend/new',       element: <CreateRaceWeekendPage /> },
           { path: 'race-weekend/:id',       element: <RaceWeekendDetailPage /> },
           { path: 'data-comparison',        element: <DataComparisonPage /> },
-          { path: 'setup-reference',        element: <SetupReferencePage /> },
+          { path: 'weather',               element: <WeatherPage /> },
         ],
       },
     ],
@@ -149,6 +154,22 @@ function AppShell() {
   const isLiveRoute = window.location.pathname.startsWith('/live/')
 
   const [step, setStep] = useState<Step>(isLiveRoute ? 'app' : 'splash')
+
+  // Handle deep links on native (e.g. password-reset: com.kartconnect.app://reset-password?...)
+  useEffect(() => {
+    if (!isNative) return
+    const listener = CapApp.addListener('appUrlOpen', ({ url }) => {
+      try {
+        // Strip the custom scheme to get a path+query the router understands
+        const parsed = new URL(url)
+        const path = parsed.pathname + parsed.search + parsed.hash
+        router.navigate(path)
+      } catch {
+        // malformed URL — ignore
+      }
+    })
+    return () => { void listener.then(h => h.remove()) }
+  }, [])
 
   function onSplashDone() {
     setStep(languageChosen ? 'app' : 'language')

@@ -6,7 +6,35 @@ import { setupDefaults } from '@/lib/setupDefaults'
 import type { SetupFormData } from '@/types'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string
-const NUM_SLOTS = 8
+const DEFAULT_NUM_SLOTS = 8
+
+interface WeekendFormat {
+  practice: number
+  qualifying: number
+  heats: number
+  finals: number
+}
+
+function getSessionLabels(format: WeekendFormat): string[] {
+  const labels: string[] = []
+  for (let i = 1; i <= format.practice; i++)   labels.push(`Practice ${i}`)
+  for (let i = 1; i <= format.qualifying; i++) labels.push(`Qualifying ${i}`)
+  for (let i = 1; i <= format.heats; i++)      labels.push(`Heat ${i}`)
+  for (let i = 1; i <= format.finals; i++)     labels.push(`Final ${i}`)
+  return labels
+}
+
+const cacheKey  = (t: string) => `kc_live_${t}`
+const queueKey  = (t: string) => `kc_live_queue_${t}`
+
+interface QueueEntry {
+  token: string
+  slot: number
+  setup_data: Partial<SetupFormData>
+  selected_engine_rank: number | null
+  is_final: boolean
+  queued_at: number
+}
 
 type ErrorCode = 'invalid_token' | 'not_live_yet' | 'session_ended' | 'session_expired' | 'server_error'
 type PageState = 'loading' | 'error' | 'slots' | 'form'
@@ -28,7 +56,9 @@ interface GuestData {
   session_name: string
   session_date: string
   expires_at: string | null
+  weekend_format: WeekendFormat | null
   slots: Record<string, SlotState>
+  previous_setup: Partial<SetupFormData> | null
   pressure_unit: 'bar' | 'psi'
   alt_unit: 'm' | 'ft'
   temp_unit: 'c' | 'f'
@@ -126,6 +156,9 @@ export function LiveSetupPage() {
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [slotJustSubmitted, setSlotJustSubmitted] = useState(false)
+  const [submittedOffline, setSubmittedOffline] = useState(false)
+  const [isOffline, setIsOffline] = useState(false)
+  const [queuedCount, setQueuedCount] = useState(0)
 
   // Auto-save
   const [isDirty, setIsDirty] = useState(false)
@@ -155,9 +188,23 @@ export function LiveSetupPage() {
         setPageState('error')
         return
       }
+      try { localStorage.setItem(cacheKey(token!), JSON.stringify(json)) } catch {}
+      setIsOffline(false)
       setGuestData(json as GuestData)
       setPageState('slots')
     } catch {
+      // Network failure — try local cache so mechanics can work offline
+      try {
+        const cached = localStorage.getItem(cacheKey(token!))
+        if (cached) {
+          setGuestData(JSON.parse(cached) as GuestData)
+          setIsOffline(true)
+          const q: QueueEntry[] = JSON.parse(localStorage.getItem(queueKey(token!)) ?? '[]')
+          setQueuedCount(q.length)
+          setPageState('slots')
+          return
+        }
+      } catch {}
       setErrorCode('server_error')
       setPageState('error')
     }
@@ -206,6 +253,13 @@ export function LiveSetupPage() {
           setAutoSaveState('idle')
         }
       } catch {
+        // Offline — queue this draft save so nothing is lost
+        enqueueOfflineSave({
+          token: token!, slot: currentSlot, setup_data: currentSetup,
+          selected_engine_rank: currentSetup.engine_rank ?? null,
+          is_final: false, queued_at: Date.now(),
+        })
+        setIsOffline(true)
         setAutoSaveState('idle')
       } finally {
         isAutoSavingRef.current = false
@@ -220,6 +274,62 @@ export function LiveSetupPage() {
     const t = setTimeout(() => setAutoSaveState('idle'), 3000)
     return () => clearTimeout(t)
   }, [autoSaveState])
+
+  // ── Offline queue helpers ──────────────────────────────────────────────────
+
+  function enqueueOfflineSave(entry: QueueEntry) {
+    try {
+      const key = queueKey(token!)
+      const existing: QueueEntry[] = JSON.parse(localStorage.getItem(key) ?? '[]')
+      // Replace any existing queued entry for the same slot+finality
+      const filtered = existing.filter(e => !(e.slot === entry.slot && e.is_final === entry.is_final))
+      filtered.push(entry)
+      localStorage.setItem(key, JSON.stringify(filtered))
+      setQueuedCount(filtered.length)
+    } catch {}
+  }
+
+  function updateLocalCache(updatedData: GuestData) {
+    try { localStorage.setItem(cacheKey(token!), JSON.stringify(updatedData)) } catch {}
+  }
+
+  const drainOfflineQueue = useCallback(async () => {
+    try {
+      const key = queueKey(token!)
+      const queue: QueueEntry[] = JSON.parse(localStorage.getItem(key) ?? '[]')
+      if (!queue.length) return
+      const remaining: QueueEntry[] = []
+      for (const entry of queue) {
+        try {
+          const res = await fetch(`${SUPABASE_URL}/functions/v1/guest-session-save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(entry),
+          })
+          if (!res.ok) remaining.push(entry)
+        } catch {
+          remaining.push(entry)
+        }
+      }
+      if (remaining.length === 0) {
+        localStorage.removeItem(key)
+        setQueuedCount(0)
+        setIsOffline(false)
+      } else {
+        localStorage.setItem(key, JSON.stringify(remaining))
+        setQueuedCount(remaining.length)
+      }
+    } catch {}
+  }, [token])
+
+  // Drain queue whenever connectivity returns
+  useEffect(() => {
+    const handleOnline = () => { setIsOffline(false); void drainOfflineQueue() }
+    window.addEventListener('online', handleOnline)
+    // Also drain on mount in case we came back online between page loads
+    if (navigator.onLine) void drainOfflineQueue()
+    return () => window.removeEventListener('online', handleOnline)
+  }, [drainOfflineQueue])
 
   function openSlot(slotNum: number) {
     if (!guestData) return
@@ -249,7 +359,16 @@ export function LiveSetupPage() {
     const copied = { ...source }
     POST_SESSION_KEYS.forEach(k => { (copied as Record<string, unknown>)[k] = null })
     setCurrentSetup(copied)
-    setFormKey(k => k + 1) // force SetupForm to remount with new initialSetup
+    setFormKey(k => k + 1)
+  }
+
+  function loadPreviousSetup() {
+    if (!guestData?.previous_setup) return
+    const loaded = { ...guestData.previous_setup } as Partial<SetupFormData>
+    POST_SESSION_KEYS.forEach(k => { delete (loaded as Record<string, unknown>)[k] })
+    setCurrentSetup(loaded)
+    setFormKey(k => k + 1)
+    setIsDirty(true)
   }
 
   function backToSlots() {
@@ -261,17 +380,44 @@ export function LiveSetupPage() {
   async function saveSetup(isFinal: boolean) {
     setSaving(true)
     setSaveError(null)
+    const payload: QueueEntry = {
+      token: token!,
+      slot: currentSlot,
+      setup_data: currentSetup,
+      selected_engine_rank: currentSetup.engine_rank ?? null,
+      is_final: isFinal,
+      queued_at: Date.now(),
+    }
+
+    // Short-circuit to queue immediately if we know we're offline
+    if (!navigator.onLine) {
+      enqueueOfflineSave(payload)
+      setIsOffline(true)
+      setGuestData(prev => {
+        if (!prev) return prev
+        const updated = {
+          ...prev,
+          slots: {
+            ...prev.slots,
+            [String(currentSlot)]: {
+              setup: currentSetup,
+              submitted: isFinal || (prev.slots[String(currentSlot)]?.submitted ?? false),
+            },
+          },
+        }
+        updateLocalCache(updated)
+        return updated
+      })
+      if (isFinal) { setSubmittedOffline(true); setSlotJustSubmitted(true) }
+      setSaving(false)
+      return
+    }
+
     try {
       const res = await fetch(`${SUPABASE_URL}/functions/v1/guest-session-save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          token,
-          slot: currentSlot,
-          setup_data: currentSetup,
-          selected_engine_rank: currentSetup.engine_rank ?? null,
-          is_final: isFinal,
-        }),
+        body: JSON.stringify(payload),
       })
       const json = await res.json()
       if (!res.ok || json.error) {
@@ -284,7 +430,7 @@ export function LiveSetupPage() {
       } else {
         setGuestData(prev => {
           if (!prev) return prev
-          return {
+          const updated = {
             ...prev,
             slots: {
               ...prev.slots,
@@ -294,11 +440,31 @@ export function LiveSetupPage() {
               },
             },
           }
+          updateLocalCache(updated)
+          return updated
         })
-        if (isFinal) setSlotJustSubmitted(true)
+        if (isFinal) { setSubmittedOffline(false); setSlotJustSubmitted(true) }
       }
     } catch {
-      setSaveError('Network error. Please check your connection.')
+      // No network — save to offline queue, treat as success for UX
+      enqueueOfflineSave(payload)
+      setIsOffline(true)
+      setGuestData(prev => {
+        if (!prev) return prev
+        const updated = {
+          ...prev,
+          slots: {
+            ...prev.slots,
+            [String(currentSlot)]: {
+              setup: currentSetup,
+              submitted: isFinal || (prev.slots[String(currentSlot)]?.submitted ?? false),
+            },
+          },
+        }
+        updateLocalCache(updated)
+        return updated
+      })
+      if (isFinal) { setSubmittedOffline(true); setSlotJustSubmitted(true) }
     }
     setSaving(false)
   }
@@ -384,14 +550,32 @@ export function LiveSetupPage() {
   }
 
   const d = guestData!
+  const sessionLabels = d.weekend_format ? getSessionLabels(d.weekend_format) : []
+  const numSlots = sessionLabels.length > 0 ? sessionLabels.length : DEFAULT_NUM_SLOTS
+  const slotLabel = (slot: number) => sessionLabels[slot - 1] ?? `Test ${slot}`
 
   if (slotJustSubmitted) {
     return (
       <div className="min-h-screen bg-white">
         <div className="flex flex-col items-center justify-center min-h-[80vh] p-6 text-center">
-          <CheckCircle2 size={52} className="text-green-500 mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Test {currentSlot} Submitted!</h1>
-          <p className="text-gray-500 text-sm mb-1">Your setup for <strong>{d.session_name}</strong> at <strong>{d.track_name}</strong> has been sent to your team manager.</p>
+          {submittedOffline ? (
+            <>
+              <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center mb-4">
+                <Clock size={28} className="text-orange-500" />
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">{slotLabel(currentSlot)} Saved Offline</h1>
+              <p className="text-gray-500 text-sm mb-1">No internet right now — your setup is stored on this device and will sync to your team manager automatically as soon as you're back online.</p>
+              <div className="mt-4 px-4 py-3 rounded-xl bg-orange-50 border border-orange-100 text-xs text-orange-700 max-w-xs">
+                Keep this page open or come back to it when you have signal — it will sync in the background.
+              </div>
+            </>
+          ) : (
+            <>
+              <CheckCircle2 size={52} className="text-green-500 mb-4" />
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">{slotLabel(currentSlot)} Submitted!</h1>
+              <p className="text-gray-500 text-sm mb-1">Your setup for <strong>{d.session_name}</strong> at <strong>{d.track_name}</strong> has been sent to your team manager.</p>
+            </>
+          )}
           <button
             type="button"
             onClick={backToSlots}
@@ -407,8 +591,8 @@ export function LiveSetupPage() {
 
   // Slot list view
   if (pageState === 'slots') {
-    const submittedCount  = Object.values(d.slots).filter(s => s?.submitted).length
-    const inProgressCount = Object.values(d.slots).filter(s => s?.setup && !s.submitted).length
+    const submittedCount  = Object.entries(d.slots).filter(([n, s]) => Number(n) <= numSlots && s?.submitted).length
+    const inProgressCount = Object.entries(d.slots).filter(([n, s]) => Number(n) <= numSlots && s?.setup && !s.submitted).length
 
     return (
       <div className="min-h-screen bg-gray-50 pb-12">
@@ -442,12 +626,36 @@ export function LiveSetupPage() {
             </div>
           </div>
 
+          {isOffline && (
+            <div className="flex items-start gap-2.5 px-4 py-3 rounded-2xl bg-orange-50 border border-orange-200 text-sm text-orange-800">
+              <Clock size={16} className="flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold">Working offline</p>
+                <p className="text-xs text-orange-600 mt-0.5">
+                  {queuedCount > 0
+                    ? `${queuedCount} session${queuedCount !== 1 ? 's' : ''} queued — will sync when you're back online.`
+                    : 'Your submissions will sync automatically when signal returns.'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {d.previous_setup && (
+            <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-yellow-50 border border-yellow-200">
+              <div>
+                <p className="text-sm font-semibold text-gray-800">Previous setup found</p>
+                <p className="text-xs text-gray-500 mt-0.5">Load {d.driver_name}'s last known setup as a starting point for any session.</p>
+              </div>
+            </div>
+          )}
+
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest px-1">Sessions</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {Array.from({ length: NUM_SLOTS }, (_, i) => i + 1).map(slot => {
+            {Array.from({ length: numSlots }, (_, i) => i + 1).map(slot => {
               const slotData   = d.slots[String(slot)]
               const submitted  = slotData?.submitted ?? false
               const inProgress = !!slotData?.setup && !submitted
+              const label      = slotLabel(slot)
 
               return (
                 <button
@@ -463,7 +671,7 @@ export function LiveSetupPage() {
                       : 'border-gray-100 bg-white hover:border-gray-300 hover:shadow-sm',
                   ].join(' ')}
                 >
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Test {slot}</p>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{label}</p>
                   {submitted ? (
                     <div className="flex items-center gap-1.5 text-green-600 text-xs font-medium">
                       <CheckCircle2 size={13} /> Submitted
@@ -501,7 +709,7 @@ export function LiveSetupPage() {
             <ChevronLeft size={16} /> Sessions
           </button>
           <span className="text-gray-300">/</span>
-          <span className="text-sm font-semibold text-gray-800">Test {currentSlot}</span>
+          <span className="text-sm font-semibold text-gray-800">{slotLabel(currentSlot)}</span>
           <div className="ml-auto flex items-center gap-1.5 text-xs transition-opacity duration-500"
                style={{ opacity: autoSaveState === 'idle' ? 0 : 1 }}>
             {autoSaveState === 'saving' ? (
@@ -518,27 +726,52 @@ export function LiveSetupPage() {
           </div>
         </div>
 
-        {/* Copy from another session */}
+        {/* Offline indicator */}
+        {isOffline && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-orange-50 border border-orange-200 text-xs text-orange-700">
+            <Clock size={12} className="flex-shrink-0" />
+            <span>Offline — setup will sync when connected{queuedCount > 0 ? ` (${queuedCount} queued)` : ''}</span>
+          </div>
+        )}
+
+        {/* Copy from another session or previous race weekend */}
         {(() => {
           const filledSlots = Object.entries(d.slots)
             .filter(([num, s]) => Number(num) !== currentSlot && s?.setup)
             .map(([num]) => Number(num))
-          if (filledSlots.length === 0) return null
+          const hasPrev = !!d.previous_setup
+          if (filledSlots.length === 0 && !hasPrev) return null
           return (
-            <div className="bg-white border border-yellow-200 rounded-2xl px-4 py-3 flex items-center gap-3 flex-wrap">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider shrink-0">Copy setup from:</span>
-              <div className="flex gap-2 flex-wrap">
-                {filledSlots.map(num => (
+            <div className="bg-white border border-yellow-200 rounded-2xl px-4 py-3 flex flex-wrap items-center gap-3">
+              {filledSlots.length > 0 && (
+                <>
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider shrink-0">Copy from:</span>
+                  <div className="flex gap-2 flex-wrap">
+                    {filledSlots.map(num => (
+                      <button
+                        key={num}
+                        type="button"
+                        onClick={() => copyFromSlot(num)}
+                        className="px-3 py-1 rounded-full bg-yellow-400 text-black text-xs font-bold hover:bg-yellow-300 transition-colors cursor-pointer"
+                      >
+                        Test {num}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              {hasPrev && (
+                <>
+                  {filledSlots.length > 0 && <span className="text-gray-200 text-sm">|</span>}
                   <button
-                    key={num}
                     type="button"
-                    onClick={() => copyFromSlot(num)}
-                    className="px-3 py-1 rounded-full bg-yellow-400 text-black text-xs font-bold hover:bg-yellow-300 transition-colors cursor-pointer"
+                    onClick={loadPreviousSetup}
+                    className="px-3 py-1 rounded-full bg-gray-800 text-white text-xs font-bold hover:bg-gray-700 transition-colors cursor-pointer"
                   >
-                    Test {num}
+                    Load Previous Setup
                   </button>
-                ))}
-              </div>
+                </>
+              )}
             </div>
           )
         })()}
@@ -715,7 +948,7 @@ export function LiveSetupPage() {
             onClick={() => void saveSetup(true)}
             className="w-full py-3 px-4 rounded-xl bg-yellow-400 text-black text-sm font-bold hover:bg-yellow-300 transition-colors cursor-pointer disabled:opacity-50"
           >
-            {saving ? 'Submitting…' : `Submit Test ${currentSlot}`}
+            {saving ? (isOffline ? 'Queuing…' : 'Submitting…') : `Submit Test ${currentSlot}`}
           </button>
         </div>
       </div>
