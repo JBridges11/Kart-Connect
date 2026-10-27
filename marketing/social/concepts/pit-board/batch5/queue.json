@@ -1,0 +1,57 @@
+[
+  {
+    "n": 1,
+    "slug": "engine-monitoring",
+    "title": "Know your engine",
+    "captions": [
+      "Know your engine. 🔥\n\nEngine temp, RPM, speed and exhaust temp: max and low for every session, saved right alongside your setup in Kart Connect.\n\nSee exactly how the engine was running when you went quickest, and spot when something's not right before it costs you a race. ⚙️\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartEngine #KartData",
+      "Engine temp. RPM. Speed. Exhaust temp. 🔥\n\nMax and low, every session, saved with the setup.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartData",
+      "Running hot? Down on revs? 🤔\n\nKart Connect saves your engine numbers from every session, so you can compare them against your setup and lap times and see exactly what the engine was doing when it all clicked. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartEngine"
+    ],
+    "note": "Based on the Engine Monitoring card in the app code (2 Oct). Example data."
+  },
+  {
+    "n": 2,
+    "slug": "search",
+    "title": "Find any session. In seconds.",
+    "captions": [
+      "Find any session. In seconds. 🔍\n\nThat quick qualifying run from August? The wet session in September? Just search.\n\nKart Connect lets you search every session by track, event type or date, and open the full setup, conditions and lap times in one tap. ⏱️\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartData #KartSetup",
+      "Search. Tap. There's your setup. 🔍\n\nEvery session, searchable by track, event type or date.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing",
+      "No more scrolling through your camera roll looking for a photo of a setup sheet. 📸❌\n\nType the track, the event or the date into Kart Connect and every matching session is right there, with the setup, the weather and the lap time. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartData"
+    ],
+    "note": "Based on the session search on the Dashboard in the app code (2 Oct). Example data."
+  },
+  {
+    "n": 3,
+    "slug": "branded-sheets",
+    "title": "Your team. Your branding.",
+    "captions": [
+      "Your team. Your branding. 🏆\n\nOn Pro Team, every setup sheet you export from Kart Connect carries your team's logo and colours.\n\nHand it to your drivers, mechanics, sponsors or parents and it looks like it came straight from a factory team. Because it did. 😉\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartTeam #Motorsport",
+      "Setup sheets with YOUR logo on. 🏁\n\nTeam-branded setup sheets on Kart Connect Pro Team.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartTeam",
+      "Running a professional outfit? Make it look like one. 💼\n\nKart Connect Pro Team adds your team's logo and colours to every setup sheet, so everything that leaves your awning is on-brand, from test day to race day. 🏎️\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartTeam"
+    ],
+    "note": "Based on \"White-label setup sheets with team branding & logo\" on Pro Team in the app code (2 Oct). The red team colours and name are placeholders."
+  },
+  {
+    "n": 4,
+    "slug": "one-session",
+    "title": "One session. Everything in it.",
+    "captions": [
+      "One session. Everything in it. 🏁\n\nLap time. Setup. Weather. Engine, carb and exhaust. Tyre pressures. Your voice note from the dummy grid.\n\nEvery session in Kart Connect keeps the lot together, so when you look back you see the whole picture, not just a lap time. 📋\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartSetup #KartData",
+      "Setup. Weather. Kit. Pressures. Voice notes. Lap time. ✅\n\nOne session. Everything in it.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing",
+      "A lap time on its own tells you nothing. 🤷\n\nWas it the setup? The weather? The engine? Kart Connect saves all of it with every session, so a quick lap always comes with the reason why. ⏱️\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartData"
+    ],
+    "note": "Example data, and no track named. Combines features shown in earlier posts (weather, kit, voice notes, pressures)."
+  },
+  {
+    "n": 5,
+    "slug": "season-numbers",
+    "title": "Your season. In numbers.",
+    "captions": [
+      "Your season. In numbers. 📊\n\n86 sessions logged.\n9 race weekends.\n214 setup changes.\n0.81s found.\n\nEvery single one saved in Kart Connect, ready to build on next year. What do your numbers look like? 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #KartData #EndOfSeason",
+      "86 sessions. 9 race weekends. 214 changes. 0.81s found. 📊\n\nEvery one saved.\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartData",
+      "The season's nearly done. Could you tell us how many setup changes you made this year? 🤔\n\nWith Kart Connect, every session, change and lap time is saved, so your whole season is there to learn from when you start again next year. 📈\n\n🔗 kart-connect.com\n\n#KartConnect #Karting #KartRacing #EndOfSeason"
+    ],
+    "note": "Example numbers. A brand post rather than a specific app screen."
+  }
+]
