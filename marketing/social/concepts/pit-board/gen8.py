@@ -89,12 +89,13 @@ P.append(('dark', 'speed-trace', 'See where you gain. See where you lose.',
   "Stop guessing where your team-mate is quicker. 🤔\n\nOverlay your speed traces in the Kart Connect Data Logger and the gaps jump straight out, corner by corner. Then go and find the time. ⏱️\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData"],
   'Example traces, not real data.'))
 
-# 2 GPS map: a twisty kart circuit (made up) drawn as a closed Catmull-Rom spline, coloured by curvature
-CTRL = [(0.10, 0.90), (0.45, 0.91), (0.80, 0.90), (0.88, 0.88), (0.91, 0.81), (0.87, 0.74), (0.62, 0.72),
-        (0.53, 0.68), (0.51, 0.60), (0.57, 0.53), (0.72, 0.50), (0.85, 0.46), (0.92, 0.40), (0.93, 0.31),
-        (0.88, 0.25), (0.66, 0.26), (0.58, 0.31), (0.51, 0.26), (0.47, 0.17), (0.44, 0.10), (0.38, 0.06),
-        (0.32, 0.10), (0.30, 0.22), (0.33, 0.34), (0.38, 0.45), (0.35, 0.53), (0.27, 0.56), (0.21, 0.50),
-        (0.19, 0.36), (0.15, 0.24), (0.10, 0.21), (0.05, 0.28), (0.05, 0.60), (0.06, 0.82)]
+# 2 GPS map: grey track surface with a thin racing line coloured slow (red) to fast (green), layout traced from the owner's reference
+RAW = [(190, 57), (240, 44), (290, 32), (330, 40), (348, 70), (345, 110), (320, 140), (305, 170), (300, 210), (290, 240),
+       (265, 270), (240, 295), (215, 300), (205, 285), (210, 262), (235, 240), (262, 215), (268, 195), (255, 183),
+       (235, 190), (215, 215), (195, 235), (175, 250), (160, 275), (160, 310), (150, 345), (130, 355), (110, 340),
+       (105, 300), (115, 250), (140, 215), (175, 185), (220, 150), (255, 125), (275, 105), (280, 85), (265, 78),
+       (240, 85), (195, 100), (150, 115), (120, 130), (105, 150), (112, 165), (135, 160), (155, 165), (160, 185),
+       (140, 198), (110, 195), (75, 175), (55, 140), (65, 105), (100, 85), (150, 70)]
 def chaikin(p, it):
     for _ in range(it):
         q = []
@@ -103,13 +104,12 @@ def chaikin(p, it):
             q += [(0.75 * x0 + 0.25 * x1, 0.75 * y0 + 0.25 * y1), (0.25 * x0 + 0.75 * x1, 0.25 * y0 + 0.75 * y1)]
         p = q
     return p
-raw = chaikin(CTRL, 4)
-# resample to even spacing
+raw = chaikin(RAW, 4)
 L = [0]
 for a in range(len(raw)):
     (x0, y0), (x1, y1) = raw[a], raw[(a + 1) % len(raw)]
     L.append(L[-1] + math.hypot(x1 - x0, y1 - y0))
-tot = L[-1]; N = 360; pts = []; seg = 0
+tot = L[-1]; N = 420; pts = []; seg = 0
 for k in range(N):
     d = tot * k / N
     while L[seg + 1] < d: seg += 1
@@ -119,47 +119,45 @@ for k in range(N):
 M = len(pts)
 def ang(i):
     ax, ay = pts[i - 1]; bx, by = pts[i]; cx, cy = pts[(i + 1) % M]
-    a1 = math.atan2(by - ay, bx - ax); a2 = math.atan2(cy - by, cx - bx)
-    d = (a2 - a1 + math.pi) % (2 * math.pi) - math.pi
-    seg = math.hypot(cx - bx, cy - by) + 1e-6
-    return abs(d) / seg
+    d = (math.atan2(cy - by, cx - bx) - math.atan2(by - ay, bx - ax) + math.pi) % (2 * math.pi) - math.pi
+    return abs(d) / (math.hypot(cx - bx, cy - by) + 1e-6)
 curv = [ang(i) for i in range(M)]
-sm = [sum(curv[(i + k) % M] for k in range(-5, 6)) / 11 for i in range(M)]
-hi = sorted(sm)[int(M * .80)]
+sm = [sum(curv[(i + k) % M] for k in range(-6, 7)) / 13 for i in range(M)]
+hi = sorted(sm)[int(M * .78)]
 speed = [max(0, 1 - min(1, c / hi)) for c in sm]
-speed = [sum(speed[(i + k) % M] for k in range(-3, 4)) / 7 for i in range(M)]
+speed = [sum(speed[(i + k) % M] for k in range(-4, 5)) / 9 for i in range(M)]
 def col(v):
-    stops = [(0, (224, 102, 47)), (.5, (245, 200, 66)), (1, (63, 175, 61))]
+    stops = [(0, (214, 40, 28)), (.5, (150, 110, 20)), (1, (60, 200, 30))]
     for (p0, c0), (p1, c1) in zip(stops, stops[1:]):
         if v <= p1:
             k = (v - p0) / (p1 - p0)
             return '#%02x%02x%02x' % tuple(round(c0[q] + (c1[q] - c0[q]) * k) for q in range(3))
-    return '#3FAF3D'
-MW, MH = 290, 175
-X = lambda x: 10 + x * (MW - 20)
-Y = lambda y: 6 + y * (MH - 12)
+    return '#3CC81E'
+MW, MH = 290, 182
+xs = [p[0] for p in RAW]; ys = [p[1] for p in RAW]
+sc = (MH - 24) / (max(ys) - min(ys))
+ox = (MW - (max(xs) - min(xs)) * sc) / 2 - min(xs) * sc
+oy = 12 - min(ys) * sc
+X = lambda x: ox + x * sc
+Y = lambda y: oy + y * sc
+outline = 'M' + ' L'.join(f'{X(x):.1f},{Y(y):.1f}' for x, y in pts) + ' Z'
 segs = ''.join(f'<line x1="{X(pts[i][0]):.1f}" y1="{Y(pts[i][1]):.1f}" x2="{X(pts[(i + 1) % M][0]):.1f}" y2="{Y(pts[(i + 1) % M][1]):.1f}" '
-               f'stroke="{col(speed[i])}" stroke-width="7" stroke-linecap="round"/>' for i in range(M))
-# team-mate takes a wider line through the top-right hairpin
-c = int(N * 0.30)
-alt = []
-for i in range(M):
-    x, y = pts[i]; nx, ny = pts[(i + 1) % M]
-    dx, dy = nx - x, ny - y; L = math.hypot(dx, dy) + 1e-9
-    d = min(abs(i - c), M - abs(i - c))
-    off = 0.022 * math.exp(-(d / 12) ** 2)
-    alt.append((X(x - dy / L * off * -1), Y(y + dx / L * off * -1)))
-pal = 'M' + ' L'.join(f'{x:.1f},{y:.1f}' for x, y in alt) + ' Z'
-sfx, sfy = X(0.45), Y(0.905)
-svg2 = (f'<svg viewBox="0 0 {MW} {MH}" width="100%" style="display:block;margin-top:6px;">{segs}'
-        f'<path d="{pal}" fill="none" stroke="#7B5EA7" stroke-width="1.8" stroke-dasharray="4 3"/>'
-        f'<rect x="{sfx - 1.5:.1f}" y="{sfy - 7:.1f}" width="3" height="14" fill="#1A1033"/></svg>')
+               f'stroke="{col(speed[i])}" stroke-width="2.6" stroke-linecap="round"/>' for i in range(M))
+# start / finish marker across the track at the first point
+(x0, y0), (x1, y1) = pts[0], pts[2]
+dx, dy = x1 - x0, y1 - y0; Ln = math.hypot(dx, dy)
+nx, ny = -dy / Ln, dx / Ln
+sfx, sfy = X(x0), Y(y0)
+sf = (f'<line x1="{sfx - nx * 11:.1f}" y1="{sfy - ny * 11:.1f}" x2="{sfx + nx * 11:.1f}" y2="{sfy + ny * 11:.1f}" stroke="#fff" stroke-width="5" stroke-linecap="round"/>'
+      f'<line x1="{sfx - nx * 10:.1f}" y1="{sfy - ny * 10:.1f}" x2="{sfx + nx * 10:.1f}" y2="{sfy + ny * 10:.1f}" stroke="#D6281C" stroke-width="2.4" stroke-linecap="round"/>')
+svg2 = (f'<svg viewBox="0 0 {MW} {MH}" width="100%" style="display:block;margin-top:4px;">'
+        f'<path d="{outline}" fill="none" stroke="#6B7080" stroke-width="13" stroke-linejoin="round"/>{segs}{sf}</svg>')
 P.append(('light', 'gps-map', 'Every line. Colour-coded.',
   f'<div class="kick">{KICK_LIVE}</div>'
-  '<div class="d" style="font-size:50px;margin-top:8px;">Every line.</div>'
-  '<div class="d o" style="font-size:50px;">Colour-coded.</div>'
-  '<div class="panel" style="margin-top:14px;"><h6><span>GPS track map</span><span class="lgd"><span><i style="background:#E0662F"></i>Slow</span>'
-  f'<span><i style="background:#3FAF3D"></i>Fast</span><span><i style="background:#7B5EA7"></i>Team-mate</span></span></h6>{svg2}</div>'
+  '<div class="d" style="font-size:44px;margin-top:8px;">Every line.</div>'
+  '<div class="d o" style="font-size:44px;">Colour-coded.</div>'
+  '<div class="panel" style="margin-top:12px;"><h6><span>GPS track map</span><span class="lgd"><span><i style="background:#D6281C"></i>Slow</span>'
+  f'<span><i style="background:#966E14"></i>Medium</span><span><i style="background:#3CC81E"></i>Fast</span></span></h6>{svg2}</div>'
   '<p class="sub" style="margin-top:auto;">Racing lines drawn from GPS. Example data.</p>',
   FOOT, [
   "Every line. Colour-coded. 🗺️\n\nThe Kart Connect Data Logger draws your racing line straight from GPS and colours it from slow to fast, so you can see exactly where you're carrying speed and where you're not.\n\nOverlay a team-mate and see precisely where your lines split. 👀\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData #RacingLine",
