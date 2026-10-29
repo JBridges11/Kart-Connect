@@ -17,8 +17,10 @@ export function LoginPage({ defaultMode = 'signin' }: Props) {
   const { language } = useLanguage()
 
   const [mode, setMode] = useState<Mode>(
-    // Never allow register mode on native — accounts are created via the website
-    !isNative && searchParams.get('mode') === 'register' ? 'register' : defaultMode
+    // Native: always sign-in only — accounts must be created via the website
+    isNative ? 'signin'
+      : searchParams.get('mode') === 'register' ? 'register'
+      : defaultMode
   )
 
   const [email, setEmail]       = useState('')

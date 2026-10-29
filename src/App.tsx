@@ -95,9 +95,11 @@ const router = createBrowserRouter([
     element: <AuthLayout><LoginPage /></AuthLayout>,
   },
   {
-    // /register shows the same combined auth page with Create Account tab pre-selected
+    // /register is web-only — native redirects to sign-in (no in-app account creation)
     path: '/register',
-    element: <AuthLayout><LoginPage defaultMode="register" /></AuthLayout>,
+    element: isNative
+      ? <Navigate to="/login" replace />
+      : <AuthLayout><LoginPage defaultMode="register" /></AuthLayout>,
   },
   {
     // Accessible without auth — token in query string signs the user in
