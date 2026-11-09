@@ -147,7 +147,7 @@ p1 = (
   '<div class="d o" style="font-size:60pt;">Every lap.</div>'
   '<p class="lead" style="margin-top:6mm;max-width:150mm;">Kart Connect is the one place for everything that happens to your kart: '
   'every setup change, every session, every lap time and the conditions it was set in. Built for drivers, mechanics and team managers '
-  'who want to stop guessing and start knowing.</p>'
+  'who want to stop guessing and start winning.</p>'
   '<div class="hero">'
   f'<div class="shot s1"><img src="{SHOTS}app-setup.png" alt=""></div>'
   f'<div class="shot s2"><img src="{SHOTS}report.png" alt=""></div>'

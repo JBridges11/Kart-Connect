@@ -3,7 +3,7 @@ KART CONNECT TRI-FOLD LEAFLET: NOTES FOR THE DESIGNER / PRINTER
 FORMAT
 - A4 landscape (297 x 210 mm), printed double-sided, roll-folded (letter fold) into thirds.
   Folded size is roughly 100 x 210 mm (DL-ish).
-- Page 1 of the PDF = OUTSIDE.  Page 2 = INSIDE.
+- Page 1 of the PDF = OUTSIDE (dark | light | dark).  Page 2 = INSIDE (light | dark | light).
 - Panel widths, left to right:
     OUTSIDE: fold-in flap 97 mm | back cover 100 mm | front cover 100 mm
     INSIDE:  inside left 100 mm | inside middle 100 mm | inside right (fold-in) 97 mm
@@ -22,6 +22,7 @@ QR CODE
 
 FONTS
 - Headlines: Anton (Google Fonts, free). The file is in fonts/.
+- Slogan: "Stop guessing. Start winning."
 - Body: Inter (Google Fonts, free).
 
 BRAND COLOURS (hex)

@@ -11,6 +11,9 @@ SH = '../assets/shots/'
 buf = io.BytesIO()
 segno.make('https://kart-connect.com', error='m').save(buf, kind='svg', dark='#1A1033', light=None, scale=4, border=0, xmldecl=False, svgns=True)
 QR = buf.getvalue().decode()
+import re as _re
+_m = _re.search(r'width="(\d+)" height="(\d+)"', QR)
+QR = QR.replace(_m.group(0), f'{_m.group(0)} viewBox="0 0 {_m.group(1)} {_m.group(2)}"', 1)
 
 CSS = r'''
 @font-face{font-family:'Anton';font-weight:400;src:url('../concepts/pit-board/fonts/Anton-400n.woff2') format('woff2');}
@@ -87,61 +90,86 @@ p.lead { font-size: 7.4pt; line-height: 1.5; font-weight: 500; opacity: .9; }
 .url { font-family: 'Anton'; font-size: 15pt; color: #F5C842; letter-spacing: .02em; text-align: center; }
 .fold { position: absolute; top: 0; bottom: 0; width: 0; border-left: .3mm dashed #FF00AA; z-index: 9; }
 .foldl { position: absolute; top: 2mm; transform: translateX(-50%); font-size: 5pt; font-weight: 800; color: #FF00AA; background: #fff; padding: .5mm 1mm; z-index: 9; }
+.col { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; }
+.light .url { color: #7B5EA7; }
+.light .plan { background: #fff; border: 1px solid #E2DBF0; box-shadow: 0 1mm 3mm rgba(26,16,51,.06); }
+.light .plan.hi { background: #1A1033; color: #fff; border-color: #1A1033; }
+.light .qr { box-shadow: 0 1.5mm 5mm rgba(26,16,51,.12); }
+.qr { width: 48mm; height: 48mm; display: grid; place-items: center; padding: 0 !important; }
+.qr svg { width: 40mm !important; height: 40mm !important; }
+.ul { list-style: none; display: flex; flex-direction: column; gap: 1.6mm; }
+.ul li { display: flex; gap: 2mm; font-size: 6.8pt; font-weight: 600; line-height: 1.35; }
+.ul li::before { content: ""; flex: none; width: 1.3mm; height: 3.2mm; margin-top: .3mm; border-radius: 99px; transform: rotate(33deg);
+                 background: linear-gradient(180deg, #F5C842, #5CC85A); }
 '''
 
 # ---------------- outside: flap | back | front ----------------
 flap = (
-  '<span class="kick">Why Kart Connect</span>'
-  '<div class="d" style="font-size:24pt;margin-top:2.5mm;">Stop guessing.</div>'
-  '<div class="d o" style="font-size:24pt;">Start knowing.</div>'
+  '<div class="col">'
+  '<div><span class="kick">Why Kart Connect</span>'
+  '<div class="d" style="font-size:27pt;margin-top:2.5mm;">Stop guessing.</div>'
+  '<div class="d o" style="font-size:27pt;">Start winning.</div>'
   '<p class="lead" style="margin-top:3mm;">Every setup change, every session, every lap time and the conditions it was set in, all in one place. '
-  'When a lap goes quick, you know exactly why, and you can get straight back to it.</p>'
-  '<div class="stats" style="margin-top:5mm;flex-direction:row;justify-content:space-between;">'
-  '<div><div class="n" style="color:#7B5EA7">8</div><span>Languages</span></div>'
-  '<div><div class="n" style="color:#3FAF3D">4</div><span>Logger brands, one screen</span></div>'
-  '<div><div class="n" style="color:#D9A514">1</div><span>App for the whole team</span></div></div>'
-  f'<div class="shot" style="margin-top:6mm;"><img src="{SH}report.png" alt="" style="height:52mm;object-fit:cover;object-position:top;"></div>'
-  '<div class="d" style="font-size:13pt;margin-top:auto;">One app. <span class="o">Whole team.</span></div>'
+  'When a lap goes quick, you know exactly why, and you can get straight back to it.</p></div>'
+  '<div class="stats" style="flex-direction:row;justify-content:space-between;">'
+  '<div><div class="n" style="color:#F5C842">8</div><span>Languages</span></div>'
+  '<div><div class="n" style="color:#5CC85A">4</div><span>Logger brands,<br>one screen</span></div>'
+  '<div><div class="n" style="color:#A07FE0">1</div><span>App for the<br>whole team</span></div></div>'
+  f'<div class="shot"><img src="{SH}report.png" alt="" style="height:66mm;object-fit:cover;object-position:top;"></div>'
+  '<div><div class="d" style="font-size:14pt;">One app. <span class="o">Whole team.</span></div>'
   '<div class="stack" style="margin-top:2.5mm;">'
   '<div class="role"><b>Driver</b><span>Gives the feedback on what the kart needs.</span></div>'
   '<div class="role"><b>Mechanic</b><span>Scans the Live Setup QR code and logs each session.</span></div>'
-  '<div class="role"><b>Team manager</b><span>Sees every setup and finds the quickest.</span></div></div>'
+  '<div class="role"><b>Team manager</b><span>Sees every setup and finds the quickest.</span></div></div></div>'
+  '</div>'
 )
 back = (
-  '<span class="kick">Get started</span>'
-  '<div class="d" style="font-size:22pt;margin-top:2.5mm;">Live on the web</div>'
-  '<div class="d o" style="font-size:22pt;">1 December 2026</div>'
-  f'<div class="qr" style="margin-top:6mm;">{QR}</div>'
+  '<div class="col">'
+  '<div><span class="kick">Get started</span>'
+  '<div class="d" style="font-size:24pt;margin-top:2.5mm;">Live on the web</div>'
+  '<div class="d o" style="font-size:24pt;">1 December 2026</div></div>'
+  f'<div style="display:flex;flex-direction:column;align-items:center;"><div class="qr">{QR}</div>'
   '<p class="lead" style="text-align:center;margin-top:2mm;">Scan to visit</p>'
-  '<div class="url" style="margin-top:1mm;">kart-connect.com</div>'
-  '<p class="lead" style="text-align:center;margin-top:5mm;">Built for drivers, mechanics and team managers.<br>iOS, Android and web. 8 languages.</p>'
-  '<div class="stack" style="margin-top:auto;">'
+  '<div class="url" style="margin-top:.5mm;">kart-connect.com</div></div>'
+  '<div><div class="d" style="font-size:12pt;margin-bottom:2mm;">What you get</div><ul class="ul">'
+  '<li>Setup logging with live weather and rain radar</li>'
+  '<li>Tyre pressures and stagger, worked out for you</li>'
+  '<li>Data Logger for AiM, Unipro, Alfano and Starlane</li>'
+  '<li>Live Setup QR codes for your mechanics</li>'
+  '<li>Team leaderboard and setup comparison</li>'
+  '<li>8 languages, any units, phone, tablet or laptop</li></ul></div>'
+  '<div class="stack">'
   '<div class="plan"><b>Privateer</b><span>For the solo racer</span></div>'
   '<div class="plan hi"><b>Team</b><span>Up to 5 drivers</span></div>'
   '<div class="plan"><b>Pro Team</b><span>Up to 30 drivers</span></div></div>'
+  '</div>'
 )
 front = (
-  '<span class="kick" style="margin-top:9mm;">Setup management for karting</span>'
-  '<div class="d" style="font-size:27pt;margin-top:2.5mm;">Every setup.</div>'
-  '<div class="d" style="font-size:27pt;">Every session.</div>'
-  '<div class="d o" style="font-size:27pt;">Every lap.</div>'
-  '<div style="position:relative;height:74mm;margin-top:8mm;">'
-  f'<div class="shot" style="position:absolute;left:0;top:6mm;width:70mm;transform:rotate(-5deg);"><img src="{SH}app-setup.png" alt=""></div>'
-  f'<div class="shot" style="position:absolute;right:0;top:0;width:34mm;transform:rotate(5deg);"><img src="{SH}report.png" alt=""></div>'
-  f'<div class="shot" style="position:absolute;left:6mm;bottom:0;width:56mm;transform:rotate(2deg);"><img src="{SH}live-weather.png" alt=""></div></div>'
-  '<div class="launch" style="margin-top:auto;"><b>Live on the web<br>1 December 2026</b></div>'
+  '<div class="col">'
+  '<div><span class="kick">Setup management for karting</span>'
+  '<div class="d" style="font-size:31pt;margin-top:2.5mm;">Every setup.</div>'
+  '<div class="d" style="font-size:31pt;">Every session.</div>'
+  '<div class="d o" style="font-size:31pt;">Every lap.</div></div>'
+  '<div style="position:relative;height:86mm;">'
+  f'<div class="shot" style="position:absolute;left:0;top:8mm;width:72mm;transform:rotate(-5deg);"><img src="{SH}app-setup.png" alt=""></div>'
+  f'<div class="shot" style="position:absolute;right:0;top:0;width:36mm;transform:rotate(5deg);"><img src="{SH}report.png" alt=""></div>'
+  f'<div class="shot" style="position:absolute;left:4mm;bottom:0;width:60mm;transform:rotate(2deg);"><img src="{SH}live-weather.png" alt=""></div></div>'
+  '<div><div class="d" style="font-size:17pt;margin-bottom:3mm;">Stop guessing. <span class="o">Start winning.</span></div>'
+  '<div class="launch"><b>Live on the web<br>1 December 2026</b></div></div>'
+  '</div>'
 )
 
 svg1s = svg1.replace('width="100%"', 'width="100%" height="100%" preserveAspectRatio="none"')
 # ---------------- inside: 1 | 2 | 3 ----------------
 in1 = (
-  '<span class="kick">Setup &amp; sessions</span>'
+  '<div class="col">'
+  '<div><span class="kick">Setup &amp; sessions</span>'
   '<div class="d" style="font-size:20pt;margin-top:2mm;">Log it once.</div>'
-  '<div class="d o" style="font-size:20pt;">Learn from it forever.</div>'
-  f'<div class="shot" style="margin-top:4mm;"><img src="{SH}app-setup.png" alt=""></div>'
-  '<div class="stack" style="margin-top:4mm;">'
+  '<div class="d o" style="font-size:20pt;">Learn from it forever.</div></div>'
+  f'<div class="shot"><img src="{SH}app-setup.png" alt=""></div>'
   '<div class="t"><span class="tag">Setup logging</span><b>Every part of the kart</b><p>Rear, engine, front end, wheels and tyres, chassis. Tap-to-select, so a session takes seconds.</p></div>'
   '<div class="t"><span class="tag">Your profile</span><b>Set it up once</b><p>Add your karts, chassis, engines, carbs and exhausts. Rank them 1 to 5 and every new session fills itself in.</p></div>'
+  '<div class="t"><span class="tag">Engine monitoring</span><b>Know your engine</b><p>Engine temp, RPM, speed and exhaust temp, max and low, saved with every session.</p></div>'
   '<div class="t"><span class="tag">Race weekends</span><b>Practice to final</b><p>Every session of the weekend kept together, in order.</p>'
   '<div class="wk"><div>P</div><div>Q</div><div>H1</div><div>H2</div><div>PF</div><div>F</div></div></div>'
   '<div class="t"><span class="tag">Voice notes &amp; reports</span><b>Say it. Share it.</b><p>Speak your feedback between heats and share a clean PDF of every session.</p></div>'
@@ -204,8 +232,8 @@ def sheet(b, panels, guides):
 
 def doc(b, guides):
     W, H = 297 + 2 * b, 210 + 2 * b
-    outside = sheet(b, [(97, 'light', flap, True), (100, 'dark', back, True), (100, 'dark', front, True)], guides)
-    inside = sheet(b, [(100, 'light', in1, False), (100, 'light', in2, False), (97, 'dark', in3, False)], guides)
+    outside = sheet(b, [(97, 'dark', flap, True), (100, 'light', back, True), (100, 'dark', front, True)], guides)
+    inside = sheet(b, [(100, 'light', in1, False), (100, 'dark', in3, False), (97, 'light', in2, False)], guides)
     return ('<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><title>Kart Connect tri-fold</title>'
             f'<style>@page {{ size: {W}mm {H}mm; margin: 0; }} :root {{ --w: {W}mm; --h: {H}mm; --b: {b}mm; }}{CSS}</style></head><body>'
             + outside + inside + '</body></html>')
