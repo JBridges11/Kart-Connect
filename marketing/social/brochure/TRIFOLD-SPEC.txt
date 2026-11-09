@@ -1,0 +1,40 @@
+KART CONNECT TRI-FOLD LEAFLET: NOTES FOR THE DESIGNER / PRINTER
+
+FORMAT
+- A4 landscape (297 x 210 mm), printed double-sided, roll-folded (letter fold) into thirds.
+  Folded size is roughly 100 x 210 mm (DL-ish).
+- Page 1 of the PDF = OUTSIDE.  Page 2 = INSIDE.
+- Panel widths, left to right:
+    OUTSIDE: fold-in flap 97 mm | back cover 100 mm | front cover 100 mm
+    INSIDE:  inside left 100 mm | inside middle 100 mm | inside right (fold-in) 97 mm
+  The fold-in panel is 3 mm narrower so it tucks in flat.
+  Fold lines: outside at 97 mm and 197 mm from the left; inside at 100 mm and 200 mm from the left.
+- Print file: kart-connect-trifold-A4-print-3mm-bleed.pdf
+  Page size 303 x 216 mm = A4 plus 3 mm bleed on every side. All text sits at least 7 mm inside the trim and fold lines.
+- Fold guide file: kart-connect-trifold-A4-fold-guides.pdf
+  Trimmed A4 with pink dashed FOLD lines, for checking only. Do not print it.
+- No crop or fold marks are on the print file. Please add them if the printer needs them.
+- The PDF is RGB. Convert to CMYK and check the yellow-green gradients.
+- Suggested stock: 170 gsm silk (folds cleanly). Crease before folding if heavier.
+
+QR CODE
+- On the back cover. It is a real QR code linking to https://kart-connect.com. Please test-scan the printed proof.
+
+FONTS
+- Headlines: Anton (Google Fonts, free). The file is in fonts/.
+- Body: Inter (Google Fonts, free).
+
+BRAND COLOURS (hex)
+- Ink #1A1033 · Purple #7B5EA7 · Lilac #A07FE0 · Yellow #F5C842 · Green #5CC85A
+- Dark background gradient: #3A2468 > #1C1236 > #0E0919
+- Headline gradient: #F5C842 > #5CC85A > #A07FE0
+
+ASSETS (assets/)
+- logo.png (light backgrounds), logo-white.png (dark backgrounds)
+- App screenshots: app-setup.png, report.png, live-weather.png, rain-radar.png, rain-radar-wide.png
+  These are screenshots, so they print best no larger than shown.
+
+CONTENT NOTES
+- Launch: "Live on the web 1 December 2026". Website: kart-connect.com
+- Video vs video (GoPro/DJI) is marked "Coming soon". Everything else is live at launch.
+- Lap times, traces and pressures shown are example data.
