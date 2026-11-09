@@ -1,0 +1,33 @@
+KART CONNECT LEAFLET: NOTES FOR THE DESIGNER / PRINTER
+
+FORMAT
+- A5 portrait (148 x 210 mm), printed double-sided: front (dark) and back (light).
+- Print file: kart-connect-leaflet-A5-print-3mm-bleed.pdf
+  Page size 154 x 216 mm = A5 plus 3 mm bleed on every side. Backgrounds and the chequered strip run into the bleed.
+  All text and logos sit at least 8 mm inside the trim line.
+- Preview file (trimmed, no bleed): kart-connect-leaflet-A5-preview.pdf
+- No crop marks are included. Please add them if the printer needs them.
+- The PDF is RGB. Convert to CMYK for print and check the yellow-green gradient, which may look less vivid in CMYK.
+- Suggested stock: 350 gsm silk or matt, double-sided.
+
+FONTS
+- Headlines: Anton (Google Fonts, free). The file is in fonts/.
+- Body: Inter (Google Fonts, free).
+
+BRAND COLOURS (hex)
+- Ink / dark text: #1A1033
+- Purple: #7B5EA7   Lilac: #A07FE0
+- Yellow: #F5C842   Green: #5CC85A
+- Dark background gradient: #3A2468 > #1C1236 > #0E0919
+- Headline gradient: #F5C842 > #5CC85A > #A07FE0
+
+ASSETS (assets/)
+- logo.png (for light backgrounds), logo-white.png (for dark backgrounds)
+- App screenshots: app-setup.png, report.png, live-weather.png, rain-radar.png
+  These are screenshots, so they print best no larger than shown.
+- The speed trace and track map are vector graphics inside the PDF.
+
+CONTENT NOTES
+- Launch: "Live on the web 1 December 2026". Website: kart-connect.com
+- Video vs video (GoPro/DJI) is marked "Coming soon". Everything else is live at launch.
+- Lap times, traces and pressures shown are example data.
