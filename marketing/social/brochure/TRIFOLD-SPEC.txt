@@ -38,7 +38,7 @@ ASSETS (assets/)
   These are screenshots, so they print best no larger than shown.
 
 CONTENT NOTES
-- Launch: "Live on the web 1 December 2026". Website: kart-connect.com
+- Launch: "Live on the web 1 December 2026". Website: kart-connect.com. Instagram: @kart_connect
 - Video vs video (GoPro/DJI) is marked "Coming soon". Everything else is live at launch.
 - Lap times, traces and pressures shown are example data.
 - Prices on the back cover: Privateer £12.99/month or £124.99/year (30-day free trial), Team £29.99/month or £287.99/year,

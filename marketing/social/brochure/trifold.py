@@ -114,6 +114,11 @@ p.lead { font-size: 7.4pt; line-height: 1.5; font-weight: 500; opacity: .9; }
 .pp .pr span { font-size: 6pt; font-weight: 700; opacity: .8; }
 .pp .pr i { display: block; font-style: normal; font-size: 5.4pt; font-weight: 600; opacity: .7; }
 
+.ig { display: inline-flex; align-items: center; gap: 1.6mm; margin-top: 2mm; font-size: 8pt; font-weight: 600; }
+.ig b { font-weight: 800; color: #7B5EA7; }
+.dark .ig b { color: #F5C842; }
+.igi { display: inline-block; width: 4.2mm; height: 4.2mm; line-height: 0; }
+
 .col { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; }
 .light .url { color: #7B5EA7; }
 .light .plan { background: #fff; border: 1px solid #E2DBF0; box-shadow: 0 1mm 3mm rgba(26,16,51,.06); }
@@ -163,14 +168,15 @@ back = (
   '<div class="d o" style="font-size:24pt;">1 December 2026</div></div>'
   f'<div style="display:flex;flex-direction:column;align-items:center;"><div class="qr">{QR}</div>'
   '<p class="lead" style="text-align:center;margin-top:2mm;">Scan to visit</p>'
-  '<div class="url" style="margin-top:.5mm;">kart-connect.com</div></div>'
+  '<div class="url" style="margin-top:.5mm;">kart-connect.com</div>'
+  '<div class="ig"><span class="igi"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg></span>Follow us <b>@kart_connect</b></div></div>'
   '<div><div class="d" style="font-size:12pt;margin-bottom:2mm;">What you get</div><ul class="ul">'
   '<li>Setup logging with live weather and rain radar</li>'
+  '<li>Dashboard scanner: snap your dash, engine data fills in</li>'
   '<li>Tyre pressures and stagger, worked out for you</li>'
   '<li>Data Logger for AiM, Unipro, Alfano and Starlane</li>'
   '<li>QR mode: mechanics log setups straight to the team manager</li>'
-  '<li>Team leaderboard and setup comparison</li>'
-  '<li>8 languages, any units, any device</li></ul></div>'
+    '<li>8 languages, any units, any device</li></ul></div>'
   '<div class="stack">'
   '<div class="pp"><div><b>Privateer</b><span>Solo racer &middot; 30-day free trial</span></div><div class="pr"><b>&pound;12.99</b><span>/month</span><i>or &pound;124.99/year</i></div></div>'
   '<div class="pp hi"><div><b>Team</b><span>Up to 5 drivers</span></div><div class="pr"><b>&pound;29.99</b><span>/month</span><i>or &pound;287.99/year</i></div></div>'
@@ -189,7 +195,8 @@ front = (
   f'<div class="shot" style="position:absolute;left:2mm;top:64mm;width:74mm;transform:rotate(2deg);z-index:1;"><img src="{SH}rain-radar-wide.png" alt=""></div>'
   f'<div class="shot" style="position:absolute;left:12mm;top:44mm;width:62mm;transform:rotate(-1deg);z-index:3;"><img src="{SH}live-weather.png" alt=""></div></div>'
   '<div><div class="d" style="font-size:17pt;margin-bottom:3mm;">Stop guessing. <span class="o">Start winning.</span></div>'
-  '<div class="launch"><b>Live on the web<br>1 December 2026</b></div></div>'
+  '<div class="launch" style="display:flex;justify-content:space-between;align-items:center;gap:2mm;"><b>Live on the web<br>1 December 2026</b>'
+  '<div style="text-align:right;font-size:6.4pt;font-weight:800;line-height:1.5;">kart-connect.com<br><span style="display:inline-flex;align-items:center;gap:1mm;"><span class="igi" style="width:3mm;height:3mm;"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg></span>@kart_connect</span></div></div></div>'
   '</div>'
 )
 
@@ -203,7 +210,7 @@ in1 = (
   f'<div class="shot"><img src="{SH}app-setup.png" alt=""></div>'
   '<div class="t"><span class="tag">Setup logging</span><b>Every part of the kart</b><p>Rear, engine, front end, wheels and tyres, chassis. Tap-to-select, so a session takes seconds.</p></div>'
   '<div class="t"><span class="tag">Your profile</span><b>Set it up once</b><p>Add your karts, chassis, engines, carbs and exhausts. Rank them 1 to 5 and every new session fills itself in.</p></div>'
-  '<div class="t"><span class="tag">Engine monitoring</span><b>Know your engine</b><p>Engine temp, RPM, speed and exhaust temp, max and low, saved with every session.</p></div>'
+  '<div class="t"><span class="tag">Dashboard scanner</span><b>Snap your dash. Done.</b><p>Take a photo of your logger dashboard after the session and Kart Connect scans in your post-session engine data: engine temp, RPM, speed and exhaust temp. No typing.</p></div>'
   '<div class="t"><span class="tag">Race weekends</span><b>Practice to final</b><p>Every session of the weekend kept together, in order.</p>'
   '<div class="wk"><div>P</div><div>Q</div><div>H1</div><div>H2</div><div>PF</div><div>F</div></div></div>'
   '<div class="t"><span class="tag">Voice notes &amp; reports</span><b>Say it. Share it.</b><p>Speak your feedback between heats and share a clean PDF of every session.</p></div>'
