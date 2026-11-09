@@ -105,6 +105,15 @@ p.lead { font-size: 7.4pt; line-height: 1.5; font-weight: 500; opacity: .9; }
 .lv .row2.ok { background: #F1FBF2; } .lv .row2.ok i { color: #2EAD3B; }
 .lv .row2.ip { background: #FFFBE6; } .lv .row2.ip i { color: #C08A00; }
 
+.pp { border-radius: 2mm; padding: 2mm 3mm; display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #E2DBF0; box-shadow: 0 1mm 3mm rgba(26,16,51,.06); }
+.pp.hi { background: #1A1033; color: #fff; border-color: #1A1033; }
+.pp b { font-family: 'Anton'; font-weight: 400; font-size: 11pt; text-transform: uppercase; display: block; line-height: 1.05; }
+.pp > div > span { font-size: 5.6pt; font-weight: 700; opacity: .8; }
+.pp .pr { text-align: right; }
+.pp .pr b { display: inline; font-size: 13pt; color: #7B5EA7; } .pp.hi .pr b { color: #F5C842; }
+.pp .pr span { font-size: 6pt; font-weight: 700; opacity: .8; }
+.pp .pr i { display: block; font-style: normal; font-size: 5.4pt; font-weight: 600; opacity: .7; }
+
 .col { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; }
 .light .url { color: #7B5EA7; }
 .light .plan { background: #fff; border: 1px solid #E2DBF0; box-shadow: 0 1mm 3mm rgba(26,16,51,.06); }
@@ -161,11 +170,11 @@ back = (
   '<li>Data Logger for AiM, Unipro, Alfano and Starlane</li>'
   '<li>QR mode: mechanics log setups straight to the team manager</li>'
   '<li>Team leaderboard and setup comparison</li>'
-  '<li>8 languages, any units, phone, tablet or laptop</li></ul></div>'
+  '<li>8 languages, any units, any device</li></ul></div>'
   '<div class="stack">'
-  '<div class="plan"><b>Privateer</b><span>For the solo racer</span></div>'
-  '<div class="plan hi"><b>Team</b><span>Up to 5 drivers</span></div>'
-  '<div class="plan"><b>Pro Team</b><span>Up to 30 drivers</span></div></div>'
+  '<div class="pp"><div><b>Privateer</b><span>Solo racer &middot; 30-day free trial</span></div><div class="pr"><b>&pound;12.99</b><span>/month</span><i>or &pound;124.99/year</i></div></div>'
+  '<div class="pp hi"><div><b>Team</b><span>Up to 5 drivers</span></div><div class="pr"><b>&pound;29.99</b><span>/month</span><i>or &pound;287.99/year</i></div></div>'
+  '<div class="pp"><div><b>Pro Team</b><span>Up to 30 drivers</span></div><div class="pr"><b>&pound;49.99</b><span>/month</span><i>or &pound;479.99/year</i></div></div></div>'
   '</div>'
 )
 front = (
@@ -176,7 +185,7 @@ front = (
   '<div class="d o" style="font-size:31pt;">Every lap.</div></div>'
   '<div style="position:relative;height:108mm;">'
   f'<div class="shot" style="position:absolute;left:0;top:12mm;width:76mm;transform:rotate(-4deg);z-index:1;"><img src="{SH}app-setup.png" alt=""></div>'
-  f'<div class="shot" style="position:absolute;right:0;top:0;width:38mm;transform:rotate(4deg);z-index:2;"><img src="{SH}report.png" alt=""></div>'
+  f'<div class="shot" style="position:absolute;right:0;top:0;width:38mm;transform:rotate(4deg);z-index:2;"><img src="{SH}report-datalogger.png" alt=""></div>'
   f'<div class="shot" style="position:absolute;left:2mm;top:64mm;width:74mm;transform:rotate(2deg);z-index:1;"><img src="{SH}rain-radar-wide.png" alt=""></div>'
   f'<div class="shot" style="position:absolute;left:12mm;top:44mm;width:62mm;transform:rotate(-1deg);z-index:3;"><img src="{SH}live-weather.png" alt=""></div></div>'
   '<div><div class="d" style="font-size:17pt;margin-bottom:3mm;">Stop guessing. <span class="o">Start winning.</span></div>'
