@@ -33,7 +33,8 @@ BRAND COLOURS (hex)
 
 ASSETS (assets/)
 - logo.png (light backgrounds), logo-white.png (dark backgrounds)
-- App screenshots: app-setup.png, report.png, live-weather.png, rain-radar.png, rain-radar-wide.png
+- App screenshots: app-setup.png, report.png, live-weather.png, rain-radar.png, rain-radar-wide.png,
+  logger-channels.png, logger-channel-bar.png, logger-map.png (Data Logger; cropped so no track name shows)
   These are screenshots, so they print best no larger than shown.
 
 CONTENT NOTES
