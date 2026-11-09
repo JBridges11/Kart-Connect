@@ -18,7 +18,8 @@ FORMAT
 - Suggested stock: 170 gsm silk (folds cleanly). Crease before folding if heavier.
 
 QR CODE
-- On the back cover. It is a real QR code linking to https://kart-connect.com. Please test-scan the printed proof.
+- On the back cover. It is a real QR code linking to https://kart-connect.com (decoded and checked from the artwork). Please still test-scan the printed proof.
+- The Live Setup / QR mode panel on the flap is an illustration of the app, not a scannable code.
 
 FONTS
 - Headlines: Anton (Google Fonts, free). The file is in fonts/.

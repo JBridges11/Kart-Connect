@@ -90,6 +90,21 @@ p.lead { font-size: 7.4pt; line-height: 1.5; font-weight: 500; opacity: .9; }
 .url { font-family: 'Anton'; font-size: 15pt; color: #F5C842; letter-spacing: .02em; text-align: center; }
 .fold { position: absolute; top: 0; bottom: 0; width: 0; border-left: .3mm dashed #FF00AA; z-index: 9; }
 .foldl { position: absolute; top: 2mm; transform: translateX(-50%); font-size: 5pt; font-weight: 800; color: #FF00AA; background: #fff; padding: .5mm 1mm; z-index: 9; }
+.qm { border-radius: 2.5mm; padding: 3mm; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); }
+.qm .tag { background: rgba(245,200,66,.16); color: #F5C842; }
+.lv { background: #fff; border-radius: 2mm; color: #1A1033; overflow: hidden; margin-top: 2.5mm; box-shadow: 0 2mm 5mm rgba(0,0,0,.35); }
+.lv .hd { padding: 2mm 2.6mm 1.8mm; border-bottom: 1px solid #EEE9F6; }
+.lv .t1 { display: flex; justify-content: space-between; font-size: 4.6pt; font-weight: 800; letter-spacing: .14em; color: #8A8398; }
+.lv .t1 em { font-style: normal; color: #2EAD3B; }
+.lv b { display: block; font-size: 7.6pt; font-weight: 800; margin-top: .6mm; }
+.lv .st { display: flex; gap: 2mm; font-size: 5pt; font-weight: 700; margin-top: .6mm; }
+.lv .st span:first-child { color: #2EAD3B; } .lv .st span:last-child { color: #C08A00; }
+.lv .row2 { display: flex; justify-content: space-between; padding: 1.3mm 2.6mm; font-size: 6pt; font-weight: 700; border-bottom: 1px solid #F1EEF6; }
+.lv .row2:last-child { border-bottom: 0; }
+.lv .row2 i { font-style: normal; font-size: 5pt; color: #9A93A8; }
+.lv .row2.ok { background: #F1FBF2; } .lv .row2.ok i { color: #2EAD3B; }
+.lv .row2.ip { background: #FFFBE6; } .lv .row2.ip i { color: #C08A00; }
+
 .col { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; }
 .light .url { color: #7B5EA7; }
 .light .plan { background: #fff; border: 1px solid #E2DBF0; box-shadow: 0 1mm 3mm rgba(26,16,51,.06); }
@@ -115,11 +130,20 @@ flap = (
   '<div><div class="n" style="color:#F5C842">8</div><span>Languages</span></div>'
   '<div><div class="n" style="color:#5CC85A">4</div><span>Logger brands,<br>one screen</span></div>'
   '<div><div class="n" style="color:#A07FE0">1</div><span>App for the<br>whole team</span></div></div>'
-  f'<div class="shot"><img src="{SH}report.png" alt="" style="height:66mm;object-fit:cover;object-position:top;"></div>'
+  '<div class="qm"><span class="tag">QR mode &middot; Live Setup</span>'
+  '<div class="d" style="font-size:15pt;">Scan it. Set it. <span class="o">Sent.</span></div>'
+  '<p style="font-size:6.4pt;line-height:1.45;opacity:.9;margin-top:1.2mm;">Give your mechanics a QR code for the race weekend. They scan it, log the setup for every session '
+  'and submit it straight to the team manager, who can compare every setup to find the quickest.</p>'
+  '<div class="lv"><div class="hd"><div class="t1"><span>ROUND 4</span><em>LIVE SETUP</em></div><b>Welcome, Alex</b>'
+  '<div class="st"><span>1 submitted</span><span>1 in progress</span></div></div>'
+  '<div class="row2 ok"><span>Practice 1</span><i>&#10003; Submitted</i></div>'
+  '<div class="row2 ip"><span>Qualifying 1</span><i>&#9679; In progress</i></div>'
+  '<div class="row2"><span>Heat 1</span><i>+ Start</i></div>'
+  '<div class="row2"><span>Final</span><i>+ Start</i></div></div></div>'
   '<div><div class="d" style="font-size:14pt;">One app. <span class="o">Whole team.</span></div>'
   '<div class="stack" style="margin-top:2.5mm;">'
   '<div class="role"><b>Driver</b><span>Gives the feedback on what the kart needs.</span></div>'
-  '<div class="role"><b>Mechanic</b><span>Scans the Live Setup QR code and logs each session.</span></div>'
+  '<div class="role"><b>Mechanic</b><span>Logs each session through QR mode, no paperwork.</span></div>'
   '<div class="role"><b>Team manager</b><span>Sees every setup and finds the quickest.</span></div></div></div>'
   '</div>'
 )
@@ -135,7 +159,7 @@ back = (
   '<li>Setup logging with live weather and rain radar</li>'
   '<li>Tyre pressures and stagger, worked out for you</li>'
   '<li>Data Logger for AiM, Unipro, Alfano and Starlane</li>'
-  '<li>Live Setup QR codes for your mechanics</li>'
+  '<li>QR mode: mechanics log setups straight to the team manager</li>'
   '<li>Team leaderboard and setup comparison</li>'
   '<li>8 languages, any units, phone, tablet or laptop</li></ul></div>'
   '<div class="stack">'
