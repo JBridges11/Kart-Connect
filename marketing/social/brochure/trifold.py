@@ -119,13 +119,18 @@ p.lead { font-size: 7.4pt; line-height: 1.5; font-weight: 500; opacity: .9; }
 .dark .ig b { color: #F5C842; }
 .igi { display: inline-block; width: 4.2mm; height: 4.2mm; line-height: 0; }
 
+.pp .pr i em { font-style: normal; font-weight: 800; color: #3FAF3D; opacity: 1; }
+.pp.hi .pr i em { color: #5CC85A; }
+.save { text-align: center; font-size: 7pt; font-weight: 700; padding: 1.4mm 2mm; border-radius: 99px; background: linear-gradient(95deg, #F5C842, #5CC85A); color: #1A1033; }
+.save b { font-weight: 900; }
+
 .col { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; }
 .light .url { color: #7B5EA7; }
 .light .plan { background: #fff; border: 1px solid #E2DBF0; box-shadow: 0 1mm 3mm rgba(26,16,51,.06); }
 .light .plan.hi { background: #1A1033; color: #fff; border-color: #1A1033; }
 .light .qr { box-shadow: 0 1.5mm 5mm rgba(26,16,51,.12); }
-.qr { width: 48mm; height: 48mm; display: grid; place-items: center; padding: 0 !important; }
-.qr svg { width: 40mm !important; height: 40mm !important; }
+.qr { width: 40mm; height: 40mm; display: grid; place-items: center; padding: 0 !important; }
+.qr svg { width: 34mm !important; height: 34mm !important; }
 .ul { list-style: none; display: flex; flex-direction: column; gap: 1.6mm; }
 .ul li { display: flex; gap: 2mm; font-size: 6.8pt; font-weight: 600; line-height: 1.35; }
 .ul li::before { content: ""; flex: none; width: 1.3mm; height: 3.2mm; margin-top: .3mm; border-radius: 99px; transform: rotate(33deg);
@@ -176,11 +181,12 @@ back = (
   '<li>Tyre pressures and stagger, worked out for you</li>'
   '<li>Data Logger for AiM, Unipro, Alfano and Starlane</li>'
   '<li>QR mode: mechanics log setups straight to the team manager</li>'
-    '<li>8 languages, any units, any device</li></ul></div>'
+    '</ul></div>'
   '<div class="stack">'
-  '<div class="pp"><div><b>Privateer</b><span>Solo racer &middot; 30-day free trial</span></div><div class="pr"><b>&pound;12.99</b><span>/month</span><i>or &pound;124.99/year</i></div></div>'
-  '<div class="pp hi"><div><b>Team</b><span>Up to 5 drivers</span></div><div class="pr"><b>&pound;29.99</b><span>/month</span><i>or &pound;287.99/year</i></div></div>'
-  '<div class="pp"><div><b>Pro Team</b><span>Up to 30 drivers</span></div><div class="pr"><b>&pound;49.99</b><span>/month</span><i>or &pound;479.99/year</i></div></div></div>'
+  '<div class="save">Pay annually and <b>save 20%</b> on every plan</div>'
+  '<div class="pp"><div><b>Privateer</b><span>Solo racer &middot; 30-day free trial</span></div><div class="pr"><b>&pound;12.99</b><span>/month</span><i>or &pound;124.99/year &middot; <em>save 20%</em></i></div></div>'
+  '<div class="pp hi"><div><b>Team</b><span>Up to 5 drivers</span></div><div class="pr"><b>&pound;29.99</b><span>/month</span><i>or &pound;287.99/year &middot; <em>save 20%</em></i></div></div>'
+  '<div class="pp"><div><b>Pro Team</b><span>Up to 30 drivers</span></div><div class="pr"><b>&pound;49.99</b><span>/month</span><i>or &pound;479.99/year &middot; <em>save 20%</em></i></div></div></div>'
   '</div>'
 )
 front = (
@@ -217,21 +223,22 @@ in1 = (
   '</div>'
 )
 in2 = (
-  '<span class="kick">Conditions &amp; tyres</span>'
-  '<div class="d" style="font-size:20pt;margin-top:2mm;">Know the track.</div>'
-  '<div class="d o" style="font-size:20pt;">Nail the pressures.</div>'
-  '<div class="t" style="margin-top:4mm;"><span class="tag">Live weather &amp; rain radar</span><b>Conditions, saved automatically</b>'
-  '<p>One tap saves live temperature, humidity and conditions with the session. The rain radar shows what&rsquo;s heading your way.</p>'
-  f'<div class="shot" style="margin-top:2mm;border-width:.8mm;"><img src="{SH}rain-radar-wide.png" alt=""></div>'
-  f'<div class="shot" style="margin-top:2mm;border-width:.8mm;"><img src="{SH}live-weather.png" alt=""></div></div>'
-  '<div class="t" style="margin-top:2.4mm;"><span class="tag">Tyre pressures</span><b>Cold. Hot. Sorted.</b>'
-  '<p>Record hot pressures after the run and get your next cold pressures, with the stagger worked out per corner.</p>'
+  '<div class="col">'
+  '<div><span class="kick">Conditions, tyres &amp; comparison</span>'
+  '<div class="d" style="font-size:19pt;margin-top:2mm;">Know the track.</div><div class="d o" style="font-size:19pt;">Nail the setup.</div></div>'
+  '<div class="t"><span class="tag">Live weather &amp; rain radar</span><b>Conditions, saved automatically</b>'
+  '<p>Live temperature, humidity and conditions saved with every session, plus the rain radar.</p>'
+  f'<div class="shot" style="margin-top:1.6mm;border-width:.7mm;"><img src="{SH}rain-radar-wide.png" alt="" style="height:27mm;object-fit:cover;"></div></div>'
+  '<div class="t"><span class="tag">Tyre pressures</span><b>Cold. Hot. Sorted.</b>'
+  '<p>Hot pressures in, next cold pressures and stagger out, per corner.</p>'
   '<table class="pt"><tr><th></th><th>FL</th><th>FR</th><th>RL</th><th>RR</th></tr>'
   '<tr class="c"><td>COLD</td><td>9.00</td><td>9.00</td><td>9.00</td><td>9.00</td></tr>'
   '<tr class="h"><td>HOT</td><td>12.62</td><td>13.40</td><td>12.18</td><td>13.04</td></tr>'
   '<tr class="n"><td>NEXT</td><td>9.19<small>+0.19</small></td><td>8.41<small>&minus;0.59</small></td><td>9.63<small>+0.63</small></td><td>8.77<small>&minus;0.23</small></td></tr></table></div>'
-  '<div class="t" style="margin-top:2.4mm;"><span class="tag">Compare &amp; leaderboard</span><b>Every lap has a setup behind it</b>'
-  '<p>Compare any two sessions side by side, and rank the team&rsquo;s lap times with the setup PDF behind each one.</p></div>'
+  '<div class="t"><span class="tag">Compare sessions</span><b>Every change, highlighted</b>'
+  '<p>Pick any two sessions and Kart Connect lists every difference between the setups. Export it as a PDF for the team.</p>'
+  f'<div class="shot" style="margin-top:1.6mm;border-width:.7mm;"><img src="{SH}compare-report.png" alt=""></div></div>'
+  '</div>'
 )
 in3 = (
   '<div class="col">'

@@ -44,3 +44,5 @@ CONTENT NOTES
 - Prices on the back cover: Privateer £12.99/month or £124.99/year (30-day free trial), Team £29.99/month or £287.99/year,
   Pro Team £49.99/month or £479.99/year. Confirm these with Kart Connect before printing.
 - The session report on the front cover is a real Data Logger report, with the driver and track names replaced by "Driver A" / "Test day".
+- Annual plans are about 20% cheaper than paying monthly for 12 months (e.g. £12.99 x 12 = £155.88 vs £124.99). The leaflet says "save 20%".
+- The comparison report (inside right) is a real Kart Connect setup comparison, with the track and kart names replaced by "Test day" / "Your kart".
