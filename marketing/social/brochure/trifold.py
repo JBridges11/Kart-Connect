@@ -157,7 +157,7 @@ flap = (
   '<div class="st"><span>1 submitted</span><span>1 in progress</span></div></div>'
   '<div class="row2 ok"><span>Practice 1</span><i>&#10003; Submitted</i></div>'
   '<div class="row2 ip"><span>Qualifying 1</span><i>&#9679; In progress</i></div>'
-  '<div class="row2"><span>Heat 1</span><i>+ Start</i></div>'
+  '<div class="row2"><span>Heat 2</span><i>+ Start</i></div>'
   '<div class="row2"><span>Final</span><i>+ Start</i></div></div></div>'
   '<div><div class="d" style="font-size:14pt;">One app. <span class="o">Whole team.</span></div>'
   '<div class="stack" style="margin-top:2.5mm;">'
