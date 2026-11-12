@@ -14,6 +14,14 @@ CSS11 = g10.CSS10 + r'''
 .ct td:first-child { text-align: left; font-family: 'Anton'; font-weight: 400; font-size: 12.5px; letter-spacing: .02em; text-transform: uppercase; }
 .ct .y { color: #5CC85A; font-weight: 800; } .ct .hw { color: #F5C842; font-weight: 800; } .ct .no { opacity: .55; }
 .ct small { display: block; font-size: 7.5px; font-weight: 600; opacity: .7; margin-top: 1px; }
+.chl2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.chl2 div { border-radius: 10px; padding: 6px 11px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); }
+.chl2 b { display: block; font-family: 'Anton'; font-weight: 400; font-size: 18px; text-transform: uppercase; line-height: 1.05; }
+.chl2 span { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; opacity: .7; }
+.chl2 div:nth-child(3n+1) b { color: #F5C842; } .chl2 div:nth-child(3n+2) b { color: #5CC85A; } .chl2 div:nth-child(3n) b { color: #A07FE0; }
+.chl2 div.hl2 { background: linear-gradient(95deg, #F5C842, #5CC85A); border: 0; color: #1A1033; } .chl2 div.hl2 b { color: #1A1033; }
+.cbar { display: flex; flex-wrap: wrap; gap: 6px; }
+.cbar span { font-size: 11px; font-weight: 800; padding: 6px 10px; border-radius: 99px; background: #C8930F; color: #fff; }
 .gk { display: flex; gap: 10px; font-size: 9.5px; font-weight: 700; }
 .gk i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
 '''
@@ -21,21 +29,19 @@ CSS11 = g10.CSS10 + r'''
 P = []
 P.append(('dark', 'seven-channels', '7 channels. Every logger.',
   '<div class="kick">Data Logger</div>'
-  '<div class="d" style="font-size:40px;margin-top:8px;">7 channels.</div>'
-  '<div class="d o" style="font-size:40px;">Every logger.</div>'
-  '<table class="ct" style="margin-top:10px;"><tr><th>Channel</th><th>Unipro</th><th>AiM MyChron 5</th><th>Alfano</th></tr>'
-  '<tr><td>Speed</td><td class="y">&#10003;<small>GPS</small></td><td class="y">&#10003;<small>GPS</small></td><td class="y">&#10003;<small>GPS</small></td></tr>'
-  '<tr><td>RPM</td><td class="y">&#10003;</td><td class="y">&#10003;</td><td class="y">&#10003;</td></tr>'
-  '<tr><td>Lateral G</td><td class="y">&#10003;<small>GPS-computed</small></td><td class="hw">&#10003;<small>Hardware sensor</small></td><td class="y">&#10003;<small>GPS-computed</small></td></tr>'
-  '<tr><td>Long. G</td><td class="y">&#10003;<small>GPS-computed</small></td><td class="hw">&#10003;<small>Hardware sensor</small></td><td class="y">&#10003;<small>GPS-computed</small></td></tr>'
-  '<tr><td>&Delta; Time</td><td class="y">&#10003;</td><td class="y">&#10003;</td><td class="y">&#10003;</td></tr>'
-  '<tr><td>Water temp</td><td class="y">&#10003;</td><td class="y">&#10003;</td><td class="y">&#10003;</td></tr>'
-  '<tr><td>EGT</td><td class="y">&#10003;</td><td class="no">&mdash;<small>No probe</small></td><td class="y">&#10003;<small>Model dependent</small></td></tr></table>',
+  '<div class="d" style="font-size:38px;margin-top:6px;">7 channels.</div>'
+  '<div class="d o" style="font-size:38px;">Every logger.</div>'
+  '<div class="chl2" style="margin-top:14px;">'
+  '<div><b>Speed</b><span>GPS</span></div><div><b>RPM</b><span>Engine</span></div>'
+  '<div><b>Lateral G</b><span>Cornering</span></div><div><b>Long. G</b><span>Braking &amp; drive</span></div>'
+  '<div><b>&Delta; Time</b><span>Live delta</span></div><div><b>Water temp</b><span>Engine</span></div>'
+  '<div><b>EGT</b><span>Exhaust temp</span></div><div class="hl2"><b>One screen</b><span>Overlay any two laps</span></div></div>'
+  '',
   'Data Logger', [
-  "7 channels. Every logger. 📊\n\nUnipro, AiM MyChron 5 or Alfano, Kart Connect pulls the lot onto one screen:\n\n💨 Speed (GPS)\n⚙️ RPM\n↔️ Lateral G\n↕️ Longitudinal G\n⏱️ Δ Time\n💧 Water temp\n🔥 EGT\n\nDifferent brands, same screen, lap against lap. Live on the web 1st December. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #AiM #Unipro #Alfano",
+  "7 channels. Every logger. 📊\n\nKart Connect pulls the lot onto one screen:\n\n💨 Speed (GPS)\n⚙️ RPM\n↔️ Lateral G\n↕️ Longitudinal G\n⏱️ Δ Time\n💧 Water temp\n🔥 EGT\n\nDifferent brands, same screen, lap against lap. Live on the web 1st December. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #AiM #Unipro #Alfano",
   "Unipro. AiM. Alfano. ✅\n\nSeven channels, one screen. The Kart Connect Data Logger.\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting",
   "What logger do you run? 👇\n\nWhatever it is, Kart Connect reads it. Speed, RPM, lateral and longitudinal G, time delta, water temp and EGT, all overlaid so you can compare with a team-mate on a completely different brand. 🤝\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData"],
-  'From your channel table. EGT depends on the Alfano model and AiM MyChron 5 has no EGT probe. Starlane is not in this table, so it is left off this post.'))
+  'EGT depends on the logger (not all models have an EGT probe).'))
 
 P.append(('light', 'feel-the-g', 'Feel the G',
   '<div class="kick">Lateral &amp; longitudinal G</div>'
@@ -50,17 +56,44 @@ P.append(('light', 'feel-the-g', 'Feel the G',
   "Think you're braking late? The G trace knows. 👀\n\nLongitudinal G shows every braking point, lateral G shows how much grip you're actually using. Put your lap next to a quicker one and the difference jumps out. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData"],
   'Real screenshot with the driver and track names cropped out.'))
 
-P.append(('dark', 'whos-quicker', "Who's quicker here?",
-  '<div class="kick">Data Logger</div>'
-  '<div class="d" style="font-size:52px;margin-top:8px;">Who&rsquo;s quicker</div>'
-  '<div class="d o" style="font-size:52px;">here?</div>'
-  '<div style="display:flex;justify-content:center;margin-top:12px;"><div class="shot2" style="width:55%;"><img src="logger-map2.png" alt=""></div></div>'
-  '<p class="sub" style="margin-top:auto;">Tap the map: both laps&rsquo; speed and time, right there.</p>',
+
+P.append(('dark', 'braking-points', 'Brake later. Prove it.',
+  '<div class="kick">Longitudinal G</div>'
+  '<div class="d" style="font-size:54px;margin-top:8px;">Brake later.</div>'
+  '<div class="d o" style="font-size:54px;">Prove it.</div>'
+  '<div class="shot2" style="margin-top:16px;"><img src="logger-g-only.png" alt=""></div>'
+  '<div class="gk" style="margin-top:8px;"><span><i style="background:#EF4444"></i>Lap 8</span><span><i style="background:#5B8CFF"></i>Lap 3</span></div>'
+  '<p class="sub" style="margin-top:auto;">Every dip is a braking zone. See exactly who brakes later, and harder.</p>',
   'Data Logger', [
-  "Who's quicker here? 🤔\n\nLap 8: 71 km/h. Lap 3: 68 km/h. Same corner, 3 km/h difference.\n\nTap any point on the Kart Connect track map and see both laps' speed and time at that exact spot. That's where the tenths are hiding. ⏱️\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData #RacingLine",
-  "71 vs 68 km/h. Same corner. 👀\n\nTap the map, see the difference.\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting",
-  "3 km/h through one corner doesn't sound like much. Over a lap, it's everything. 🏎️\n\nThe Kart Connect Data Logger shows you exactly where you're losing speed, corner by corner, so you know where to push. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartRacing"],
-  'Real screenshot. Names replaced with Lap 8 / Lap 3. The circuit layout is real, so some people may recognise it.'))
+  "Brake later. Prove it. 🛑\n\nEvery dip in the longitudinal G trace is a braking zone. Lay two laps over each other in the Kart Connect Data Logger and you'll see exactly who's braking later, and who's braking harder.\n\nNo more \"I was definitely later than him\". The data settles it. 😏\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData #LateBraker",
+  "Think you brake later than your team-mate? Prove it. 🛑📈\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting",
+  "Tag the mate who swears they out-brake you every lap 👇😂\n\nThe Kart Connect Data Logger shows every braking point, lap against lap. Time to find out who's right. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartRacing"],
+  'Real screenshot, names replaced.'))
+
+P.append(('light', 'where-time-goes', 'Watch the gap grow',
+  '<div class="kick">&Delta; Time</div>'
+  '<div class="d" style="font-size:54px;margin-top:8px;">Watch the gap</div>'
+  '<div class="d o" style="font-size:54px;">grow.</div>'
+  '<div class="shot2" style="margin-top:16px;"><img src="logger-g-channels.png" alt=""></div>'
+  '<p class="sub" style="margin-top:auto;">The time delta shows exactly where in the lap you gain, and where you lose.</p>',
+  'Data Logger', [
+  "Watch the gap grow. ⏱️\n\nThe Δ Time trace in the Kart Connect Data Logger shows the gap between two laps building up metre by metre. Flat line? You're matching them. Climbing? That's where the time's going.\n\nFind the corner. Fix the corner. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData #KartRacing",
+  "Flat = matching. Climbing = losing. 📈\n\nThe Δ Time trace. Kart Connect Data Logger.\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting",
+  "Lost 1.3 seconds on a lap but don't know where? 🤷\n\nThe time delta shows you exactly where the gap opens up, then RPM, speed and G-force show you why. 👀\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData"],
+  'Real screenshot, names cropped.'))
+
+P.append(('dark', 'overlay-or-separate', 'Overlay or separate',
+  '<div class="kick">Your data, your way</div>'
+  '<div class="d" style="font-size:44px;margin-top:8px;">Pick your channels.</div>'
+  '<div class="d o" style="font-size:44px;">Your order.</div>'
+  '<div class="cbar" style="margin-top:16px;"><span>1 RPM</span><span>2 Speed</span><span>3 Lateral G</span><span>4 Long. G</span><span>5 &Delta; Time</span><span>6 EGT</span><span>7 Water</span></div>'
+  '<p class="sub" style="margin-top:12px;">Turn channels on and off, drag them into the order you want, and switch between overlay and separate views.</p>'
+  '<div class="chl2" style="margin-top:12px;grid-template-columns:1fr 1fr;"><div><b>Overlay</b><span>Laps on top</span></div><div><b>Separate</b><span>Side by side</span></div></div>',
+  'Data Logger', [
+  "Pick your channels. Your order. ⚙️\n\nRPM first? Speed first? G-force at the top? Your call.\n\nIn the Kart Connect Data Logger you turn channels on and off, drag them into the order you want, and flip between overlay and separate views in one tap. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData",
+  "Overlay or separate? Your data, your way. ⚙️\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting",
+  "Every driver reads data differently. 🧠\n\nThat's why the Kart Connect Data Logger lets you choose which channels you see, put them in your order, and overlay or separate your laps. Set it up once, read it your way every time. 🏎️\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData"],
+  'Based on the channel bar in your screenshot (numbered, reorderable channels; Overlay/Separate).'))
 
 page = ('<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><title>Batch 9</title>'
         f'<style>{CSS11}</style></head><body>'

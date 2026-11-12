@@ -4,11 +4,11 @@
     "slug": "seven-channels",
     "title": "7 channels. Every logger.",
     "captions": [
-      "7 channels. Every logger. 📊\n\nUnipro, AiM MyChron 5 or Alfano, Kart Connect pulls the lot onto one screen:\n\n💨 Speed (GPS)\n⚙️ RPM\n↔️ Lateral G\n↕️ Longitudinal G\n⏱️ Δ Time\n💧 Water temp\n🔥 EGT\n\nDifferent brands, same screen, lap against lap. Live on the web 1st December. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #AiM #Unipro #Alfano",
+      "7 channels. Every logger. 📊\n\nKart Connect pulls the lot onto one screen:\n\n💨 Speed (GPS)\n⚙️ RPM\n↔️ Lateral G\n↕️ Longitudinal G\n⏱️ Δ Time\n💧 Water temp\n🔥 EGT\n\nDifferent brands, same screen, lap against lap. Live on the web 1st December. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #AiM #Unipro #Alfano",
       "Unipro. AiM. Alfano. ✅\n\nSeven channels, one screen. The Kart Connect Data Logger.\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting",
       "What logger do you run? 👇\n\nWhatever it is, Kart Connect reads it. Speed, RPM, lateral and longitudinal G, time delta, water temp and EGT, all overlaid so you can compare with a team-mate on a completely different brand. 🤝\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData"
     ],
-    "note": "From your channel table. EGT depends on the Alfano model and AiM MyChron 5 has no EGT probe. Starlane is not in this table, so it is left off this post."
+    "note": "EGT depends on the logger (not all models have an EGT probe)."
   },
   {
     "n": 2,
@@ -23,13 +23,35 @@
   },
   {
     "n": 3,
-    "slug": "whos-quicker",
-    "title": "Who's quicker here?",
+    "slug": "braking-points",
+    "title": "Brake later. Prove it.",
     "captions": [
-      "Who's quicker here? 🤔\n\nLap 8: 71 km/h. Lap 3: 68 km/h. Same corner, 3 km/h difference.\n\nTap any point on the Kart Connect track map and see both laps' speed and time at that exact spot. That's where the tenths are hiding. ⏱️\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData #RacingLine",
-      "71 vs 68 km/h. Same corner. 👀\n\nTap the map, see the difference.\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting",
-      "3 km/h through one corner doesn't sound like much. Over a lap, it's everything. 🏎️\n\nThe Kart Connect Data Logger shows you exactly where you're losing speed, corner by corner, so you know where to push. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartRacing"
+      "Brake later. Prove it. 🛑\n\nEvery dip in the longitudinal G trace is a braking zone. Lay two laps over each other in the Kart Connect Data Logger and you'll see exactly who's braking later, and who's braking harder.\n\nNo more \"I was definitely later than him\". The data settles it. 😏\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData #LateBraker",
+      "Think you brake later than your team-mate? Prove it. 🛑📈\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting",
+      "Tag the mate who swears they out-brake you every lap 👇😂\n\nThe Kart Connect Data Logger shows every braking point, lap against lap. Time to find out who's right. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartRacing"
     ],
-    "note": "Real screenshot. Names replaced with Lap 8 / Lap 3. The circuit layout is real, so some people may recognise it."
+    "note": "Real screenshot, names replaced."
+  },
+  {
+    "n": 4,
+    "slug": "where-time-goes",
+    "title": "Watch the gap grow",
+    "captions": [
+      "Watch the gap grow. ⏱️\n\nThe Δ Time trace in the Kart Connect Data Logger shows the gap between two laps building up metre by metre. Flat line? You're matching them. Climbing? That's where the time's going.\n\nFind the corner. Fix the corner. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData #KartRacing",
+      "Flat = matching. Climbing = losing. 📈\n\nThe Δ Time trace. Kart Connect Data Logger.\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting",
+      "Lost 1.3 seconds on a lap but don't know where? 🤷\n\nThe time delta shows you exactly where the gap opens up, then RPM, speed and G-force show you why. 👀\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData"
+    ],
+    "note": "Real screenshot, names cropped."
+  },
+  {
+    "n": 5,
+    "slug": "overlay-or-separate",
+    "title": "Overlay or separate",
+    "captions": [
+      "Pick your channels. Your order. ⚙️\n\nRPM first? Speed first? G-force at the top? Your call.\n\nIn the Kart Connect Data Logger you turn channels on and off, drag them into the order you want, and flip between overlay and separate views in one tap. 🏁\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData",
+      "Overlay or separate? Your data, your way. ⚙️\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting",
+      "Every driver reads data differently. 🧠\n\nThat's why the Kart Connect Data Logger lets you choose which channels you see, put them in your order, and overlay or separate your laps. Set it up once, read it your way every time. 🏎️\n\n🔗 kart-connect.com\n\n#KartConnect #DataLogger #Karting #KartData"
+    ],
+    "note": "Based on the channel bar in your screenshot (numbered, reorderable channels; Overlay/Separate)."
   }
 ]
