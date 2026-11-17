@@ -9,6 +9,11 @@ interface Props {
   setSFMode?: boolean
   onSetSF?: (lat: number, lon: number, headingDeg: number) => void
   pendingSF?: { lat: number; lon: number; headingDeg?: number } | null
+  /** Full-circuit reference GPS (e.g. middle laps from the raw session).
+   *  When supplied, the grey ribbon and racing-line clip use this instead of
+   *  sessions[0].points, giving complete track coverage even when the selected
+   *  lap only records part of the circuit. */
+  referencePoints?: { lat: number; lon: number }[]
 }
 
 function computeBearingDeg(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -36,12 +41,13 @@ function fmtLap(s: number) {
 
 const CX = 40, CY_MARGIN = 56, CR = 22
 
-export function TrackMapCanvas({ sessions, colors, hoverDistM, setSFMode, onSetSF, pendingSF }: Props) {
+export function TrackMapCanvas({ sessions, colors, hoverDistM, setSFMode, onSetSF, pendingSF, referencePoints }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef    = useRef<HTMLCanvasElement>(null)
   const vpRef        = useRef({ tx: 0, ty: 0, scale: 1, angle: 0 })
   const baseScaleRef = useRef(1)
   const worldRef     = useRef<Wp[][]>([])
+  const refWorldRef  = useRef<{ x: number; y: number }[]>([])
   const refLatLonRef = useRef<{ lat: number; lon: number } | null>(null)
   const drawRef      = useRef<(() => void) | null>(null)
   const hoverDistMRef    = useRef<number | null>(null)
@@ -85,6 +91,15 @@ export function TrackMapCanvas({ sessions, colors, hoverDistM, setSFMode, onSetS
       }))
     })
 
+    // Build world-space reference track for the grey ribbon and clip bounds.
+    // Uses referencePoints (full-circuit GPS from clean middle laps) when
+    // supplied, otherwise falls back to session 0's GPS.
+    if (referencePoints && referencePoints.length > 0) {
+      refWorldRef.current = referencePoints.map(p => toM(p.lat, p.lon, rLat, rLon))
+    } else {
+      refWorldRef.current = worldRef.current[0] ?? []
+    }
+
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
     for (const pts of worldRef.current) for (const p of pts) {
       if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x
@@ -126,7 +141,7 @@ export function TrackMapCanvas({ sessions, colors, hoverDistM, setSFMode, onSetS
       // recorded — that is the accurate, honest data.
       const HALF_WIDTH = 6.0   // m each side of the GPS centreline
 
-      const refRaw = worldRef.current[0]
+      const refRaw = refWorldRef.current.length > 0 ? refWorldRef.current : (worldRef.current[0] ?? [])
       if (refRaw?.length > 1) {
         const step = Math.max(1, Math.floor(refRaw.length / 2000))
 
@@ -190,13 +205,16 @@ export function TrackMapCanvas({ sessions, colors, hoverDistM, setSFMode, onSetS
       // track, which the grey ribbon also uses) + 100 m margin.  This prevents
       // approach-road or departure-road GPS points — which lap-detection may not
       // have stripped — from extending the trace outside the circuit area.
-      const ref0 = worldRef.current[0] ?? []
+      // Use refWorldRef (full-circuit reference) for the bounding-box clip.
+      // 25 m pad keeps wider driving lines while clipping approach/departure road
+      // GPS that is typically 50–200 m outside the circuit boundary.
+      const clipRef = refWorldRef.current.length > 0 ? refWorldRef.current : (worldRef.current[0] ?? [])
       let clipMinX = Infinity, clipMaxX = -Infinity, clipMinY = Infinity, clipMaxY = -Infinity
-      for (const p of ref0) {
+      for (const p of clipRef) {
         if (p.x < clipMinX) clipMinX = p.x; if (p.x > clipMaxX) clipMaxX = p.x
         if (p.y < clipMinY) clipMinY = p.y; if (p.y > clipMaxY) clipMaxY = p.y
       }
-      const CLIP_PAD = 100  // metres outside reference bounding box to tolerate
+      const CLIP_PAD = 25  // metres outside reference bounding box to tolerate
 
       sessions.forEach((_s, si) => {
         const raw = worldRef.current[si]
@@ -373,7 +391,7 @@ export function TrackMapCanvas({ sessions, colors, hoverDistM, setSFMode, onSetS
     ro.observe(container)
     resize()
     return () => ro.disconnect()
-  }, [sessions, colors])
+  }, [sessions, colors, referencePoints])
 
   // Sync hover distance from speed trace → redraw track cursor
   useEffect(() => {
