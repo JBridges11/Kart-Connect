@@ -906,6 +906,39 @@ function headingAngleDiff(a: number, b: number): number {
   return Math.abs(((a - b + 540) % 360) - 180)
 }
 
+/**
+ * Trim GPS points to end at the genuine S/F crossing — removing any departure-road
+ * GPS that was recorded after the kart left the circuit.
+ *
+ * A clean racing lap has exactly 2 "near S/F" zone entries (start, end).
+ * If 3+ zones are found the extra one is the departure-road re-entry; the lap
+ * is trimmed to end at the GPS point closest to S/F inside zone index 1.
+ */
+export function trimLapToCircuit(
+  pts: GpsPoint[],
+  sfLat: number,
+  sfLon: number,
+  nearM = 40,
+): GpsPoint[] {
+  if (pts.length === 0) return pts
+  const zones: { start: number; end: number }[] = []
+  let inZ = false, zSt = 0
+  for (let i = 0; i < pts.length; i++) {
+    const near = haversineM(sfLat, sfLon, pts[i].lat, pts[i].lon) < nearM
+    if (!inZ && near) { inZ = true; zSt = i }
+    else if (inZ && !near) { inZ = false; zones.push({ start: zSt, end: i - 1 }) }
+  }
+  if (inZ) zones.push({ start: zSt, end: pts.length - 1 })
+  if (zones.length < 3) return pts  // clean lap — nothing to trim
+  // zones[1] = end of racing circuit at S/F; zones[2+] = departure-road re-entry
+  let minD = Infinity, endIdx = zones[1].start
+  for (let i = zones[1].start; i <= zones[1].end; i++) {
+    const d = haversineM(sfLat, sfLon, pts[i].lat, pts[i].lon)
+    if (d < minD) { minD = d; endIdx = i }
+  }
+  return pts.slice(0, endIdx + 1)
+}
+
 export function detectLapsFromGps(
   points: GpsPoint[],
   sfHint?: { lat: number; lon: number; headingDeg?: number }   // manual S/F override — skips auto-detection

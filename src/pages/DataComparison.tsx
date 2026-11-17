@@ -8,6 +8,7 @@ import { PageWrapper } from '@/components/layout/PageWrapper'
 import {
   parseOCDBinary,
   // detectLapsFromGps, // kept for future SF override re-enable
+  trimLapToCircuit,
   type ImportedDataSession,
   type ImportedGPSSession,
   type GpsPoint,
@@ -2138,17 +2139,35 @@ export function DataComparisonPage() {
   // Synthetic GPS sessions from selected laps (for TrackMapCanvas)
   // useMemo keeps the array reference stable across hover re-renders so TrackMapCanvas
   // doesn't reset its viewport (zoom/pan) every time hoverDistM changes.
-  const selectedMapSessions: ImportedGPSSession[] = useMemo(() => selectedLaps.map((lap) => ({
-    id: `sel-${lap.sessionIdx}-${lap.lapNumber}`,
-    filename: lap.driverLabel,
-    brand: lap.brand,
-    driverLabel: `${lap.driverLabel} — Lap ${lap.lapNumber}`,
-    points: lap.points,
-    lapGroups: [lap.points],
-    lapCrossingTimesS: lap.points.length > 0 ? [lap.points[0].timeS] : undefined,
-    totalDistanceM: lap.points[lap.points.length - 1]?.distanceM ?? 0,
-    durationS: lap.points[lap.points.length - 1]?.timeS ?? 0,
-  })), [selectedLaps])
+  const selectedMapSessions: ImportedGPSSession[] = useMemo(() => selectedLaps.map((lap) => {
+    // Apply display-time departure-road trim.  detectLapsFromGps runs at import
+    // time so already-stored lap groups may still contain departure-road GPS.
+    // trimLapToCircuit detects the extra S/F zone re-entry and strips it.
+    const sfPos = sfPositions[lap.sessionIdx] ?? sfPositions[0] ?? null
+    const pts = sfPos ? trimLapToCircuit(lap.points, sfPos.lat, sfPos.lon) : lap.points
+    return {
+      id: `sel-${lap.sessionIdx}-${lap.lapNumber}`,
+      filename: lap.driverLabel,
+      brand: lap.brand,
+      driverLabel: `${lap.driverLabel} — Lap ${lap.lapNumber}`,
+      points: pts,
+      lapGroups: [pts],
+      lapCrossingTimesS: pts.length > 0 ? [pts[0].timeS] : undefined,
+      totalDistanceM: pts[pts.length - 1]?.distanceM ?? 0,
+      durationS: pts[pts.length - 1]?.timeS ?? 0,
+    }
+  }), [selectedLaps, sfPositions])
+
+  // Approximate S/F position per session, derived from the first GPS point of each
+  // detected lap group.  Used for display-time departure-road trimming below.
+  const sfPositions = useMemo(() => gpsSessionList.map(sess => {
+    if (!sess.lapGroups || sess.lapGroups.length === 0) return null
+    let sumLat = 0, sumLon = 0, cnt = 0
+    for (const g of sess.lapGroups) {
+      if (g.length > 0) { sumLat += g[0].lat; sumLon += g[0].lon; cnt++ }
+    }
+    return cnt > 0 ? { lat: sumLat / cnt, lon: sumLon / cnt } : null
+  }), [gpsSessionList])
 
   // Full-circuit reference GPS for the grey ribbon and racing-line clip.
   // Using middle laps only (index 1 to N-2) guarantees clean circuit coverage
